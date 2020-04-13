@@ -1,0 +1,15 @@
+<%= javascript_pack_tag 'main' %>
+<div id='hello'> 
+ {{message}}
+ <app></app>
+</div>
+
+<br>
+<br>
+<hr>
+<hr>
+home index(for test, don't care)
+<br>
+<% @articles.each do |a| %>
+	<%= a.title %>	
+<% end %>

@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  article_id: 1
+  click_x: 1
+  click_y: 1
+  btn_id: 1
+  view_ip: MyString
+
+two:
+  article_id: 1
+  click_x: 1
+  click_y: 1
+  btn_id: 1
+  view_ip: MyString

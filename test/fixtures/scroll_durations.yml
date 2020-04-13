@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  article_id: 1
+  scroll_pos: 1
+  scroll_duration: 1.5
+
+two:
+  article_id: 1
+  scroll_pos: 1
+  scroll_duration: 1.5
