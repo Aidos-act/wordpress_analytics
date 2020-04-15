@@ -35,7 +35,7 @@
         </tr>
       </tbody>
     </table>
-
+  {{ gainfos }}
   </div>  
 
 </template>
@@ -49,10 +49,14 @@ export default {
      // [store.js]から[articles]を呼び出して，[DashboardIndex.vue]のdata[articles]に格納
     articles() {
      return this.$store.state.articles
+    },
+    gainfos() {
+      return this.$store.state.gainfos
     }
   },
   mounted () {
     this.$store.commit('fetchArticles')
+    this.$store.commit('getGaInfo')
   }
 }
 </script>

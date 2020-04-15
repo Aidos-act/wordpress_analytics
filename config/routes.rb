@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
-  
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
   root to: 'home#index'
 
   namespace :api do
     namespace :v1 do
+      # db article data
       resources :articles, only: [:index, :show] do
       	resources :clicks
       	resources :scrolls
@@ -12,7 +12,9 @@ Rails.application.routes.draw do
   	  end
   	  resources :clicks, only: [:index]
   	  resources :scrolls, only: [:index]
-      
+
+      # google analytics api data
+      resources :ga_api_info
     end
   end
 

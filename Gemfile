@@ -40,6 +40,8 @@ gem 'kaminari', '~> 1.2'
 # Process manager for applications with multiple components
 gem 'foreman', '~> 0.87.1'
 
+# for ga api
+gem 'google-api-client', '~> 0.37.2'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

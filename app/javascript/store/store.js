@@ -8,7 +8,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
   	articles: [],
-  	article: {}
+  	article: {},
+    gainfos: []
   },
   mutations: {
   	fetchArticles(state){
@@ -21,6 +22,11 @@ export default new Vuex.Store({
   		axios
 	      .get('/api/v1/articles/'+id+'.json')
 	      .then(response => (state.article = response.data), (error) => {console.log(error);})
-  	}
+  	},
+    getGaInfo(state){
+      axios
+        .get('/api/v1/ga_api_info.json')
+        .then(response => (state.gainfos = response.data), (error) => {console.log(error);})
+    }
   }
 })

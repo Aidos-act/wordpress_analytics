@@ -6,5 +6,4 @@ json.array!@articles do |article|
 end	
 
 
-
 		
