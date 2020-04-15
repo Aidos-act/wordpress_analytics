@@ -1,13 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import DashboardIndex from '../dashboard/DashboardIndex.vue'
-import HeatmapPage from '../heatmap/HeatmapPage.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/',  name: 'DashboardIndex', component: DashboardIndex },
-  { path: '/api/v1/articles/:id',  name: 'HeatmapPage', component: HeatmapPage }
+  { 
+  	path: '/',
+  	name: 'DashboardIndex',
+  	component: () =>
+  		import(/* webpackChunkName: "dashboardIndex"*/ "../dashboard/DashboardIndex.vue") 
+  },
+  { 
+  	path: '/api/v1/articles/:id',
+  	name: 'HeatmapPage',
+  	component: () =>
+  		import(/* webpackChunkName: "heatmapPage"*/ "../heatmap/HeatmapPage.vue")
+  }
 ];
 
 export default new VueRouter({ routes }); 
