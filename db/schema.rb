@@ -12,14 +12,14 @@
 
 ActiveRecord::Schema.define(version: 2020_04_13_025738) do
 
-  create_table "articles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "articles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "title"
     t.string "url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "clicks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "clicks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "article_id"
     t.integer "click_x"
     t.integer "click_y"
@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 2020_04_13_025738) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "scroll_durations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "scroll_durations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "article_id"
     t.integer "scroll_pos"
     t.float "scroll_du"
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 2020_04_13_025738) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "scrolls", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "scrolls", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "article_id"
     t.integer "scroll_max_pos"
     t.datetime "created_at", precision: 6, null: false

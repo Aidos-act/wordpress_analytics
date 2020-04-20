@@ -1,0 +1,54 @@
+# ./docker-compose.yml
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_USERNAME: root
+     MYSQL_PASSWORD: root
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+  webpacker:
+    build: .
+    command: bundle exec bin/webpack-dev-server
+    volumes:
+      - .:/analytics_app
+    ports:
+      - "8080:8080"      
+  app:
+    depends_on:
+      - db
+      - webpacker
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb"
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_ROOT_PASSWORD: root
+      DB_DATABASE: analytics_pjt
+      DB_PORT: 3306
+      DB_HOST: db
+      RAILS_MAX_THREADS: 5
+    volumes:
+      - .:/analytics_app
+  web:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_DATABASE: analytics_pjt
+      DB_ROOT_PASSWORD: root
+      DB_HOST: db
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+volumes:
+  db-data:
