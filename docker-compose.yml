@@ -4,9 +4,9 @@ services:
   db:
     image: mysql:5.7
     environment:
-     MYSQL_ROOT_PASSWORD: root
-     MYSQL_USERNAME: root
-     MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: root
     volumes:
       - db-data:/var/lib/mysql
     ports:
@@ -17,7 +17,7 @@ services:
     volumes:
       - .:/analytics_app
     ports:
-      - "8080:8080"      
+      - "8080:8080"
   app:
     depends_on:
       - db
@@ -32,7 +32,7 @@ services:
       DB_ROOT_PASSWORD: root
       DB_DATABASE: analytics_pjt
       DB_PORT: 3306
-      DB_HOST: db
+      DB_HOST: mysql
       RAILS_MAX_THREADS: 5
     volumes:
       - .:/analytics_app
@@ -45,7 +45,7 @@ services:
       DB_PASSWORD: root
       DB_DATABASE: analytics_pjt
       DB_ROOT_PASSWORD: root
-      DB_HOST: db
+      DB_HOST: mysql
     depends_on:
       - app
     ports:

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: stg
+  name: setup
+spec:
+  template:
+    metadata:
+      name: setup
+    spec:
+      containers:
+      - name: setup
+        image: destiny1616/pjt_setup:v6
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "bundle exec rake db:create && bundle exec rake db:migrate"]
+        envFrom:
+        - configMapRef:
+            name: rails-config
+      restartPolicy: Never

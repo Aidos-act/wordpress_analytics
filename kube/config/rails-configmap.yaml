@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: stg
+  name: rails-config
+data:
+  RAILS_ENV: 'development'
+  MYSQL_HOST: 'mysql'
+  MYSQL_USERNAME: 'root'
+  MYSQL_ROOT_PASSWORD: 'root'
+  MYSQL_PASSWORD: 'root'
