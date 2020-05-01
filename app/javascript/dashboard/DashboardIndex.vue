@@ -56,9 +56,14 @@ export default {
   },
   mounted () {
     this.$store.commit('fetchArticles')
-    this.$store.commit('getGaInfo')
+    this.$store.commit('getGaInfo',{
+      startdate: 'today',
+      enddate: 'today'
+    })
   }
 }
+
+
 </script>
 
 <style scoped>

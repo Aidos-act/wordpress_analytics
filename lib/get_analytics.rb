@@ -10,8 +10,8 @@ class GetAnalytics
 		auth
 	end
 
-	def get_data
-		date_range = @analytics::DateRange.new(start_date: 'today', end_date: 'today')
+	def get_data(startdate, enddate)
+		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
 		# metric = @analytics::Metric.new(expression: 'ga:sessions')
 		# metric = @analytics::Metric.new(expression: ['ga:sessions', 'ga:uniquePageviews'])
 		# metric = @analytics::Metric.new
@@ -118,8 +118,3 @@ end
 # 	  	}}
 # 	]
 # }
-
-
-
-
-

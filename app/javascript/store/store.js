@@ -23,10 +23,18 @@ export default new Vuex.Store({
 	      .get('/api/v1/articles/'+id+'.json')
 	      .then(response => (state.article = response.data), (error) => {console.log(error);})
   	},
-    getGaInfo(state){
+    getGaInfo(state, payload){
+      console.log(payload);
       axios
-        .get('/api/v1/ga_api_info.json')
+        .get('/api/v1/ga_api_info.json', {
+            params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate
+            }
+        })
         .then(response => (state.gainfos = response.data), (error) => {console.log(error);})
     }
   }
 })
+
+
