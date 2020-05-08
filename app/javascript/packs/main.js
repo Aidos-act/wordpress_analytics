@@ -36,12 +36,19 @@ import Vue from 'vue'
 import App from '../app.vue'
 import Router from '../router/router.js'
 import Store  from '../store/store.js'
+import Vuetify from '../plugins/vuetify.js'
+import moment from "moment";
+import VueMomentJS from "vue-momentjs";
+ 
+Vue.use(VueMomentJS, moment);
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new Vue({
    el: '#hello',
    router: Router,
    store: Store,
+   vuetify: Vuetify, 
    render: h => h(App)
   })
 })

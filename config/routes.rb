@@ -14,7 +14,14 @@ Rails.application.routes.draw do
   	  resources :scrolls, only: [:index]
 
       # google analytics api data
-      resources :ga_api_info
+      resources :ga_api_info do
+        collection do
+          get 'getDropDown'
+          get 'getRankingList'
+          get 'getArticleData'
+        end
+      end
+
     end
   end
 
