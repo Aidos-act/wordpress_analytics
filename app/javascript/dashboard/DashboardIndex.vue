@@ -10,7 +10,7 @@
           <th>clicks</th>
           <th>scrolls</th>
           <th>scroll_durations</th>
-        </tr>
+        </tr> 
         <tr v-for = "a in articles">
           <td>{{ a.id }}</td>
           <td><router-link :to="{ name: 'HeatmapPage', params: { id: a.id } }">{{ a.title }}</router-link></td>

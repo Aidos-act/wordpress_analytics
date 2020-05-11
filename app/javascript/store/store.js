@@ -13,9 +13,13 @@ export default new Vuex.Store({
     dropdwninfos: [],
     rankingInfos: [],
     compareGaInfos: [],
-    artilceData: []
+    artilceData: [],
+    drawer: null,
   },
   mutations: {
+    SET_DRAWER (state, payload) {
+      state.drawer = payload
+    },
   	fetchArticles(state){
   		state.articles = [];
   		axios

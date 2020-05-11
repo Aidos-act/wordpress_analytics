@@ -44,7 +44,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'HeatmapPage',
+  name: 'DashboardHeatmapPage',
   computed: {
     article() {
      return this.$store.state.article

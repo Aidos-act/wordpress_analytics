@@ -39,7 +39,10 @@ import Store  from '../store/store.js'
 import Vuetify from '../plugins/vuetify.js'
 import moment from "moment";
 import VueMomentJS from "vue-momentjs";
- 
+import Chartkick from 'vue-chartkick'
+import Chart from 'chart.js'
+
+Vue.use(Chartkick.use(Chart))
 Vue.use(VueMomentJS, moment);
 
 
