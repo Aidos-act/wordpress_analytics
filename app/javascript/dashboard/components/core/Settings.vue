@@ -65,10 +65,7 @@
             block
             class="mb-3"
             color="success"
-            href="#"
             default
-            rel="noopener"
-            target="_blank"
           >
             ADD
           </v-btn>

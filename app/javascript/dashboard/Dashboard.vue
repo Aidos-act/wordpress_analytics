@@ -5,14 +5,199 @@
     tag="section"
   >
     <v-row>
+      <!-- datepicker start -->
+      <v-col cols="12" sm="3">
+        <v-menu
+        ref="menu"
+        v-model="menu"
+        :close-on-content-click="false"
+        :return-value.sync="dates"
+        transition="scale-transition"
+        offset-y
+        min-width="200px"
+      >
+          <template v-slot:activator="{ on }">
+            <v-text-field v-model="dateRangeText" label="Date range" readonly v-on="on"></v-text-field>
+          </template>
+          <v-date-picker v-model="dates" range no-title scrollable>
+            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
+              <span @click="$refs.menu.save(dates)">OK</span>
+            </v-btn>
+          </v-date-picker>
+        </v-menu>
+      </v-col>
+      <!-- datepicker end -->
+
+
+      <!-- dropdown graph start -->
+      <v-col class="d-flex" cols="12" sm="6">
+        <v-container fluid>
+          <v-select
+            v-model="selectedItem.item"
+            item-text="key"
+            item-value="item"
+            :items="items"
+            label="Select"
+            dense
+            @input="getDropDwn"
+          ></v-select>
+        </v-container>
+      </v-col>
+
+      <!-- line chart start -->
       <v-container class="chart-container">
-        <line-chart
-          :height='100'
-          :chartdata="lineSimpleTest.chartdata"
-          :options="lineSimpleTest.options"
-        />
+        <line-chart :data="dropdwninfos"></line-chart>
       </v-container>
-      <!-- website chart start -->
+      <!-- line chart end -->
+      <!-- dropdown graph end -->
+      
+      
+      <!-- card data start -->
+      <template v-for="data in totalgainfos">
+
+        <!-- stats card 1 start -->
+        <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+        >
+          <material-stats-card
+            color="info"
+            icon="mdi-baby-face-outline"
+            title="Visists"
+            :value="data.sessions"
+            sub-icon="mdi-clock"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 1 end -->
+
+        <!-- stats card 2 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="primary"
+            icon="mdi-poll"
+            title="Unique visitors"
+            :value="data.uniquePageviews"
+            sub-icon="mdi-tag"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 2 end -->
+
+        <!-- stats card 3 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="success"
+            icon="mdi-store"
+            title="Page views (PV)"
+            :value="data.pageviews"
+            sub-icon="mdi-calendar"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 3 end -->
+
+        <!-- stats card 4 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="orange"
+            icon="mdi-sofa"
+            title="% New visits"
+            :value="data.bounces"
+            sub-icon="mdi-alert"
+            sub-icon-color="red"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 4 end -->
+
+        <!-- stats card 5 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="info"
+            icon="mdi-duck"
+            title="Visits / UV"
+            :value="data.pageviews"
+            sub-icon="mdi-clock"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 5 end -->
+
+        <!-- stats card 6 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="primary"
+            icon="mdi-poll"
+            title="PV / UV"
+            :value="data.pageviews"
+            sub-icon="mdi-tag"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 6 end -->
+
+        <!-- stats card 7 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="success"
+            icon="mdi-store"
+            title="Visit duration"
+            :value="data.sessionDuration"
+            sub-icon="mdi-calendar"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 7 end -->
+
+        <!-- stats card 8 start -->
+        <v-col
+          cols="12"
+          sm="6"
+          lg="3"
+        >
+          <material-stats-card
+            color="orange"
+            icon="mdi-sofa"
+            title="%Bounce"
+            :value="data.bounces"
+            sub-icon="mdi-alert"
+            sub-icon-color="red"
+            sub-text="sample"
+          />
+        </v-col>
+        <!-- stats card 8 end -->  
+
+      </template>
+      <!-- card data end -->
+
+      <!-- chart data1 start -->
       <v-col
         cols="12"
         lg="4"
@@ -26,11 +211,11 @@
           type="Bar"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Website Views
+            Mock Data
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            Last Campaign Performance
+            will be updated
           </p>
 
           <template v-slot:actions>
@@ -40,14 +225,13 @@
             >
               mdi-clock-outline
             </v-icon>
-            <span class="caption grey--text font-weight-light">updated 10 minutes ago</span>
+            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
           </template>
         </material-chart-card>
       </v-col>
+      <!-- chart data1 staendrt -->
 
-      <!-- website chart end -->
-
-      <!-- daily sales chart start -->
+      <!-- chart data2 start -->
       <v-col
         cols="12"
         lg="4"
@@ -59,7 +243,7 @@
           type="Line"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Daily Sales
+            Mock data2
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
@@ -70,7 +254,7 @@
               mdi-arrow-up
             </v-icon>
             <span class="green--text">55%</span>&nbsp;
-            increase in today's sales
+            will be updated
           </p>
 
           <template v-slot:actions>
@@ -80,13 +264,13 @@
             >
               mdi-clock-outline
             </v-icon>
-            <span class="caption grey--text font-weight-light">updated 4 minutes ago</span>
+            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
           </template>
         </material-chart-card>
       </v-col>
-      <!-- daily sales chart end -->
+      <!-- chart data2 end -->
 
-      <!-- completed task chart start -->
+      <!-- chart data3 start -->
       <v-col
         cols="12"
         lg="4"
@@ -98,11 +282,11 @@
           type="Line"
         >
           <h3 class="card-title font-weight-light mt-2 ml-2">
-            Completed Tasks
+            Mock data3
           </h3>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            Last Last Campaign Performance
+            will be updated
           </p>
 
           <template v-slot:actions>
@@ -112,85 +296,16 @@
             >
               mdi-clock-outline
             </v-icon>
-            <span class="caption grey--text font-weight-light">campaign sent 26 minutes ago</span>
+            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
           </template>
         </material-chart-card>
       </v-col>
-      <!-- daily sales chart end -->
+      <!-- chart data3 end -->
 
-      <!-- stats card 1 start -->
+      <!-- article list part start -->
       <v-col
         cols="12"
-        sm="6"
-        lg="3"
-      >
-        <material-stats-card
-          color="info"
-          icon="mdi-twitter"
-          title="Followers"
-          value="+245"
-          sub-icon="mdi-clock"
-          sub-text="Just Updated"
-        />
-      </v-col>
-      <!-- stats card 1 end -->
-
-      <!-- stats card 2 start -->
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <material-stats-card
-          color="primary"
-          icon="mdi-poll"
-          title="Website Visits"
-          value="75.521"
-          sub-icon="mdi-tag"
-          sub-text="Tracked from Google Analytics"
-        />
-      </v-col>
-      <!-- stats card 2 end -->
-
-      <!-- stats card 3 start -->
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <material-stats-card
-          color="success"
-          icon="mdi-store"
-          title="Revenue"
-          value="$ 34,245"
-          sub-icon="mdi-calendar"
-          sub-text="Last 24 Hours"
-        />
-      </v-col>
-      <!-- stats card 3 end -->
-
-      <!-- stats card 4 start -->
-      <v-col
-        cols="12"
-        sm="6"
-        lg="3"
-      >
-        <material-stats-card
-          color="orange"
-          icon="mdi-sofa"
-          title="Bookings"
-          value="184"
-          sub-icon="mdi-alert"
-          sub-icon-color="red"
-          sub-text="Get More Space..."
-        />
-      </v-col>
-      <!-- stats card 4 end -->
-
-      <!-- table part1 start -->
-      <v-col
-        cols="12"
-        md="6"
+        md="12"
       >
         <material-card
           color="warning"
@@ -198,118 +313,89 @@
         >
           <template v-slot:heading>
             <div class="display-2 font-weight-light">
-              Employees Stats
+              Article List
             </div>
 
-            <div class="subtitle-1 font-weight-light">
-              New employees on 15th September, 2016
-            </div>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field>
           </template>
-          <v-card-text>
-            <v-data-table
-              :headers="headers"
-              :items="items"
-            />
-          </v-card-text>
-        </material-card>
-      </v-col>
-      <!-- table part1 end -->
-
-      <!-- table part2 start -->
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <material-card class="px-5 py-3">
-          <template v-slot:heading>
-            <v-tabs
-              v-model="tabs"
-              background-color="transparent"
-              slider-color="white"
-            >
-              <span
-                class="subheading font-weight-light mx-3"
-                style="align-self: center"
-              >Tasks:</span>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">
-                  mdi-bug
-                </v-icon>
-                Bugs
-              </v-tab>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">
-                  mdi-code-tags
-                </v-icon>
-                Website
-              </v-tab>
-              <v-tab>
-                <v-icon class="mr-2">
-                  mdi-cloud
-                </v-icon>
-                Server
-              </v-tab>
-            </v-tabs>
-          </template>
-
-          <v-tabs-items
-            v-model="tabs"
-            class="transparent"
+          
+          <v-data-table
+            :headers="headers"
+            :items="gainfos"
+            :search="search"
+            :sort-desc="[false, true]"
+            multi-sort
+            class="elevation-1"
+            :footer-props="{
+              showFirstLastPage: true,
+              firstIcon: 'mdi-arrow-collapse-left',
+              lastIcon: 'mdi-arrow-collapse-right'
+            }"
           >
-            <v-tab-item
-              v-for="n in 3"
-              :key="n"
-            >
-              <v-card-text>
-                <template v-for="(task, i) in tasks[tabs]">
-                  <v-row
-                    :key="i"
-                    align="center"
-                  >
-                    <v-col cols="1">
-                      <v-list-item-action>
-                        <v-checkbox
-                          v-model="task.value"
-                          color="secondary"
-                        />
-                      </v-list-item-action>
-                    </v-col>
-
-                    <v-col cols="9">
-                      <div
-                        class="font-weight-light"
-                        v-text="task.text"
-                      />
-                    </v-col>
-
-                    <v-col
-                      cols="2"
-                      class="text-right"
-                    >
-                      <v-icon class="mx-1">
-                        mdi-pencil
-                      </v-icon>
-                      <v-icon
-                        color="error"
-                        class="mx-1"
-                      >
-                        mdi-close
-                      </v-icon>
-                    </v-col>
-                  </v-row>
-                </template>
-              </v-card-text>
-            </v-tab-item>
-          </v-tabs-items>
+            <template v-slot:body="{ items }">
+              <tbody>
+                <tr v-for="data in items">
+                  <td class="page-title-wrapper">
+                    <p class="page-title" @click="getArticleData(data.pagePath)">{{ data.pageTitle }}</p>
+                    <small class="page-path">{{ data.pagePath }}</small>
+                  </td>
+                  <td>{{ data.pageviews }}</td>
+                  <td>{{ data.uniquePageviews }}</td>
+                  <td>{{ data.timeOnPage }}</td>
+                  <td>{{ data.bounces }}</td>
+                  <td>{{ data.entrances }}</td>
+                  <td>{{ data.exits }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-data-table>
         </material-card>
       </v-col>
+      <!-- article list part end -->
+
+
+      <!-- selected aricle data - will be deleted later, just for check -->
+      <v-card v-show="showSelectedBool">
+        <v-data-table
+          :headers="headers"
+          :items="artilceData"
+          class="elevation-1"
+          hide-default-footer
+        >
+          <template v-slot:body="{ items }">
+            <tbody>
+              <tr v-for="data in items">
+                <td>
+                  <p class="page-title">{{ data.pageTitle }}</p>
+                  <small class="page-path">{{ data.pagePath }}</small>
+                </td>
+                <td>{{ data.pageviews }}</td>
+                <td>{{ data.uniquePageviews }}</td>
+                <td>{{ data.timeOnPage }}</td>
+                <td>{{ data.bounces }}</td>
+                <td>{{ data.entrances }}</td>
+                <td>{{ data.exits }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-data-table>
+      </v-card>
+      <!-- selected aricle data end -->
+
+      
 
     </v-row>
   </v-container>
 </template>
 
 <script>
-  import LineChart from './components/lineChart.js'
+  // import LineChart from './components/lineChart.js'
   import MaterialCard from './components/base/MaterialCard.vue'
   import MaterialChartCard from './components/base/MaterialChartCard.vue'
   import MaterialStatsCard from './components/base/MaterialStatsCard.vue'
@@ -317,13 +403,47 @@
   export default {
     name: 'DashboardDashboard',
     components: {
-      LineChart,
+      // LineChart,
       MaterialCard,
       MaterialChartCard,
       MaterialStatsCard
     },
     data () {
       return {
+        dates: [
+          new Date().toISOString().substr(0, 10),
+          new Date().toISOString().substr(0, 10)
+        ],
+        menu: false,
+        dateCheckBool: true,
+        showSelectedBool: false,
+        search: '',
+        selectedItem: { key: "pageView", item: "ga:pageviews"},
+        items: [
+          { key: "pageView", item: "ga:pageviews"},
+          { key: "UV", item: "ga:uniquePageviews"},
+          { key: "bounce rate", item: "ga:bounces"},
+          { key: "visits", item: "ga:sessions"},
+          { key: "New Visits %", item: "ga:percentNewSessions"},
+          { key: "duration", item: "ga:sessionDuration"},
+          
+        ],
+        datacollection: null,
+        headers: [
+          {
+            text: 'Title',
+            align: 'start',
+            sortable: false,
+            value: 'pageTitle',
+            width: '50%',
+          },
+          { text: 'PV', value: 'pageviews' },
+          { text: 'UV', value: 'uniquePageviews' },
+          { text: 'time on page', value: 'timeOnPage' },
+          { text: 'bounce', value: 'bounces' },
+          { text: 'entrance', value: 'entrances' },
+          { text: 'exit', value: 'exits' }
+        ],
         lineSimpleTest: {
           chartdata: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -459,73 +579,6 @@
             }],
           ],
         },
-        headers: [
-          {
-            sortable: false,
-            text: 'ID',
-            value: 'id',
-          },
-          {
-            sortable: false,
-            text: 'Name',
-            value: 'name',
-          },
-          {
-            sortable: false,
-            text: 'Salary',
-            value: 'salary',
-            align: 'right',
-          },
-          {
-            sortable: false,
-            text: 'Country',
-            value: 'country',
-            align: 'right',
-          },
-          {
-            sortable: false,
-            text: 'City',
-            value: 'city',
-            align: 'right',
-          },
-        ],
-        items: [
-          {
-            id: 1,
-            name: 'Dakota Rice',
-            country: 'Niger',
-            city: 'Oud-Tunrhout',
-            salary: '$35,738',
-          },
-          {
-            id: 2,
-            name: 'Minerva Hooper',
-            country: 'Curaçao',
-            city: 'Sinaai-Waas',
-            salary: '$23,738',
-          },
-          {
-            id: 3,
-            name: 'Sage Rodriguez',
-            country: 'Netherlands',
-            city: 'Overland Park',
-            salary: '$56,142',
-          },
-          {
-            id: 4,
-            name: 'Philip Chanley',
-            country: 'Korea, South',
-            city: 'Gloucester',
-            salary: '$38,735',
-          },
-          {
-            id: 5,
-            name: 'Doris Greene',
-            country: 'Malawi',
-            city: 'Feldkirchen in Kārnten',
-            salary: '$63,542',
-          },
-        ],
         tabs: 0,
         tasks: {
           0: [
@@ -576,12 +629,116 @@
           1: false,
           2: false,
         },
+        chartDataLabel: [],
+        chartDataValue: []
       }
     },
-
+    computed: {
+      dateError () {
+        var currentdate =  new Date().toISOString().substr(0, 10);
+        if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
+          console.log(this.dateCheckBool);
+          return this.dateCheckBool;
+        }
+      },
+      dateRangeText () {
+        if(this.dates[0]>this.dates[1]){
+          this.dates.reverse();
+        }
+        return this.dates.join(' ~ ')
+      },
+      gainfos() {
+        return this.$store.state.gainfos
+      },
+      totalgainfos(){
+        return this.$store.state.totalgainfos
+      },
+      dropdwninfos() {
+        // var data = this.$store.state.dropdwninfos
+        // console.log(data)
+        // for (var key in data){
+        //   console.log(key)
+        //   this.chartDataLabel.push(key)
+        //   this.chartDataValue.push(data[key])
+        // }
+        // this.datacollection = {
+        //   labels: this.chartDataLabel,
+        //   datasets: [
+        //     {
+        //       data: this.chartDataValue
+        //     }
+        //   ]
+        // }
+        return this.$store.state.dropdwninfos
+      },
+      artilceData() {
+        return this.$store.state.artilceData
+      },
+      filldata(){
+        // var data = this.$store.state.dropdwninfos
+        // console.log(data)
+        // var chartDataLabel = []
+        // var chartDataValue = []
+        // for (var key in data) {
+        //   chartDataLabel.push(key)
+        //   chartDataValue.push(data[key])
+        // }
+        // this.datacollection = {
+        //   labels: chartDataLabel,
+        //   datasets: [
+        //     {
+        //       data: chartDataValue
+        //     }
+        //   ]
+        // }
+      }
+    },
+    mounted() {
+      this.$store.commit('getTotalGaInfo',{
+        startdate: this.dates[0],
+        enddate: this.dates[1]
+      });
+      this.$store.commit('getGaInfo',{
+        startdate: this.dates[0],
+        enddate: this.dates[1]
+      });
+      this.$store.commit('getDropDown',{
+        startdate: this.dates[0],
+        enddate: this.dates[1],
+        selectedDrop: this.selectedItem.item
+      });
+      this.filldata
+    },
     methods: {
       complete (index) {
         this.list[index] = !this.list[index]
+      },
+      getDate(dates) {
+        console.log("please")
+        this.$store.commit('getTotalGaInfo',{
+          startdate: this.dates[0],
+          enddate: this.dates[1]
+        });
+        this.$store.commit('getDropDown',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          selectedDrop: this.selectedItem.item
+        });
+      },
+      getDropDwn(value){
+        this.$store.commit('getDropDown',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          selectedDrop: value
+        })
+      },
+      getArticleData(value){
+        this.$store.commit('getAticleData',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          selectedPath: value
+        })
+        this.showSelectedBool = true
       },
     },
   }
@@ -601,4 +758,27 @@
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
 }
+
+.v-picker--date {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.page-title {
+    margin: 0;
+  }
+  
+.page-title:hover {
+  color: #42b883;
+  cursor: pointer;
+}
+
+.page-path {
+  color: #828282;
+}
+
+.v-label {
+  backgroundColor: none;
+}
+
 </style>

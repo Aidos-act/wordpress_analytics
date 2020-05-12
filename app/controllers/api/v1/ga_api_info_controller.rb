@@ -6,6 +6,11 @@ class Api::V1::GaApiInfoController < ApplicationController
     @data = get_analytics_data.get_data(params[:startdate], params[:enddate])
   end
 
+  def getTotalGaInfo
+    get_total = GetAnalytics.new
+    @totaldata = get_total.get_total_ga_info(params[:startdate], params[:enddate])
+  end
+
   def getDropDown
   	get_drop = GetAnalytics.new
 

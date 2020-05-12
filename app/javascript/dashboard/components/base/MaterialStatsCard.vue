@@ -34,9 +34,10 @@
 
     <span
       :class="subTextColor"
-      class="caption grey--text font-weight-light"
-      v-text="subText"
-    />
+      class="caption grey--text font-weight-light" 
+    >
+      {{ subText }}
+    </span>
   </material-card>
 </template>
 

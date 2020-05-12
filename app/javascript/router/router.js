@@ -13,6 +13,12 @@ const routes = [
         name: 'Dashboard',
         path: '',
         component: () => import('../dashboard/Dashboard.vue'),
+      },
+      { 
+        name: 'HeatmapPage',
+        path: '/api/v1/articles/:id',
+        component: () =>
+          import("../heatmap/HeatmapPage.vue")
       }
     ],
   },

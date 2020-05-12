@@ -107,20 +107,6 @@
               </tr>
             </tbody>
           </template>
-  
-           <!-- <template v-slot:body="{ searchData }">
-            <tbody>
-              <tr v-for="(value, key) in gainfos">
-                <td>
-                  {{ value[1] }}
-                  <small>{{ value[0] }}</small>
-                </td>
-                <td v-for="(item, index) in value[2]">
-                  {{ item }}
-                </td>
-              </tr>
-            </tbody>
-          </template> -->
         </v-data-table>
       </v-card>
     
@@ -452,5 +438,6 @@ export default {
   .page-path {
     color: #828282;
   }
+
 
 </style>

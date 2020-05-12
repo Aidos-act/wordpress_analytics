@@ -9,6 +9,7 @@ export default new Vuex.Store({
   state: {
   	articles: [],
   	article: {},
+    totalgainfos: [],
     gainfos: [],
     dropdwninfos: [],
     rankingInfos: [],
@@ -31,6 +32,16 @@ export default new Vuex.Store({
 	      .get('/api/v1/articles/'+id+'.json')
 	      .then(response => (state.article = response.data), (error) => {console.log(error);})
   	},
+    getTotalGaInfo(state, payload){
+      axios
+        .get('/api/v1/ga_api_info/getTotalGaInfo.json', {
+            params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate
+            }
+        })
+        .then(response => (state.totalgainfos = response.data), (error) => {console.log(error);})
+    },
     getGaInfo(state, payload){
       axios
         .get('/api/v1/ga_api_info.json', {

@@ -10,6 +10,86 @@ class GetAnalytics
 		auth
 	end
 
+	def get_total_ga_info(startdate, enddate)
+		
+		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
+
+		metrics = ['ga:pageviews', 'ga:uniquePageviews', 'ga:timeOnPage', 'ga:bounces', 'ga:entrances', 'ga:exits', 'ga:sessions',
+				   'ga:percentNewSessions', 'ga:sessionDuration'	
+				  ]
+
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
+		dimensions = ['ga:pagePath', 'ga:pageTitle']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+
+		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
+
+		dimension_filters = @analytics::DimensionFilterClause.new(
+	      filters: [
+	        @analytics::DimensionFilter.new(
+	          dimension_name: 'ga:pagePath',
+	          # operator: "EXACT",
+	          # expressions: ['/archives/55244']
+	          operator: "IN_LIST",
+	          expressions: ['/archives/55244', '/archives/49795', '/archives/54087', '/archives/58437', '/archives/65171', '/archives/64435', '/archives/61533', '/archives/68924',
+	          				'/archives/65086', '/archives/64736', '/archives/55244', '/archives/68211'
+	          ]
+	        )
+	      ]
+	    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: @view_id, 
+    			metrics: metric_type, 
+    			dimension_filter_clauses: [dimension_filters],
+    			dimensions: dimension_type,
+    			# dimensions: [dimension], 
+    			date_ranges: [date_range]
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+
+		total_data = response.reports.first.data.totals
+		
+		key_array = metrics
+
+		key_array.each_with_index do |k, index| 
+			key_array[index] = k.gsub("ga:","")
+		end
+
+		set_total_array = Array.new
+
+
+		total_data.each do |t|
+	
+			datahash = {}
+
+			t.values.each_with_index do |v, index|
+
+				datahash[key_array[index]] = v	
+				
+				
+				puts "finally"
+			end
+			set_total_array.push(datahash)
+		end
+		puts set_total_array
+		return set_total_array
+	end
+
 	def get_data(startdate, enddate)
 		puts startdate.class
 		puts "2020-04-30".class
@@ -19,7 +99,9 @@ class GetAnalytics
 		# metric = @analytics::Metric.new
 		# metric.expression = ['ga:sessions', 'ga:uniquePageviews']
 
-		metrics = ['ga:pageviews', 'ga:uniquePageviews', 'ga:timeOnPage', 'ga:bounces', 'ga:entrances', 'ga:exits']
+		metrics = ['ga:pageviews', 'ga:uniquePageviews', 'ga:timeOnPage', 'ga:bounces', 'ga:entrances', 'ga:exits', 'ga:sessions',
+				   'ga:percentNewSessions', 'ga:sessionDuration'	
+				  ]
 		metric_type = Array.new
 		metrics.each do |m|
 			metric = @analytics::Metric.new
@@ -157,7 +239,7 @@ class GetAnalytics
 		
 		data_from_google.each do |r|
 			key = r.dimensions.first
-			datahash[key.to_sym] = r.metrics.first.values
+			datahash[key.to_sym] = r.metrics.first.values.first
 		end
 
 		return datahash
