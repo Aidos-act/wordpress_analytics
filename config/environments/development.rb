@@ -6,6 +6,8 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
+  # add it because of making k8s work
+  config.web_console.whitelisted_ips = '0.0.0.0/0'
   # Do not eager load code on boot.
   config.eager_load = false
 
