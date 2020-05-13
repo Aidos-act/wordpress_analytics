@@ -23,21 +23,47 @@
     >
       <v-divider />
     </v-col>
+    
+    <template v-if="subData">
+      <v-icon
+        :color="subData.color"
+        size="16"
+        class="ml-2 mr-1"
+      >
+        {{ subData.icon }}
+      </v-icon>
 
-    <v-icon
-      :color="subIconColor"
-      size="16"
-      class="ml-2 mr-1"
-    >
-      {{ subIcon }}
-    </v-icon>
+      <span
+        :class="subTextColor"
+        class="caption grey--text font-weight-light" 
+      >
+       {{ subData.text }}{{ subData.calculatedData }}% <v-icon>{{ subData.subIcon }}</v-icon> 
+      </span>
+      <span
+        class="caption grey--text font-weight-light"
+        style="text-align: right;"
+      >
+            compared to {{ subData.date }} 
+      </span>
+    </template>
 
-    <span
-      :class="subTextColor"
-      class="caption grey--text font-weight-light" 
-    >
-      {{ subText }}
-    </span>
+    <template v-else>
+      <v-icon
+        :color="subIconColor"
+        size="16"
+        class="ml-2 mr-1"
+      >
+        {{ subIcon }}
+      </v-icon>
+
+      <span
+        :class="subTextColor"
+        class="caption grey--text font-weight-light" 
+      >
+        {{ subText }}
+      </span>
+    </template>
+    
   </material-card>
 </template>
 
@@ -72,6 +98,10 @@
       },
       subText: {
         type: String,
+        default: undefined,
+      },
+      subData: {
+        type: Array,
         default: undefined,
       },
       title: {

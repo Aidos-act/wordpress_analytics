@@ -11,11 +11,16 @@ class Api::V1::ArticlesController < ApplicationController
 	# GET /articles/1
 	# GET /articles/1.json 
 	def show
+
 	end
 
 	# GET /articles/new
 	def new
 	  @article = Article.new
+      @article.title = params[:title]
+      @article.url = params[:url]
+      @article.id = params[:id]
+      @article.save
 	end
 
 	# GET /articles/1/edit

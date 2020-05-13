@@ -75,9 +75,9 @@
           to: '/',
         },
         {
-          title: 'icons',
+          title: 'Terms',
           icon: 'mdi-chart-bubble',
-          to: '/components/icons',
+          to: '/temp',
         },
       ],
     }),

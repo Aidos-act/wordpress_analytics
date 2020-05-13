@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y curl apt-transport-https wget && \
   	apt-get update && apt-get install -y yarn && \
   	gem install bundler
 
+RUN yarn install --check-files
 
 ENV WORKSPACE=/analytics_app
 ENV LANG C.UTF-8
@@ -21,15 +22,11 @@ ENV LANG C.UTF-8
 RUN mkdir -p $WORKSPACE
 WORKDIR $WORKSPACE
 
-RUN yarn install --check-files
-
 COPY Gemfile* ./
 
-# bundle installの実行
 RUN bundle install
 
 COPY . $WORKSPACE
-# RUN SECRET_KEY_BASE=notasecret bundle exec rake assets:precompile
 
 
 EXPOSE 3000

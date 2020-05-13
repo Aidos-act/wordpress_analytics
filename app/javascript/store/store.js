@@ -42,6 +42,16 @@ export default new Vuex.Store({
         })
         .then(response => (state.totalgainfos = response.data), (error) => {console.log(error);})
     },
+    getCompareGaInfo(state, payload){
+      axios
+        .get('/api/v1/ga_api_info/getTotalGaInfo.json', {
+            params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate
+            }
+        })
+        .then(response => (state.compareGaInfos = response.data), (error) => {console.log(error);})
+    },
     getGaInfo(state, payload){
       axios
         .get('/api/v1/ga_api_info.json', {
@@ -51,16 +61,6 @@ export default new Vuex.Store({
             }
         })
         .then(response => (state.gainfos = response.data), (error) => {console.log(error);})
-    },
-    getCompareGaInfo(state, payload){
-      axios
-        .get('/api/v1/ga_api_info.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate
-            }
-        })
-        .then(response => (state.compareGaInfos = response.data), (error) => {console.log(error);})
     },
     getDropDown(state, payload){
       axios

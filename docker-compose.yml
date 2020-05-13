@@ -36,19 +36,5 @@ services:
       RAILS_MAX_THREADS: 5
     volumes:
       - .:/analytics_app
-  web:
-    build:
-      context: .
-      dockerfile: ./nginx/Dockerfile
-    environment:
-      DB_USERNAME: root
-      DB_PASSWORD: root
-      DB_DATABASE: analytics_pjt
-      DB_ROOT_PASSWORD: root
-      DB_HOST: mysql
-    depends_on:
-      - app
-    ports:
-      - "80:80"
 volumes:
   db-data:

@@ -1,50 +1,57 @@
 <template>
-  <div>
-    <h1>HeatMap Page</h1>
-    <table>
-      <tbody>
-        <tr>
-          <th>ID</th>
-          <th>title</th>
-          <th>url</th>
-          <th>created_at</th>
-          <th>clicks</th>
-          <th>scrolls</th>
-          <th>scroll_durations</th>
-        </tr>
-        <tr>
-          <td>{{ article.id }}</td>
-          <td>{{ article.title }}</td>
-          <td>{{ article.url }}</td>
-          <td>{{ article.created_at }}</td>
-          <td v-for = "c in article.click">
-            {{c.article_id}},
-            {{c.btn_id}},
-            {{c.click_x}},
-            {{c.click_y}},
-            {{c.view_ip}}
-          </td>
-          <td v-for = "s in article.scroll">
-            {{s.article_id}},
-            {{s.scroll_max_pos}}
-          </td>
-          <td v-for = "sd in article.scroll_duration">
-            {{sd.article_id}},
-            {{sd.scroll_pos}},
-            {{sd.scroll_du}}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>  
+      <div>
+        <iframe :src="article.url" frameborder="0" sandbox></iframe>
+        <table>
+          <tbody>
 
+            <h1> Advertisement </h1>
+            <tr>
+              <td> ID: {{ article.id }} </td>
+              <td> Title: {{ article.title }} </td>
+              <td> URL: {{ article.url }} </td> 
+              <td> Created at: {{ article.created_at }} </td>
+            </tr>
+
+            <h1> Clicks </h1>
+            <tr v-for = "c in article.click">
+              <td> ID: {{ c.article_id }} </td>
+              <td> X: {{ c.click_x }} </td>
+              <td> Y: {{ c.click_y }}</td> 
+              <td> BTN: {{ c.btn_id }} </td>
+              <td> IP: {{ c.view_ip }} </td>
+            </tr>
+
+            <h1> Scrolls </h1>
+            <tr v-for = "sd in article.scroll_duration">
+              <td> ID: {{ sd.article_id }} </td>
+              <td> Scroll %: {{ sd.scroll_pos }} </td>
+              <td> Scroll Duration: {{ sd.scroll_du }}</td> 
+            </tr>
+
+            <h1> Max Scrolls </h1>
+            <tr v-for = "s in article.scroll">
+              <td> ID: {{ s.article_id }} </td>
+              <td> Max Scroll: {{ s.scroll_max_pos }} </td> 
+            </tr>
+            
+            <tr>
+              <button class="btn"><router-link :to="{path: '/'}"> Back </router-link></button>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>  
+    
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
-  name: 'DashboardHeatmapPage',
+  name: 'HeatmapPage',
+  data () {
+      return {
+
+      }
+  },
   computed: {
     article() {
      return this.$store.state.article
@@ -58,19 +65,25 @@ export default {
 </script>
 
 <style scoped>
-p {
-  font-size: 2em;
-  text-align: center;
+  .btn {
+    float: right;
+    margin-right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+table {
+  width: 49%;
+  float: right!important;
+  margin: 10px;
+  margin-bottom: 10%;
+  position: relative;
+  display: block;
 }
-
- table {
-    width: 100%;
-    border: 1px solid #444444;
-    border-collapse: collapse;
-  }
-
-  th, td {
-    border: 1px solid #444444;
-  }
+iframe {
+  position: absolute;
+  border: none;
+  width: 49%;
+  height: 70%;
+}
 
 </style>

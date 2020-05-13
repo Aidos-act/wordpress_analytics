@@ -51,8 +51,9 @@
       </v-container>
       <!-- line chart end -->
       <!-- dropdown graph end -->
-      
-      
+ 
+      {{ getCompaerDates }}
+
       <!-- card data start -->
       <template v-for="data in totalgainfos">
 
@@ -67,8 +68,7 @@
             icon="mdi-baby-face-outline"
             title="Visists"
             :value="data.sessions"
-            sub-icon="mdi-clock"
-            sub-text="sample"
+            :sub-data="compareCheck(data.sessions, 'sessions')"
           />
         </v-col>
         <!-- stats card 1 end -->
@@ -80,12 +80,11 @@
           lg="3"
         >
           <material-stats-card
-            color="primary"
+            color="#fcba03"
             icon="mdi-poll"
             title="Unique visitors"
             :value="data.uniquePageviews"
-            sub-icon="mdi-tag"
-            sub-text="sample"
+            :sub-data="compareCheck(data.uniquePageviews, 'uniquePageviews')"
           />
         </v-col>
         <!-- stats card 2 end -->
@@ -101,8 +100,7 @@
             icon="mdi-store"
             title="Page views (PV)"
             :value="data.pageviews"
-            sub-icon="mdi-calendar"
-            sub-text="sample"
+            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 3 end -->
@@ -118,9 +116,7 @@
             icon="mdi-sofa"
             title="% New visits"
             :value="data.bounces"
-            sub-icon="mdi-alert"
-            sub-icon-color="red"
-            sub-text="sample"
+            :sub-data="compareCheck(data.bounces, 'bounces')"
           />
         </v-col>
         <!-- stats card 4 end -->
@@ -136,8 +132,7 @@
             icon="mdi-duck"
             title="Visits / UV"
             :value="data.pageviews"
-            sub-icon="mdi-clock"
-            sub-text="sample"
+            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 5 end -->
@@ -149,12 +144,11 @@
           lg="3"
         >
           <material-stats-card
-            color="primary"
+            color="#fcba03"
             icon="mdi-poll"
             title="PV / UV"
             :value="data.pageviews"
-            sub-icon="mdi-tag"
-            sub-text="sample"
+            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 6 end -->
@@ -170,8 +164,7 @@
             icon="mdi-store"
             title="Visit duration"
             :value="data.sessionDuration"
-            sub-icon="mdi-calendar"
-            sub-text="sample"
+            :sub-data="compareCheck(data.sessionDuration, 'sessionDuration')"
           />
         </v-col>
         <!-- stats card 7 end -->
@@ -187,9 +180,7 @@
             icon="mdi-sofa"
             title="%Bounce"
             :value="data.bounces"
-            sub-icon="mdi-alert"
-            sub-icon-color="red"
-            sub-text="sample"
+            :sub-data="compareCheck(data.bounces, 'bounces')"
           />
         </v-col>
         <!-- stats card 8 end -->  
@@ -302,6 +293,50 @@
       </v-col>
       <!-- chart data3 end -->
 
+
+      <!-- ranking list start -->
+      <v-col
+        cols="12"
+        md="6"
+      >
+        <material-card
+          color="accent"
+          class="px-5 py-3"
+        >
+          <template v-slot:heading>
+            <div class="display-2 font-weight-light">
+              Ranking List
+            </div>
+
+            <div class="subtitle-1 font-weight-light">
+              Date Range : {{ dateRangeText }}
+            </div>
+          </template>
+          <v-card-text>
+            <v-data-table
+              :headers="rankingHeaders"
+              :items="rankingInfos"
+              :itemsPerPage= "5"
+            >
+              <template v-slot:body="{ items }">
+                <tbody>
+                  <tr v-for="(data, index) in items">
+                    <td>{{ index + 1 }}</td>
+                    <td class="page-title-wrapper">
+                      <p class="ranking-page-title">{{ data.pageTitle | truncate(20, '...') }}</p>
+                      <small class="ranking-page-path">{{ data.pagePath }}</small>
+                    </td>
+                    <td>{{ data.pageviews }}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </material-card>
+      </v-col>
+      <!-- ranking list end -->
+      
+
       <!-- article list part start -->
       <v-col
         cols="12"
@@ -342,7 +377,7 @@
               <tbody>
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
-                    <p class="page-title" @click="getArticleData(data.pagePath)">{{ data.pageTitle }}</p>
+                    <p class="page-title" @click="getArticleData(data.pagePath)">{{ data.pageTitle | truncate(35, '...') }}</p>
                     <small class="page-path">{{ data.pagePath }}</small>
                   </td>
                   <td>{{ data.pageviews }}</td>
@@ -388,8 +423,6 @@
       </v-card>
       <!-- selected aricle data end -->
 
-      
-
     </v-row>
   </v-container>
 </template>
@@ -418,6 +451,8 @@
         dateCheckBool: true,
         showSelectedBool: false,
         search: '',
+        isActive: true,
+        compareDates: [],
         selectedItem: { key: "pageView", item: "ga:pageviews"},
         items: [
           { key: "pageView", item: "ga:pageviews"},
@@ -443,6 +478,17 @@
           { text: 'bounce', value: 'bounces' },
           { text: 'entrance', value: 'entrances' },
           { text: 'exit', value: 'exits' }
+        ],
+        rankingHeaders: [
+          { text: 'No.', value: 'index' },
+          {
+            text: 'Title',
+            align: 'start',
+            sortable: false,
+            value: 'pageTitle',
+            width: '70%',
+          },
+          { text: 'PV', value: 'pageviews' },
         ],
         lineSimpleTest: {
           chartdata: {
@@ -629,8 +675,6 @@
           1: false,
           2: false,
         },
-        chartDataLabel: [],
-        chartDataValue: []
       }
     },
     computed: {
@@ -647,56 +691,50 @@
         }
         return this.dates.join(' ~ ')
       },
+      getCompaerDates () {
+        var t1 = this.$moment(this.dates[0]);
+        var t2 = this.$moment(this.dates[1]);
+        var diff = 0;
+        if(t1._i == t2._i) {
+          diff = 1;
+        } else {
+          diff = t2.diff(t1, 'days')+1;
+        }
+        this.compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
+        this.compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
+      },
+      articles() {
+        return this.$store.state.articles
+      },
       gainfos() {
         return this.$store.state.gainfos
+      },
+      compareGaInfos() {
+        return this.$store.state.compareGaInfos
       },
       totalgainfos(){
         return this.$store.state.totalgainfos
       },
       dropdwninfos() {
-        // var data = this.$store.state.dropdwninfos
-        // console.log(data)
-        // for (var key in data){
-        //   console.log(key)
-        //   this.chartDataLabel.push(key)
-        //   this.chartDataValue.push(data[key])
-        // }
-        // this.datacollection = {
-        //   labels: this.chartDataLabel,
-        //   datasets: [
-        //     {
-        //       data: this.chartDataValue
-        //     }
-        //   ]
-        // }
         return this.$store.state.dropdwninfos
       },
       artilceData() {
         return this.$store.state.artilceData
       },
-      filldata(){
-        // var data = this.$store.state.dropdwninfos
-        // console.log(data)
-        // var chartDataLabel = []
-        // var chartDataValue = []
-        // for (var key in data) {
-        //   chartDataLabel.push(key)
-        //   chartDataValue.push(data[key])
-        // }
-        // this.datacollection = {
-        //   labels: chartDataLabel,
-        //   datasets: [
-        //     {
-        //       data: chartDataValue
-        //     }
-        //   ]
-        // }
+      rankingInfos() {
+        return this.$store.state.rankingInfos
       }
     },
     mounted() {
+      this.getCompaerDates
+      this.$store.commit('fetchArticles');
       this.$store.commit('getTotalGaInfo',{
         startdate: this.dates[0],
         enddate: this.dates[1]
+      });
+      this.$store.commit('getCompareGaInfo',{
+        startdate: this.compareDates[0],
+        enddate: this.compareDates[1]
       });
       this.$store.commit('getGaInfo',{
         startdate: this.dates[0],
@@ -707,7 +745,10 @@
         enddate: this.dates[1],
         selectedDrop: this.selectedItem.item
       });
-      this.filldata
+      this.$store.commit('getRanking',{
+        startdate: this.dates[0],
+        enddate: this.dates[1]
+      });
     },
     methods: {
       complete (index) {
@@ -719,10 +760,18 @@
           startdate: this.dates[0],
           enddate: this.dates[1]
         });
+        this.$store.commit('getCompareGaInfo',{
+          startdate: this.compareDates[0],
+          enddate: this.compareDates[1]
+        });
         this.$store.commit('getDropDown',{
           startdate: this.dates[0],
           enddate: this.dates[1],
           selectedDrop: this.selectedItem.item
+        });
+        this.$store.commit('getRanking',{
+          startdate: this.dates[0],
+          enddate: this.dates[1]
         });
       },
       getDropDwn(value){
@@ -740,7 +789,47 @@
         })
         this.showSelectedBool = true
       },
+      compareCheck(value, text){
+        var compareValue = this.$store.state.compareGaInfos[0];
+        var arr = [];
+        var value_num = parseInt(value, 10);
+        var compare_num;
+        var calculatedData;
+        var integer = parseInt(text, 10);
+
+        arr["date"] = this.compareDates.join(' ~ ');
+
+        for(var key in compareValue){
+          
+          if(key == text){
+            compare_num = parseInt(compareValue[key], 10);
+
+            if(value_num > compare_num){
+              calculatedData = (((value_num - compare_num)/compare_num)*100).toFixed(2);
+              arr["color"] = 'green';
+              arr["icon"] = 'mdi-arrow-up-thick';
+              arr["calculatedData"] = calculatedData;
+              arr["text"] = '+';
+              arr["subIcon"] = 'mdi-emoticon-cool-outline';
+              return arr
+            }else{
+              calculatedData = (((compare_num - value_num)/compare_num)*100).toFixed(2);
+              arr["color"] = 'red';
+              arr["icon"] = 'mdi-arrow-down-thick';
+              arr["calculatedData"] = calculatedData;
+              arr["text"] = '-'
+              arr["subIcon"] = 'mdi-emoticon-dead-outline';
+              return arr
+            }
+          }
+        }
+      },
     },
+    filters: {
+      truncate: function (text, length, suffix) {
+          return text.substring(0, length) + suffix;
+      },
+    }
   }
 </script>
 
@@ -773,12 +862,58 @@
   cursor: pointer;
 }
 
-.page-path {
+.ranking-page-title {
+  margin: 0;
+}
+
+.ranking-page-path {
   color: #828282;
+}
+
+.ranking-page-path:hover {
+  color: #42b883;
+  cursor: pointer;
 }
 
 .v-label {
   backgroundColor: none;
+}
+
+
+.popupbtn {
+  float: right;
+  margin-right: 20px;
+  width: 40px;
+  height: 40px;
+}
+.white{
+  background:white;
+}
+.black{
+  background:black;
+}
+
+tr:hover {
+  background-color: #ff8585;
+  transition: 0.7s;
+}
+
+.title-url {
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 2px solid #ff4242;
+  border-right-width: 0px;
+  border-left-width: 0px;
+  border-bottom-width: 0px; 
+  
+}
+.ad-index{
+  padding: 1em;
+  background-color: #ff4242;
+  transition: 1s;
+  
+  position: fixed;
+  bottom: 0px;
 }
 
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table>
+    <!-- <table>
       <tbody>
         <tr>
           <th>ID</th>
@@ -34,10 +34,46 @@
           </td>
         </tr>
       </tbody>
+    </table> -->
+    <table>
+      <tbody>
+        <tr>
+          <th>ID</th>
+          <th>title</th>
+          <th>url</th>
+          <th>created_at</th>
+          <th>clicks</th>
+          <th>scrolls_views</th>
+          <th>scroll_max</th>
+        </tr> 
+        <tr v-for = "a in articles">
+          <td>{{ a.id }}</td>
+          <td><router-link :to="{ name: 'HeatmapPage', params: { id: a.id } }">{{ a.title }}</router-link></td>
+          <td>{{ a.url }}</td>
+          <td>{{ a.created_at }}</td>
+          <td>
+            {{ a.click.length }}
+          </td>
+          <td>
+            {{ a.scroll_duration.length }}
+          </td>
+          <td>
+            {{ getMaxValue(a.scroll) }}
+          </td>
+        </tr>
+      </tbody>
     </table>
       <hr>
       <hr>
       {{ articles }}
+      <hr>
+      <hr>
+      <hr>
+      <hr>
+      <hr>
+      <hr>
+      <hr>
+      <hr>
       <hr>
       <hr>
 <!--     <table>
@@ -298,7 +334,8 @@ export default {
           exit: 4
         }
      ],
-     showSelectedBool: false
+     showSelectedBool: false,
+     scrollMaxPos: 0
     }),
   computed: {
     dateError () {
@@ -325,21 +362,8 @@ export default {
       }
       this.compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
       this.compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
-      console.log("hoon")
+      
       return this.compareDates
-    },
-    setSearchData() {
-      // var temp = [];
-      // for (var i in this.gainfos) {
-      //   this.temp.push(this.gainfos[i]);
-      // }
-      
-      // this.temp = JSON.parse(this.gainfos);
-      
-
-      // console.log(typeof temp)
-      
-      // return this.searchData
     },
     articles() {
      return this.$store.state.articles
@@ -416,7 +440,16 @@ export default {
           selectedPath: value
         })
         this.showSelectedBool = true
-      }
+      },
+      getMaxValue(value) {
+        var i;
+        var arr = [];
+        for (i = 0; i < value.length; i++) {
+          arr.push(value[i].scroll_max_pos)
+        }
+        var data = Math.max.apply(null, arr);
+        return data
+      },
   }
 }
 
@@ -437,6 +470,15 @@ export default {
 
   .page-path {
     color: #828282;
+  }
+
+    table {
+    width: 100%;
+    border: 1px solid #444444;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #444444;
   }
 
 
