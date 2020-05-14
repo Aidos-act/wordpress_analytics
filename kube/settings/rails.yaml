@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: rails
-        image: destiny1616/analytics_pjt:v4
+        image: destiny1616/analytics_pjt:v5
         imagePullPolicy: Always
         command:
             - /bin/bash
