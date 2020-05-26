@@ -26,7 +26,7 @@
     <v-toolbar-title
       class="hidden-sm-and-down font-weight-light"
     >
-      Main Dashboard
+      Dashboard
     </v-toolbar-title>
 
     <v-spacer />

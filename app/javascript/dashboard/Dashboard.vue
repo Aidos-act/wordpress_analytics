@@ -14,7 +14,7 @@
         :return-value.sync="dates"
         transition="scale-transition"
         offset-y
-        min-width="200px"
+        min-width="200px" 
       >
           <template v-slot:activator="{ on }">
             <v-text-field v-model="dateRangeText" label="Date range" readonly v-on="on"></v-text-field>
@@ -29,6 +29,7 @@
       </v-col>
       <!-- datepicker end -->
 
+      
 
       <!-- dropdown graph start -->
       <v-col class="d-flex" cols="12" sm="6">
@@ -37,43 +38,44 @@
             v-model="selectedItem.item"
             item-text="key"
             item-value="item"
-            :items="items"
+            :items="dropdownitems"
             label="Select"
             dense
             @input="getDropDwn"
           ></v-select>
         </v-container>
       </v-col>
-
+      
       <!-- line chart start -->
       <v-container class="chart-container">
-        <line-chart :data="dropdwninfos"></line-chart>
+        <line-chart :data="setLineChartData()"></line-chart>
       </v-container>
       <!-- line chart end -->
+
+
       <!-- dropdown graph end -->
- 
-      {{ getCompaerDates }}
+
 
       <!-- card data start -->
       <template v-for="data in totalgainfos">
 
-        <!-- stats card 1 start -->
+        <!-- stats card 1 start - pageview -->
         <v-col
-        cols="12"
-        sm="6"
-        lg="3"
+          cols="12"
+          sm="6"
+          lg="3"
         >
           <material-stats-card
             color="info"
             icon="mdi-baby-face-outline"
-            title="Visists"
-            :value="data.sessions"
-            :sub-data="compareCheck(data.sessions, 'sessions')"
+            title="Page views (PV)"
+            :value="data.pageviews"
+            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 1 end -->
 
-        <!-- stats card 2 start -->
+        <!-- stats card 2 start - user -->
         <v-col
           cols="12"
           sm="6"
@@ -82,14 +84,14 @@
           <material-stats-card
             color="#fcba03"
             icon="mdi-poll"
-            title="Unique visitors"
-            :value="data.uniquePageviews"
-            :sub-data="compareCheck(data.uniquePageviews, 'uniquePageviews')"
+            title="User"
+            :value="data.users"
+            :sub-data="compareCheck(data.users, 'users')"
           />
         </v-col>
         <!-- stats card 2 end -->
 
-        <!-- stats card 3 start -->
+        <!-- stats card 3 start - time on page -->
         <v-col
           cols="12"
           sm="6"
@@ -98,14 +100,14 @@
           <material-stats-card
             color="success"
             icon="mdi-store"
-            title="Page views (PV)"
-            :value="data.pageviews"
-            :sub-data="compareCheck(data.pageviews, 'pageviews')"
+            title="Avg.Time on Page"
+            :value="setMinute(data.avgTimeOnPage)"
+            :sub-data="compareCheck(data.avgTimeOnPage, 'avgTimeOnPage')"
           />
         </v-col>
         <!-- stats card 3 end -->
 
-        <!-- stats card 4 start -->
+        <!-- stats card 4 start - mcv -->
         <v-col
           cols="12"
           sm="6"
@@ -114,14 +116,14 @@
           <material-stats-card
             color="orange"
             icon="mdi-sofa"
-            title="% New visits"
-            :value="data.bounces"
+            title="MCV temporary"
+            :value="setMcv('mcv')"
             :sub-data="compareCheck(data.bounces, 'bounces')"
           />
         </v-col>
         <!-- stats card 4 end -->
 
-        <!-- stats card 5 start -->
+        <!-- stats card 5 start - mcvr -->
         <v-col
           cols="12"
           sm="6"
@@ -130,14 +132,14 @@
           <material-stats-card
             color="info"
             icon="mdi-duck"
-            title="Visits / UV"
-            :value="data.pageviews"
+            title="mcvr temporary"
+            :value="setMcv('mcvr')"
             :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 5 end -->
 
-        <!-- stats card 6 start -->
+        <!-- stats card 6 start - mcv/uv -->
         <v-col
           cols="12"
           sm="6"
@@ -146,14 +148,14 @@
           <material-stats-card
             color="#fcba03"
             icon="mdi-poll"
-            title="PV / UV"
-            :value="data.pageviews"
+            title="mcv/uv temporary"
+            :value="setMcv('mcvPerUv')"
             :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 6 end -->
 
-        <!-- stats card 7 start -->
+        <!-- stats card 7 start - pv/uv -->
         <v-col
           cols="12"
           sm="6"
@@ -162,14 +164,14 @@
           <material-stats-card
             color="success"
             icon="mdi-store"
-            title="Visit duration"
-            :value="data.sessionDuration"
-            :sub-data="compareCheck(data.sessionDuration, 'sessionDuration')"
+            title="PV/UV temporary"
+            :value="setMcv('pvPerUv')"
+            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 7 end -->
 
-        <!-- stats card 8 start -->
+        <!-- stats card 8 start - bounce rate -->
         <v-col
           cols="12"
           sm="6"
@@ -179,7 +181,7 @@
             color="orange"
             icon="mdi-sofa"
             title="%Bounce"
-            :value="data.bounces"
+            :value="getBounceRate(data.bounces, data.sessions)"
             :sub-data="compareCheck(data.bounces, 'bounces')"
           />
         </v-col>
@@ -188,25 +190,24 @@
       </template>
       <!-- card data end -->
 
-      <!-- chart data1 start -->
+      <!-- progress circular start -->
       <v-col
         cols="12"
         lg="4"
       >
         <material-chart-card
-          :data="simpleTest.chartdata"
-          :options="simpleTest.options"
-          :styles="simpleTest.myStyles"
-          :responsive-options="emailsSubscriptionChart.responsiveOptions"
-          color="#E91E63"
+          color="info"
           type="Bar"
+          :sheetHeight="300"
+          :chartsize="250"
+          graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Mock Data
+            MCV Goal Achievement Rate {{ getGoalData }}
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            will be updated
+            cheer up!
           </p>
 
           <template v-slot:actions>
@@ -220,31 +221,29 @@
           </template>
         </material-chart-card>
       </v-col>
-      <!-- chart data1 staendrt -->
+      <!-- progress circular end -->
 
-      <!-- chart data2 start -->
+      <!-- mcvr line graph data start -->
       <v-col
         cols="12"
         lg="4"
       >
         <material-chart-card
-          :data="dailySalesChart.data"
-          :options="dailySalesChart.options"
+          :mcvdata="setMcv('mcvr')"
           color="success"
           type="Line"
+          :sheetHeight="300"
+          chartheight="250px"
+          graphType="linel"
         >
+          <!-- <v-col class="display-3" cols="6">
+            23&deg;C
+          </v-col> -->
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Mock data2
+            MCVR
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            <v-icon
-              color="green"
-              small
-            >
-              mdi-arrow-up
-            </v-icon>
-            <span class="green--text">55%</span>&nbsp;
             will be updated
           </p>
 
@@ -259,22 +258,24 @@
           </template>
         </material-chart-card>
       </v-col>
-      <!-- chart data2 end -->
+      <!-- mcvr line graph data end -->
 
-      <!-- chart data3 start -->
+      <!-- pie chart data start-->
       <v-col
         cols="12"
         lg="4"
       >
         <material-chart-card
-          :data="dataCompletedTasksChart.data"
-          :options="dataCompletedTasksChart.options"
-          color="info"
-          type="Line"
+          :piedata="getPieChartData()"
+          color="#E91E63"
+          type="Pie"
+          :sheetHeight="300"
+          chartheight="250px"
+          graphType="pie"
         >
-          <h3 class="card-title font-weight-light mt-2 ml-2">
-            Mock data3
-          </h3>
+          <h4 class="card-title font-weight-light mt-2 ml-2">
+            New User VS Returning User
+          </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
             will be updated
@@ -291,13 +292,15 @@
           </template>
         </material-chart-card>
       </v-col>
-      <!-- chart data3 end -->
+      <!-- pie chart data end-->
 
+
+      {{ setMcv() }}
 
       <!-- ranking list start -->
       <v-col
         cols="12"
-        md="6"
+        md="12"
       >
         <material-card
           color="accent"
@@ -317,15 +320,19 @@
               :headers="rankingHeaders"
               :items="rankingInfos"
               :itemsPerPage= "5"
-            >
+              :sort-desc="[false, true]"
+              multi-sort
+            > 
               <template v-slot:body="{ items }">
                 <tbody>
                   <tr v-for="(data, index) in items">
-                    <td>{{ index + 1 }}</td>
+                    <td>{{ index+1 }}</td>
                     <td class="page-title-wrapper">
-                      <p class="ranking-page-title">{{ data.pageTitle | truncate(20, '...') }}</p>
+                      <p class="ranking-page-title">{{ data.pageTitle | truncate(45, '...') }}</p>
                       <small class="ranking-page-path">{{ data.pagePath }}</small>
                     </td>
+                    <td>{{ data.pageviews }}</td>
+                    <td>{{ data.pageviews }}</td>
                     <td>{{ data.pageviews }}</td>
                   </tr>
                 </tbody>
@@ -335,93 +342,6 @@
         </material-card>
       </v-col>
       <!-- ranking list end -->
-      
-
-      <!-- article list part start -->
-      <v-col
-        cols="12"
-        md="12"
-      >
-        <material-card
-          color="warning"
-          class="px-5 py-3"
-        >
-          <template v-slot:heading>
-            <div class="display-2 font-weight-light">
-              Article List
-            </div>
-
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search"
-              single-line
-              hide-details
-            ></v-text-field>
-          </template>
-          
-          <v-data-table
-            :headers="headers"
-            :items="gainfos"
-            :search="search"
-            :sort-desc="[false, true]"
-            multi-sort
-            class="elevation-1"
-            :footer-props="{
-              showFirstLastPage: true,
-              firstIcon: 'mdi-arrow-collapse-left',
-              lastIcon: 'mdi-arrow-collapse-right'
-            }"
-          >
-            <template v-slot:body="{ items }">
-              <tbody>
-                <tr v-for="data in items">
-                  <td class="page-title-wrapper">
-                    <p class="page-title" @click="getArticleData(data.pagePath)">{{ data.pageTitle | truncate(35, '...') }}</p>
-                    <small class="page-path">{{ data.pagePath }}</small>
-                  </td>
-                  <td>{{ data.pageviews }}</td>
-                  <td>{{ data.uniquePageviews }}</td>
-                  <td>{{ data.timeOnPage }}</td>
-                  <td>{{ data.bounces }}</td>
-                  <td>{{ data.entrances }}</td>
-                  <td>{{ data.exits }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-data-table>
-        </material-card>
-      </v-col>
-      <!-- article list part end -->
-
-
-      <!-- selected aricle data - will be deleted later, just for check -->
-      <v-card v-show="showSelectedBool">
-        <v-data-table
-          :headers="headers"
-          :items="artilceData"
-          class="elevation-1"
-          hide-default-footer
-        >
-          <template v-slot:body="{ items }">
-            <tbody>
-              <tr v-for="data in items">
-                <td>
-                  <p class="page-title">{{ data.pageTitle }}</p>
-                  <small class="page-path">{{ data.pagePath }}</small>
-                </td>
-                <td>{{ data.pageviews }}</td>
-                <td>{{ data.uniquePageviews }}</td>
-                <td>{{ data.timeOnPage }}</td>
-                <td>{{ data.bounces }}</td>
-                <td>{{ data.entrances }}</td>
-                <td>{{ data.exits }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-data-table>
-      </v-card>
-      <!-- selected aricle data end -->
 
     </v-row>
   </v-container>
@@ -432,9 +352,10 @@
   import MaterialCard from './components/base/MaterialCard.vue'
   import MaterialChartCard from './components/base/MaterialChartCard.vue'
   import MaterialStatsCard from './components/base/MaterialStatsCard.vue'
+  import bus from './utils/bus.js'
 
   export default {
-    name: 'DashboardDashboard',
+    name: 'Dashboard',
     components: {
       // LineChart,
       MaterialCard,
@@ -449,36 +370,32 @@
         ],
         menu: false,
         dateCheckBool: true,
-        showSelectedBool: false,
-        search: '',
         isActive: true,
         compareDates: [],
+        piechartData: [],
+        linechartData: [],
+        selectedValue: '',
+        testdata: [
+          {
+            name: "Male",
+            data: [["18-24", 24], ["25-34", 22], ["35-44", 19], ["45-54", 30], ["55-64", 11]],
+            stack: "stack 1" 
+          },
+          {
+            name: "Female", 
+            data: [["18-24", 32], ["25-34", 14], ["35-44", 17], ["45-54", 12], ["55-64", 10]],
+            stack: "stack 2"
+          }
+        ],
         selectedItem: { key: "pageView", item: "ga:pageviews"},
-        items: [
+        dropdownitems: [
           { key: "pageView", item: "ga:pageviews"},
-          { key: "UV", item: "ga:uniquePageviews"},
+          { key: "User", item: "ga:users"},
           { key: "bounce rate", item: "ga:bounces"},
-          { key: "visits", item: "ga:sessions"},
-          { key: "New Visits %", item: "ga:percentNewSessions"},
-          { key: "duration", item: "ga:sessionDuration"},
+          { key: "avgTimeOnPage", item: "ga:avgTimeOnPage"},
           
         ],
         datacollection: null,
-        headers: [
-          {
-            text: 'Title',
-            align: 'start',
-            sortable: false,
-            value: 'pageTitle',
-            width: '50%',
-          },
-          { text: 'PV', value: 'pageviews' },
-          { text: 'UV', value: 'uniquePageviews' },
-          { text: 'time on page', value: 'timeOnPage' },
-          { text: 'bounce', value: 'bounces' },
-          { text: 'entrance', value: 'entrances' },
-          { text: 'exit', value: 'exits' }
-        ],
         rankingHeaders: [
           { text: 'No.', value: 'index' },
           {
@@ -489,6 +406,8 @@
             width: '70%',
           },
           { text: 'PV', value: 'pageviews' },
+          { text: 'MCV', value: 'mcv' },
+          { text: '滞留時間', value: 'time on page' }
         ],
         lineSimpleTest: {
           chartdata: {
@@ -502,63 +421,6 @@
           options: {
             legend: {
               display: false,
-            },
-          },
-        },
-        simpleTest: {
-          myStyles: {
-            height: '500px',
-            width: '100%',
-            color: 'red',
-          },
-          chartdata: {
-            labels: ['Ja', 'Fe', 'Ma', 'Ap', 'May', 'Ju', 'Jul', 'Au', 'Se', 'Oc', 'No', 'De'],
-            datasets: [
-              {
-                label: 'Sample1',
-                fillColor: '#ffff00',
-                strokeColor: '#000000',
-                data: [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
-                backgroundColor: '#FFFFF3',
-              },
-            ],
-          },
-          options: {
-            legend: {
-              display: false,
-            },
-            responsive: true,
-            layout: {
-              padding: {
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-              },
-            },
-            scales: {
-              xAxes: [{
-                scaleLabel: {
-                  fontColor: '#000000',
-                },
-                ticks: {
-                  fontColor: '#FFFFF3',
-                },
-                gridLines: {
-                  offsetGridLines: false,
-                },
-              }],
-              yAxes: [{
-                scaleLabel: {
-                  fontColor: '#000000',
-                },
-                ticks: {
-                  fontColor: '#FFFFF3',
-                },
-                gridLines: {
-                  offsetGridLines: false,
-                },
-              }],
             },
           },
         },
@@ -677,11 +539,15 @@
         },
       }
     },
+    created() {
+      // bus.$emit('start:spinner');
+      // bus.$emit('end:spinner');
+    },
     computed: {
       dateError () {
         var currentdate =  new Date().toISOString().substr(0, 10);
         if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
-          console.log(this.dateCheckBool);
+          
           return this.dateCheckBool;
         }
       },
@@ -706,8 +572,8 @@
       articles() {
         return this.$store.state.articles
       },
-      gainfos() {
-        return this.$store.state.gainfos
+      clickcount() {
+        return this.$store.state.clickcount
       },
       compareGaInfos() {
         return this.$store.state.compareGaInfos
@@ -718,11 +584,15 @@
       dropdwninfos() {
         return this.$store.state.dropdwninfos
       },
-      artilceData() {
-        return this.$store.state.artilceData
+      compareDropInfos(){
+        return this.$store.state.compareDropInfos
       },
       rankingInfos() {
+        console.log(typeof this.$store.state.rankingInfos)
         return this.$store.state.rankingInfos
+      },
+      getGoalData() {
+        return this.$store.state.goalData;
       }
     },
     mounted() {
@@ -736,16 +606,21 @@
         startdate: this.compareDates[0],
         enddate: this.compareDates[1]
       });
-      this.$store.commit('getGaInfo',{
-        startdate: this.dates[0],
-        enddate: this.dates[1]
-      });
       this.$store.commit('getDropDown',{
         startdate: this.dates[0],
         enddate: this.dates[1],
         selectedDrop: this.selectedItem.item
       });
+      this.$store.commit('getCompareDropDown',{
+        startdate: this.compareDates[0],
+        enddate: this.compareDates[1],
+        selectedDrop: this.selectedItem.item
+      });
       this.$store.commit('getRanking',{
+        startdate: this.dates[0],
+        enddate: this.dates[1]
+      });
+      this.$store.commit('fetchClicks',{
         startdate: this.dates[0],
         enddate: this.dates[1]
       });
@@ -755,7 +630,7 @@
         this.list[index] = !this.list[index]
       },
       getDate(dates) {
-        console.log("please")
+        console.log("please")      
         this.$store.commit('getTotalGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
@@ -769,25 +644,52 @@
           enddate: this.dates[1],
           selectedDrop: this.selectedItem.item
         });
+        this.$store.commit('getCompareDropDown',{
+          startdate: this.compareDates[0],
+          enddate: this.compareDates[1],
+          selectedDrop: this.selectedItem.item
+        });
         this.$store.commit('getRanking',{
           startdate: this.dates[0],
           enddate: this.dates[1]
         });
       },
       getDropDwn(value){
+        this.selectedValue = value;
         this.$store.commit('getDropDown',{
           startdate: this.dates[0],
           enddate: this.dates[1],
           selectedDrop: value
         })
-      },
-      getArticleData(value){
-        this.$store.commit('getAticleData',{
-          startdate: this.dates[0],
-          enddate: this.dates[1],
-          selectedPath: value
+        this.$store.commit('getCompareDropDown',{
+          startdate: this.compareDates[0],
+          enddate: this.compareDates[1],
+          selectedDrop: value
         })
-        this.showSelectedBool = true
+      },
+      setMcv(value){
+        var clickData = this.$store.state.clickcount.length;
+        var totalValue = this.$store.state.totalgainfos[0];
+        var pv;
+        var uv;
+
+        if(value == 'mcv'){
+          return clickData;
+        }
+
+        for(var key in totalValue){
+          if(value == 'mcvr'){
+            pv = parseInt(totalValue['pageviews'], 10);
+            return ((clickData/pv)*100).toFixed(2) + '%';
+          }else if(value == 'mcvPerUv'){
+            uv = parseInt(totalValue['users'], 10);
+            return ((clickData/uv)*100).toFixed(2) + '%';
+          }else if(value == 'pvPerUv'){
+            pv = parseInt(totalValue['pageviews'], 10);
+            uv = parseInt(totalValue['users'], 10);
+            return ((pv/uv)*100).toFixed(2) + '%';
+          }
+        }
       },
       compareCheck(value, text){
         var compareValue = this.$store.state.compareGaInfos[0];
@@ -795,7 +697,6 @@
         var value_num = parseInt(value, 10);
         var compare_num;
         var calculatedData;
-        var integer = parseInt(text, 10);
 
         arr["date"] = this.compareDates.join(' ~ ');
 
@@ -824,6 +725,107 @@
           }
         }
       },
+      getPieChartData(){
+        var totalValue = this.$store.state.totalgainfos[0];
+        var arr = [];
+        var newUsersArr = [];
+        var returningUsersArr = [];
+        var users;
+        var newUsers;
+        var returningUsers;
+        
+        for(var key in totalValue){
+          if(key == 'users') {
+            users = parseInt(totalValue[key], 10);
+          }
+          if(key == 'newUsers') {
+            newUsers = parseInt(totalValue[key], 10);
+          }
+        };
+
+        returningUsers = users - newUsers;
+
+        newUsersArr = ['NewUser', newUsers];
+        returningUsersArr = ['ReturningUser', returningUsers]
+
+        
+        var test1=['test1', 10];
+        var test2=['test2', 20];
+        
+
+        this.piechartData[0] = newUsersArr;
+        this.piechartData[1] = returningUsersArr;
+
+
+        // this.piechartData.push(newUsersArr);
+        // this.piechartData.push(returningUsersArr);
+
+        // console.log(this.piechartData);
+        return this.piechartData;
+
+      },
+      setLineChartData() {
+        var arr=[];
+        var compareset={};
+        var dropdwn = this.$store.state.dropdwninfos;
+        var comparedata = this.$store.state.compareDropInfos;
+        var compareValueArr = Object.values(this.$store.state.compareDropInfos);
+        var i = 0;
+
+        for(var key in dropdwn) {
+          if(this.dates[0] == this.dates[1]){
+            for(var j in comparedata) {
+              if(j == key){
+                compareset[j] = comparedata[j]
+              }
+            }
+          } else {
+            compareset[key] = compareValueArr[i]
+            i++;
+          }
+        }
+
+        var dropdwndata = {
+          name: this.dates.join(' ~ '),
+          color: '#2962ff',
+          data: dropdwn
+        };
+        
+        var setcompare = {
+          name: this.compareDates.join(' ~ '),
+          color: '#E91E63',
+          data: compareset
+        } 
+        
+        // console.log(setcompare['data'])
+        // console.log(setdatatest['data'])
+
+        arr[0] = dropdwndata;
+        arr[1] = setcompare;
+
+        return arr
+      },
+      setMinute(avgTimeOnPage){
+        console.log(avgTimeOnPage);
+        var m = Math.floor(avgTimeOnPage/60);
+        var h = Math.floor(avgTimeOnPage/3600);
+
+        var s = Math.floor(avgTimeOnPage - (m*60));
+
+        var seconds = Math.floor((avgTimeOnPage / 1000) % 60),
+          minutes = Math.floor((avgTimeOnPage / (1000 * 60)) % 60),
+          hours = Math.floor((avgTimeOnPage / (1000 * 60 * 60)) % 24);
+
+        h = (h < 10) ? "0" + h : h;
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+
+        return h + ":" + m + ":" + s;
+      },
+      getBounceRate(bounce, session) {
+        var bounceRate = ((bounce/session)*100).toFixed(2)
+        return bounceRate + "%";
+      }
     },
     filters: {
       truncate: function (text, length, suffix) {

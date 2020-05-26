@@ -30,42 +30,47 @@
         class="text-center mb-0"
         width="300"
       >
+      
+
         <v-card-text>
-          <strong class="mb-3 d-inline-block">SEGMENT</strong>
-
-          <v-divider class="my-4 secondary" />
-
+          <strong class="mb-3 d-inline-block">Goal Setting</strong>
           <v-row
             align="center"
             no-gutters
           >
             <v-col cols="auto">
-              Working in progresss
+              Please Set up Company's Goal
             </v-col>
-            <v-spacer />
           </v-row>
-
-          <v-divider class="my-4 secondary" />
-
-          <v-row
-            align="center"
-            no-gutters
-          >
-            <v-col cols="auto">
-              Working in progresss
+          <v-row>
+            <v-col class="pr-4">
+              <v-slider
+                v-model="slider"
+                class="align-center"
+                :max="setPV()[1]"
+                :min="setPV()[0]"
+                hide-details
+              >
+                <template v-slot:append>
+                  <v-text-field
+                    v-model="slider"
+                    class="mt-0 pt-0"
+                    hide-details
+                    single-line
+                    type="number"
+                    style="width: 60px"
+                  ></v-text-field>
+                </template>
+              </v-slider>
             </v-col>
-            <v-spacer />
           </v-row>
-
-          <v-divider class="my-4 secondary" />
-
-          <strong class="mb-3 d-inline-block">Blank</strong>
 
           <v-btn
             block
             class="mb-3"
             color="success"
             default
+            @click="setGoal()"
           >
             ADD
           </v-btn>
@@ -85,6 +90,29 @@
 
   export default {
     name: 'DashboardCoreSettings',
+    data() {
+      return{
+        goalData: 0,
+        arr: [],
+        slider: '',
+      }
+    },
+    methods: {
+      setGoal() {
+        console.log(this.slider);
+        this.$store.state.goalData = this.slider;
+      },
+      setPV(){
+        var totalValue = this.$store.state.totalgainfos[0];
+        var int = parseInt(totalValue.pageviews, 10);
+
+        this.arr[0] = int;
+        this.arr[1] = int*1.5;
+
+        return this.arr;
+      },
+
+    }
   }
 </script>
 

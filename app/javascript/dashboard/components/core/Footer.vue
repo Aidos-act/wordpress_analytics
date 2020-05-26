@@ -7,7 +7,7 @@
         cols="12"
         md="12"
       >
-        <div class="ad-index" >
+        <div class="ad-index">
           <h1> 
             Advertisements 
             <button 
@@ -27,7 +27,7 @@
                 <th>clicks</th>
                 <th>scrolls_views</th>
                 <th>scroll_max</th>
-              </tr> 
+              </tr>
               <tr v-for = "a in articles">
                 <td>{{ a.id }}</td>
                 <td @click="toggleClass()">

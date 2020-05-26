@@ -23,6 +23,7 @@ Rails.application.routes.draw do
           get 'getRankingList'
           get 'getArticleData'
           get 'getTotalGaInfo'
+          get 'getDemographic'
         end
       end
 

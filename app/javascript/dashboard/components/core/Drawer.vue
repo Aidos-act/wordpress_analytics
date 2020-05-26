@@ -71,13 +71,13 @@
       items: [
         {
           icon: 'mdi-view-dashboard',
-          title: 'dashboard',
+          title: 'Main Dashboard',
           to: '/',
         },
         {
-          title: 'Terms',
+          title: 'Article Dashboard',
           icon: 'mdi-chart-bubble',
-          to: '/temp',
+          to: '/articleDashboard',
         },
       ],
     }),

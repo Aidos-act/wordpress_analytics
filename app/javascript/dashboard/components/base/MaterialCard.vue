@@ -12,6 +12,7 @@
         :color="color"
         :max-height="icon ? 90 : undefined"
         :width="icon ? 'auto' : '100%'"
+        :height="sheetHeight"
         elevation="6"
         class="text-start v-card--material__heading mb-n6"
         dark
@@ -87,6 +88,10 @@
         type: String,
         default: '',
       },
+      sheetHeight: {
+        type: Number,
+        default: undefined
+      }
     },
 
     computed: {

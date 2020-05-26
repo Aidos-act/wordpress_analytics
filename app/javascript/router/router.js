@@ -14,6 +14,11 @@ const routes = [
         path: '',
         component: () => import('../dashboard/Dashboard.vue'),
       },
+      {
+        name: 'ArticleDashboard',
+        path: 'articleDashboard',
+        component: () => import('../dashboard/ArticleDashboard.vue'),
+      },
       { 
         name: 'HeatmapPage',
         path: '/api/v1/articles/:id',

@@ -11,12 +11,15 @@ class Api::V1::GaApiInfoController < ApplicationController
     @totaldata = get_total.get_total_ga_info(params[:startdate], params[:enddate])
   end
 
+  def getDemographic
+    demo = GetAnalytics.new
+    @demodata = demo.get_demo(params[:startdate], params[:enddate])
+  end  
+
   def getDropDown
   	get_drop = GetAnalytics.new
 
     @dropdata = get_drop.get_dropdown_data(params[:startdate], params[:enddate], params[:selectedDrop])
-    puts @dropdata
-    puts 'hoooooooooooooooooooooooooooon'
   end
 
   def getRankingList

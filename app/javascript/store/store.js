@@ -7,14 +7,18 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    goalData: 0,
   	articles: [],
   	article: {},
+    clickcount: 0,
     totalgainfos: [],
     gainfos: [],
+    demographicData: [],
     dropdwninfos: [],
     rankingInfos: [],
     compareGaInfos: [],
-    artilceData: [],
+    compareDropInfos: [],
+    articleData: [],
     drawer: null,
   },
   mutations: {
@@ -27,6 +31,16 @@ export default new Vuex.Store({
 	      .get('/api/v1/articles.json')
 	      .then(response => (state.articles = response.data), (error) => {console.log(error);})
   	},
+    fetchClicks(state, payload){
+      axios
+        .get('/api/v1/clicks.json', {
+          params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate
+            }
+        })
+        .then(response => (state.clickcount = response.data), (error) => {console.log(error);})
+    },    
   	setArticleInfo(state, id){
   		axios
 	      .get('/api/v1/articles/'+id+'.json')
@@ -62,6 +76,16 @@ export default new Vuex.Store({
         })
         .then(response => (state.gainfos = response.data), (error) => {console.log(error);})
     },
+    getDemographic(state, payload){
+      axios
+        .get('/api/v1/ga_api_info/getDemographic.json', {
+            params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate
+            }
+        })
+        .then(response => (state.demographicData = response.data), (error) => {console.log(error);})
+    },    
     getDropDown(state, payload){
       axios
         .get('/api/v1/ga_api_info/getDropDown.json', {
@@ -72,6 +96,17 @@ export default new Vuex.Store({
             }
         })
         .then(response => (state.dropdwninfos = response.data), (error) => {console.log(error);})
+    },
+    getCompareDropDown(state, payload){
+      axios
+        .get('/api/v1/ga_api_info/getDropDown.json', {
+            params: {
+              startdate: payload.startdate,
+              enddate: payload.enddate,
+              selectedDrop: payload.selectedDrop
+            }
+        })
+        .then(response => (state.compareDropInfos = response.data), (error) => {console.log(error);})
     },
     getRanking(state, payload){
       axios
@@ -92,7 +127,7 @@ export default new Vuex.Store({
               selectedPath: payload.selectedPath
             }
         })
-        .then(response => (state.artilceData = response.data), (error) => {console.log(error);})
+        .then(response => (state.articleData = response.data), (error) => {console.log(error);})
     }
   }
 })
