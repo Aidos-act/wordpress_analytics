@@ -29,8 +29,6 @@
       </v-col>
       <!-- datepicker end -->
 
-      
-
       <!-- dropdown graph start -->
       <v-col class="d-flex" cols="12" sm="6">
         <v-container fluid>
@@ -55,10 +53,8 @@
 
       <!-- dropdown graph end -->
 
-
-      <!-- card data start -->
-      <template v-for="data in totalgainfos">
-
+      
+      
         <!-- stats card 1 start - pageview -->
         <v-col
           cols="12"
@@ -69,8 +65,8 @@
             color="info"
             icon="mdi-baby-face-outline"
             title="Page views (PV)"
-            :value="data.pageviews"
-            :sub-data="compareCheck(data.pageviews, 'pageviews')"
+            :value="setCurrentTotal('pageviews')"
+            :sub-data="setCompareTotal('pageviews')"
           />
         </v-col>
         <!-- stats card 1 end -->
@@ -85,8 +81,8 @@
             color="#fcba03"
             icon="mdi-poll"
             title="User"
-            :value="data.users"
-            :sub-data="compareCheck(data.users, 'users')"
+            :value="setCurrentTotal('users')"
+            :sub-data="setCompareTotal('users')"
           />
         </v-col>
         <!-- stats card 2 end -->
@@ -101,8 +97,8 @@
             color="success"
             icon="mdi-store"
             title="Avg.Time on Page"
-            :value="setMinute(data.avgTimeOnPage)"
-            :sub-data="compareCheck(data.avgTimeOnPage, 'avgTimeOnPage')"
+            :value="setCurrentTotal('avgTimeOnPage')"
+            :sub-data="setCompareTotal('avgTimeOnPage')"
           />
         </v-col>
         <!-- stats card 3 end -->
@@ -118,7 +114,6 @@
             icon="mdi-sofa"
             title="MCV temporary"
             :value="setMcv('mcv')"
-            :sub-data="compareCheck(data.bounces, 'bounces')"
           />
         </v-col>
         <!-- stats card 4 end -->
@@ -134,7 +129,6 @@
             icon="mdi-duck"
             title="mcvr temporary"
             :value="setMcv('mcvr')"
-            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 5 end -->
@@ -150,7 +144,6 @@
             icon="mdi-poll"
             title="mcv/uv temporary"
             :value="setMcv('mcvPerUv')"
-            :sub-data="compareCheck(data.pageviews, 'pageviews')"
           />
         </v-col>
         <!-- stats card 6 end -->
@@ -166,7 +159,7 @@
             icon="mdi-store"
             title="PV/UV temporary"
             :value="setMcv('pvPerUv')"
-            :sub-data="compareCheck(data.pageviews, 'pageviews')"
+            :sub-data="setCompareTotal('pvPerUv')"
           />
         </v-col>
         <!-- stats card 7 end -->
@@ -181,14 +174,11 @@
             color="orange"
             icon="mdi-sofa"
             title="%Bounce"
-            :value="getBounceRate(data.bounces, data.sessions)"
-            :sub-data="compareCheck(data.bounces, 'bounces')"
+            :value="setCurrentTotal('bounces')"
+            :sub-data="setCompareTotal('bounces')"
           />
         </v-col>
         <!-- stats card 8 end -->  
-
-      </template>
-      <!-- card data end -->
 
       <!-- progress circular start -->
       <v-col
@@ -294,55 +284,6 @@
       </v-col>
       <!-- pie chart data end-->
 
-
-      {{ setMcv() }}
-
-      <!-- ranking list start -->
-      <v-col
-        cols="12"
-        md="12"
-      >
-        <material-card
-          color="accent"
-          class="px-5 py-3"
-        >
-          <template v-slot:heading>
-            <div class="display-2 font-weight-light">
-              Ranking List
-            </div>
-
-            <div class="subtitle-1 font-weight-light">
-              Date Range : {{ dateRangeText }}
-            </div>
-          </template>
-          <v-card-text>
-            <v-data-table
-              :headers="rankingHeaders"
-              :items="rankingInfos"
-              :itemsPerPage= "5"
-              :sort-desc="[false, true]"
-              multi-sort
-            > 
-              <template v-slot:body="{ items }">
-                <tbody>
-                  <tr v-for="(data, index) in items">
-                    <td>{{ index+1 }}</td>
-                    <td class="page-title-wrapper">
-                      <p class="ranking-page-title">{{ data.pageTitle | truncate(45, '...') }}</p>
-                      <small class="ranking-page-path">{{ data.pagePath }}</small>
-                    </td>
-                    <td>{{ data.pageviews }}</td>
-                    <td>{{ data.pageviews }}</td>
-                    <td>{{ data.pageviews }}</td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </material-card>
-      </v-col>
-      <!-- ranking list end -->
-
     </v-row>
   </v-container>
 </template>
@@ -365,13 +306,14 @@
     data () {
       return {
         dates: [
-          new Date().toISOString().substr(0, 10),
-          new Date().toISOString().substr(0, 10)
+          new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+          new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
         ],
+        compareDates: [],
         menu: false,
         dateCheckBool: true,
         isActive: true,
-        compareDates: [],
+        statsCard: [],
         piechartData: [],
         linechartData: [],
         selectedValue: '',
@@ -387,28 +329,15 @@
             stack: "stack 2"
           }
         ],
-        selectedItem: { key: "pageView", item: "ga:pageviews"},
+        selectedItem: { key: "pageView", item: "pageviews"},
         dropdownitems: [
-          { key: "pageView", item: "ga:pageviews"},
-          { key: "User", item: "ga:users"},
-          { key: "bounce rate", item: "ga:bounces"},
-          { key: "avgTimeOnPage", item: "ga:avgTimeOnPage"},
+          { key: "pageView", item: "pageviews"},
+          { key: "User", item: "users"},
+          { key: "bounce rate", item: "bounces"},
+          { key: "avgTimeOnPage", item: "avgTimeOnPage"},
           
         ],
         datacollection: null,
-        rankingHeaders: [
-          { text: 'No.', value: 'index' },
-          {
-            text: 'Title',
-            align: 'start',
-            sortable: false,
-            value: 'pageTitle',
-            width: '70%',
-          },
-          { text: 'PV', value: 'pageviews' },
-          { text: 'MCV', value: 'mcv' },
-          { text: '滞留時間', value: 'time on page' }
-        ],
         lineSimpleTest: {
           chartdata: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June'],
@@ -575,9 +504,6 @@
       clickcount() {
         return this.$store.state.clickcount
       },
-      compareGaInfos() {
-        return this.$store.state.compareGaInfos
-      },
       totalgainfos(){
         return this.$store.state.totalgainfos
       },
@@ -586,10 +512,6 @@
       },
       compareDropInfos(){
         return this.$store.state.compareDropInfos
-      },
-      rankingInfos() {
-        console.log(typeof this.$store.state.rankingInfos)
-        return this.$store.state.rankingInfos
       },
       getGoalData() {
         return this.$store.state.goalData;
@@ -602,10 +524,6 @@
         startdate: this.dates[0],
         enddate: this.dates[1]
       });
-      this.$store.commit('getCompareGaInfo',{
-        startdate: this.compareDates[0],
-        enddate: this.compareDates[1]
-      });
       this.$store.commit('getDropDown',{
         startdate: this.dates[0],
         enddate: this.dates[1],
@@ -615,10 +533,6 @@
         startdate: this.compareDates[0],
         enddate: this.compareDates[1],
         selectedDrop: this.selectedItem.item
-      });
-      this.$store.commit('getRanking',{
-        startdate: this.dates[0],
-        enddate: this.dates[1]
       });
       this.$store.commit('fetchClicks',{
         startdate: this.dates[0],
@@ -630,14 +544,9 @@
         this.list[index] = !this.list[index]
       },
       getDate(dates) {
-        console.log("please")      
         this.$store.commit('getTotalGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
-        });
-        this.$store.commit('getCompareGaInfo',{
-          startdate: this.compareDates[0],
-          enddate: this.compareDates[1]
         });
         this.$store.commit('getDropDown',{
           startdate: this.dates[0],
@@ -649,10 +558,105 @@
           enddate: this.compareDates[1],
           selectedDrop: this.selectedItem.item
         });
-        this.$store.commit('getRanking',{
-          startdate: this.dates[0],
-          enddate: this.dates[1]
-        });
+      },
+      setCurrentTotal(value){
+        var currentTotal = this.$store.state.totalgainfos[0];
+        var data;
+        for(var key in currentTotal){
+          if(value == key){
+            if(value == 'avgTimeOnPage'){
+              return this.setMinute(currentTotal[key])
+            }else if(value == 'bounces'){
+              return this.getBounceRate(currentTotal[key], currentTotal['sessions'])
+            }else {
+              data = currentTotal[key]
+              return data
+            }
+          }
+        }
+      },
+      setCompareTotal(value){
+        var compareTotal = this.$store.state.totalgainfos[1];
+        var arr = [];
+        
+        var calculatedData;
+
+        var compareDates = this.setCompreDates();
+
+        arr["date"] = compareDates.join(' ~ ');
+        
+        var currentValue = this.setValue(value)[0];
+        var compareValue = this.setValue(value)[1];
+
+        if(currentValue > compareValue){
+          calculatedData = (((currentValue - compareValue)/compareValue)*100).toFixed(2);
+          arr["color"] = 'green';
+          arr["icon"] = 'mdi-arrow-up-thick';
+          arr["calculatedData"] = calculatedData;
+          arr["text"] = '+';
+          arr["subIcon"] = 'mdi-emoticon-cool-outline';
+          
+          return arr
+        }else{
+          calculatedData = (((compareValue - currentValue)/compareValue)*100).toFixed(2);
+          arr["color"] = 'red';
+          arr["icon"] = 'mdi-arrow-down-thick';
+          arr["calculatedData"] = calculatedData;
+          arr["text"] = '-'
+          arr["subIcon"] = 'mdi-emoticon-dead-outline';
+          
+          return arr
+        }
+      },
+      setValue(value){
+        var currentTotal = this.$store.state.totalgainfos[0];
+        var compareTotal = this.$store.state.totalgainfos[1];
+        var arr = [];
+        var current;
+        var compare;
+        var pv;
+        var uv;
+
+        for(var key in currentTotal){
+          if(value == 'pvPerUv'){
+            pv = parseInt(currentTotal['pageviews'], 10);
+            uv = parseInt(currentTotal['users'], 10);
+            current = ((pv/uv)*100).toFixed(2)
+          }else if(key == value){
+            current = parseInt(currentTotal[key], 10);
+          }
+        }
+
+        for(var key in compareTotal){
+          if(value == 'pvPerUv'){
+            pv = parseInt(compareTotal['pageviews'], 10);
+            uv = parseInt(compareTotal['users'], 10);
+            compare = ((pv/uv)*100).toFixed(2)
+          }else if(key == value){
+            compare = parseInt(compareTotal[key], 10);
+          }
+        }
+
+        arr[0] = current;
+        arr[1] = compare;
+
+        return arr;
+      },
+      setCompreDates(){
+        var t1 = this.$moment(this.dates[0]);
+        var t2 = this.$moment(this.dates[1]);
+        var compareDates = [];
+
+        var diff = 0;
+        if(t1._i == t2._i) {
+          diff = 1;
+        } else {
+          diff = t2.diff(t1, 'days')+1;
+        }
+        compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
+        compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
+
+        return compareDates;
       },
       getDropDwn(value){
         this.selectedValue = value;
@@ -691,40 +695,6 @@
           }
         }
       },
-      compareCheck(value, text){
-        var compareValue = this.$store.state.compareGaInfos[0];
-        var arr = [];
-        var value_num = parseInt(value, 10);
-        var compare_num;
-        var calculatedData;
-
-        arr["date"] = this.compareDates.join(' ~ ');
-
-        for(var key in compareValue){
-          
-          if(key == text){
-            compare_num = parseInt(compareValue[key], 10);
-
-            if(value_num > compare_num){
-              calculatedData = (((value_num - compare_num)/compare_num)*100).toFixed(2);
-              arr["color"] = 'green';
-              arr["icon"] = 'mdi-arrow-up-thick';
-              arr["calculatedData"] = calculatedData;
-              arr["text"] = '+';
-              arr["subIcon"] = 'mdi-emoticon-cool-outline';
-              return arr
-            }else{
-              calculatedData = (((compare_num - value_num)/compare_num)*100).toFixed(2);
-              arr["color"] = 'red';
-              arr["icon"] = 'mdi-arrow-down-thick';
-              arr["calculatedData"] = calculatedData;
-              arr["text"] = '-'
-              arr["subIcon"] = 'mdi-emoticon-dead-outline';
-              return arr
-            }
-          }
-        }
-      },
       getPieChartData(){
         var totalValue = this.$store.state.totalgainfos[0];
         var arr = [];
@@ -748,7 +718,6 @@
         newUsersArr = ['NewUser', newUsers];
         returningUsersArr = ['ReturningUser', returningUsers]
 
-        
         var test1=['test1', 10];
         var test2=['test2', 20];
         
@@ -765,11 +734,40 @@
 
       },
       setLineChartData() {
+        var selectedDrop = this.selectedItem.item
         var arr=[];
         var compareset={};
-        var dropdwn = this.$store.state.dropdwninfos;
-        var comparedata = this.$store.state.compareDropInfos;
-        var compareValueArr = Object.values(this.$store.state.compareDropInfos);
+        // var dropdwn = this.$store.state.totalgainfos[2];
+        // var comparedata = this.$store.state.totalgainfos[3];
+        var dropdwnarr = this.$store.state.totalgainfos[2];
+        var comparedropdwnarr = this.$store.state.totalgainfos[3];
+        var dropdwn = {}
+        var comparedata = {}
+
+        // 이 아래 저 메쏘드들 다 지우자
+        // var dropdwn = this.$store.state.dropdwninfos;
+        // var comparedata = this.$store.state.compareDropInfos;
+
+        // dropdown current data setting
+        for(var key in dropdwnarr){
+          for(var j in dropdwnarr[key]){
+            if(j == selectedDrop){
+              dropdwn[key] = dropdwnarr[key][j]
+            }
+          }
+        }
+
+        // compare dropdown current data setting
+        for(var key in comparedropdwnarr){
+          for(var j in comparedropdwnarr[key]){
+            if(j == selectedDrop){
+              comparedata[key] = comparedropdwnarr[key][j]
+            }
+          }
+        }
+
+        var compareValueArr = Object.values(comparedata);
+        console.log(compareValueArr)
         var i = 0;
 
         for(var key in dropdwn) {
@@ -785,6 +783,8 @@
           }
         }
 
+        var compareDates = this.setCompreDates();
+
         var dropdwndata = {
           name: this.dates.join(' ~ '),
           color: '#2962ff',
@@ -792,7 +792,7 @@
         };
         
         var setcompare = {
-          name: this.compareDates.join(' ~ '),
+          name: compareDates.join(' ~ '),
           color: '#E91E63',
           data: compareset
         } 
@@ -806,7 +806,6 @@
         return arr
       },
       setMinute(avgTimeOnPage){
-        console.log(avgTimeOnPage);
         var m = Math.floor(avgTimeOnPage/60);
         var h = Math.floor(avgTimeOnPage/3600);
 
@@ -822,8 +821,8 @@
 
         return h + ":" + m + ":" + s;
       },
-      getBounceRate(bounce, session) {
-        var bounceRate = ((bounce/session)*100).toFixed(2)
+      getBounceRate(bounces, sessions) {
+        var bounceRate = ((bounces/sessions)*100).toFixed(2)
         return bounceRate + "%";
       }
     },
@@ -860,19 +859,6 @@
   }
   
 .page-title:hover {
-  color: #42b883;
-  cursor: pointer;
-}
-
-.ranking-page-title {
-  margin: 0;
-}
-
-.ranking-page-path {
-  color: #828282;
-}
-
-.ranking-page-path:hover {
   color: #42b883;
   cursor: pointer;
 }

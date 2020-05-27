@@ -22,12 +22,6 @@ class Api::V1::GaApiInfoController < ApplicationController
     @dropdata = get_drop.get_dropdown_data(params[:startdate], params[:enddate], params[:selectedDrop])
   end
 
-  def getRankingList
-  	get_ranking_list = GetAnalytics.new
-
-  	@rankingdata = get_ranking_list.get_ranking_data(params[:startdate], params[:enddate])
-  end
-
   def getArticleData
     get_article = GetAnalytics.new
 

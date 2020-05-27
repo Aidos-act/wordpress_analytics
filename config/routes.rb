@@ -20,7 +20,6 @@ Rails.application.routes.draw do
       resources :ga_api_info do
         collection do
           get 'getDropDown'
-          get 'getRankingList'
           get 'getArticleData'
           get 'getTotalGaInfo'
           get 'getDemographic'

@@ -15,8 +15,6 @@ export default new Vuex.Store({
     gainfos: [],
     demographicData: [],
     dropdwninfos: [],
-    rankingInfos: [],
-    compareGaInfos: [],
     compareDropInfos: [],
     articleData: [],
     drawer: null,
@@ -55,16 +53,6 @@ export default new Vuex.Store({
             }
         })
         .then(response => (state.totalgainfos = response.data), (error) => {console.log(error);})
-    },
-    getCompareGaInfo(state, payload){
-      axios
-        .get('/api/v1/ga_api_info/getTotalGaInfo.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate
-            }
-        })
-        .then(response => (state.compareGaInfos = response.data), (error) => {console.log(error);})
     },
     getGaInfo(state, payload){
       axios
@@ -107,16 +95,6 @@ export default new Vuex.Store({
             }
         })
         .then(response => (state.compareDropInfos = response.data), (error) => {console.log(error);})
-    },
-    getRanking(state, payload){
-      axios
-        .get('/api/v1/ga_api_info/getRankingList.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate
-            }
-        })
-        .then(response => (state.rankingInfos = response.data), (error) => {console.log(error);})
     },
     getAticleData(state, payload){
       axios

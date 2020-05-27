@@ -104,7 +104,10 @@
       },
       setPV(){
         var totalValue = this.$store.state.totalgainfos[0];
-        var int = parseInt(totalValue.pageviews, 10);
+        var int=0;
+        for(var key in totalValue){
+          int = parseInt(totalValue['pageviews'], 10);
+        }
 
         this.arr[0] = int;
         this.arr[1] = int*1.5;

@@ -34,6 +34,8 @@
       
     </v-row>
 
+    {{ getDefaultMcv() }}
+
     <v-row>
       <!-- graph data 1 start -->
       <v-col
@@ -227,6 +229,8 @@
       </v-col>
       <!-- graph data 6 end -->    
 
+      <!-- {{ gainfos }} -->
+
       <!-- article list part start -->
       <v-col
         cols="12"
@@ -266,7 +270,7 @@
               <tbody>
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
-                    <p class="page-title" @click="setDataPath(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(35, '...') }}</p>
+                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(35, '...') }}</p>
                     <small class="page-path">{{ data.pagePath }}</small>
                   </td>
                   <td>{{ data.pageviews }}</td>
@@ -282,40 +286,6 @@
         </material-card>
       </v-col>
       <!-- article list part end -->
-
-     
-
-
-      <!-- selected aricle data - will be deleted later, just for check -->
-      <v-card v-show="showSelectedBool">
-        <v-data-table
-          :headers="headers"
-          :items="articleData"
-          class="elevation-1"
-          hide-default-footer
-        >
-          <template v-slot:body="{ items }">
-            <tbody>
-              <tr v-for="data in items">
-                <td>
-                  <p class="page-title">{{ data.pageTitle }}</p>
-                  <small class="page-path">{{ data.pagePath }}</small>
-                </td>
-                <td>{{ data.pageviews }}</td>
-                <td>{{ data.users }}</td>
-                <td>{{ data.avgTimeOnPage }}</td>
-                <td>{{ data.bounces }}</td>
-                <td>{{ data.users }}</td>
-                <td>{{ data.users }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-data-table>
-      </v-card>
-      <!-- selected aricle data end -->
-
-      
-
       
     </v-row>
   </v-container>
@@ -336,15 +306,14 @@
     },
     data: () => ({
       dates: [
-        new Date().toISOString().substr(0, 10),
-        new Date().toISOString().substr(0, 10)
+        new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+        new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
       ],
       search: '',
       menu: false,
       title: '',
       dateCheckBool: true,
       checkIfDefault: true,
-      showSelectedBool: false,
       defaultPath: '',
       selectedPath: '',
       columnchartData: [],
@@ -385,7 +354,10 @@
       },
       articleData() {
         return this.$store.state.articleData
-      }
+      },
+      clickcount() {
+        return this.$store.state.clickcount
+      },
     },
     mounted() {
       this.$store.commit('getGaInfo',{
@@ -395,6 +367,10 @@
       this.$store.commit('getDemographic',{
           startdate: this.dates[0],
           enddate: this.dates[1]
+      });
+      this.$store.commit('fetchClicks',{
+        startdate: this.dates[0],
+        enddate: this.dates[1]
       });
     },
     methods: {
@@ -422,7 +398,6 @@
           var tt = defaultGAinfo['pageTitle'];
           // this.title = defaultGAinfo['pageTitle'];
         }
-        console.log('hoon');
         var avg = this.getAvg(value);
 
         if(value == 'avgTimeOnPage'){
@@ -440,6 +415,12 @@
         columnchartArr[1] = second;
 
         return columnchartArr;
+      },
+      getDefaultMcv(){
+        // var defalutClickData = this.$store.state.clickcount;
+        var defaultPath = this.$store.state.gainfos[10].pagePath;
+        
+        
       },
       setDefaultTitle(){
         var defaultGAinfo = this.$store.state.gainfos[10];
@@ -461,7 +442,6 @@
             selectedGainfos = gainfos[key];
           }
         }
-
 
         for(var key in selectedGainfos){
           if(key == value){
@@ -534,7 +514,7 @@
 
         return h + ":" + m + ":" + s;
       },
-      setDataPath(path, title){
+      setPathTitle(path, title){
         this.selectedPath = path;
         this.title = title;
         this.checkIfDefault = false;
