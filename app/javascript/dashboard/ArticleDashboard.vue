@@ -28,10 +28,31 @@
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-      <v-col>
-        <v-text-field v-model="checkIfDefault? setDefaultTitle() : title" label="Article Title"></v-text-field>
+
+      <!-- article title part start -->
+      <v-col cols="12" sm="6">
+        <v-text-field readonly v-model="checkIfDefault? setDefaultTitle() : title" label="Article Title"></v-text-field>
       </v-col>
+      <!-- article title part end -->
       
+      <v-col cols="3" sm="3">
+        <div class="my-2">
+          <router-link 
+            v-if="checkIfDefault"
+            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getDefaultId() } }"
+          >
+            <v-btn color="primary">Go To HeatMap</v-btn>
+          </router-link>
+          <router-link 
+            v-else
+            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getSelectedId() } }"
+          >
+            <v-btn color="primary">Go To HeatMap</v-btn>
+          </router-link>
+          
+        </div>
+      </v-col>
+
     </v-row>
     
     <v-row>
@@ -446,9 +467,20 @@
             count++;
           }
         }
-        
         return count;
+      },
+      getDefaultId(){
+        var defaultPath = this.$store.state.gainfos[10].pagePath;
+        var path = 'https://navivi.site' + defaultPath;
+        var articles = this.$store.state.articles;
+        var defaultId;
 
+        for(var i=0; i<articles.length; i++){
+          if(path == articles[i].url){
+            defaultId = articles[i].id
+          }
+        }
+        return defaultId;
       },
       setDefaultTitle(){
         var defaultGAinfo = this.$store.state.gainfos[10];
@@ -520,8 +552,29 @@
             selectedMcv = articles[i].click.length;
           }
         }
-
         return selectedMcv;
+      },
+      getSelectedId(){
+        var gainfos = this.$store.state.gainfos;
+        var articles = this.$store.state.articles;
+        var selectedPath;
+        var SelectedId;
+        
+        for(var key in gainfos){
+          if(this.selectedPath == gainfos[key].pagePath){
+            selectedPath = gainfos[key].pagePath;
+          }
+        }
+
+        var path = 'https://navivi.site' + selectedPath;
+
+        for(var i=0; i<articles.length; i++){
+          if(path == articles[i].url){
+            SelectedId = articles[i].id;
+          }
+        }
+
+        return SelectedId;
       },
       getAvg(value){
         var a = this.$store.state.gainfos;

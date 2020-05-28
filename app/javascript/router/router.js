@@ -22,8 +22,7 @@ const routes = [
       { 
         name: 'HeatmapPage',
         path: '/api/v1/articles/:id',
-        component: () =>
-          import("../heatmap/HeatmapPage.vue")
+        component: () => import("../heatmap/HeatmapPage.vue")
       }
     ],
   },

@@ -2,7 +2,7 @@
   <v-content>
     <router-view />
     <spinner :loading="true"></spinner>
-    <dashboard-core-footer />
+    <!-- <dashboard-core-footer /> -->
   </v-content>
 </template>
 
@@ -13,7 +13,7 @@
     name: 'DashboardCoreView',
 
     components: {
-      DashboardCoreFooter: () => import('./Footer'),
+      // DashboardCoreFooter: () => import('./Footer'),
       Spinner,
     },
     data() {

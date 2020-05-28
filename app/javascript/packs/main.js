@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
    el: '#hello',
    router: Router,
    store: Store,
-   vuetify: Vuetify, 
+   vuetify: Vuetify,
    render: h => h(App)
   })
 })

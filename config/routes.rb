@@ -8,12 +8,23 @@ Rails.application.routes.draw do
       resources :articles do
       	resources :clicks
       	resources :scrolls
-      	resources :scroll_durations
+
+        post 'clicks/new' => 'clicks#new'
+        post 'scrolls/new' => 'scrolls#new'
+        get 'counter/groupbyurl'
+        get 'counter/groupbytext'
+        get 'counter/countclick'
+        get 'counter/countview'
+        get 'counter/maxheight'
+        get 'counter/scrollcalculate'
+        get 'counter/durationcalculate'
+        get 'counter/totalduration'
+        get 'counter/ipcount'
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
 
-      # get 'articles/:id', to: 'articles#show'
+      post 'articles/new' => 'articles#new'
 
       # google analytics api data
       resources :ga_api_info do
