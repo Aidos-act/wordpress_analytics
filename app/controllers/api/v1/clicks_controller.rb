@@ -7,8 +7,18 @@ class Api::V1::ClicksController < ApplicationController
     start_date = params[:startdate].to_date.beginning_of_day
     end_date = params[:enddate].to_date.end_of_day
     puts 'oh my god'
-	  @clicks = Click.where(:created_at => start_date..end_date)
+    if params[:articleId] then
+      @clicks = Click.where(article_id: params[:articleId]).where(:created_at => start_date..end_date)
+      puts 'working!!!!!!!!!!!!!!!!!!!!!!!!!1'
+    else
+      puts 'no id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+	    @clicks = Click.where(:created_at => start_date..end_date)
+    end
 	end
+
+  def show
+    # @article = Article.find_by(url: params[:path])
+  end
 
   def new
     @click = Click.new

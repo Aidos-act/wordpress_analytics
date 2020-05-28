@@ -39,7 +39,6 @@
             :items="dropdownitems"
             label="Select"
             dense
-            @input="getDropDwn"
           ></v-select>
         </v-container>
       </v-col>
@@ -309,26 +308,9 @@
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
         ],
-        compareDates: [],
         menu: false,
         dateCheckBool: true,
-        isActive: true,
-        statsCard: [],
         piechartData: [],
-        linechartData: [],
-        selectedValue: '',
-        testdata: [
-          {
-            name: "Male",
-            data: [["18-24", 24], ["25-34", 22], ["35-44", 19], ["45-54", 30], ["55-64", 11]],
-            stack: "stack 1" 
-          },
-          {
-            name: "Female", 
-            data: [["18-24", 32], ["25-34", 14], ["35-44", 17], ["45-54", 12], ["55-64", 10]],
-            stack: "stack 2"
-          }
-        ],
         selectedItem: { key: "pageView", item: "pageviews"},
         dropdownitems: [
           { key: "pageView", item: "pageviews"},
@@ -337,135 +319,6 @@
           { key: "avgTimeOnPage", item: "avgTimeOnPage"},
           
         ],
-        datacollection: null,
-        lineSimpleTest: {
-          chartdata: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-            datasets: [
-              {
-                data: [10, 50, 20, 30, 30, 40],
-              },
-            ],
-          },
-          options: {
-            legend: {
-              display: false,
-            },
-          },
-        },
-        dailySalesChart: {
-          data: {
-            labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            series: [
-              [12, 17, 7, 17, 23, 18, 38],
-            ],
-          },
-          options: {
-            low: 0,
-            high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-            chartPadding: {
-              top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0,
-            },
-          },
-        },
-        dataCompletedTasksChart: {
-          data: {
-            labels: ['12am', '3pm', '6pm', '9pm', '12pm', '3am', '6am', '9am'],
-            series: [
-              [230, 750, 450, 300, 280, 240, 200, 190],
-            ],
-          },
-          options: {
-            low: 0,
-            high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-            chartPadding: {
-              top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0,
-            },
-          },
-        },
-        emailsSubscriptionChart: {
-          data: {
-            labels: ['Ja', 'Fe', 'Ma', 'Ap', 'Mai', 'Ju', 'Jul', 'Au', 'Se', 'Oc', 'No', 'De'],
-            series: [
-              [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
-
-            ],
-          },
-          options: {
-            axisX: {
-              showGrid: false,
-            },
-            low: 0,
-            high: 1000,
-            chartPadding: {
-              top: 0,
-              right: 5,
-              bottom: 0,
-              left: 0,
-            },
-          },
-          responsiveOptions: [
-            ['screen and (max-width: 640px)', {
-              seriesBarDistance: 5,
-            }],
-          ],
-        },
-        tabs: 0,
-        tasks: {
-          0: [
-            {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
-              value: true,
-            },
-            {
-              text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
-              value: false,
-            },
-            {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-              value: false,
-            },
-            {
-              text: 'Create 4 Invisible User Experiences you Never Knew About',
-              value: true,
-            },
-          ],
-          1: [
-            {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-              value: true,
-            },
-            {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
-              value: false,
-            },
-          ],
-          2: [
-            {
-              text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
-              value: false,
-            },
-            {
-              text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-              value: true,
-            },
-            {
-              text: 'Sign contract for "What are conference organizers afraid of?"',
-              value: true,
-            },
-          ],
-        },
-        list: {
-          0: false,
-          1: false,
-          2: false,
-        },
       }
     },
     created() {
@@ -486,53 +339,20 @@
         }
         return this.dates.join(' ~ ')
       },
-      getCompaerDates () {
-        var t1 = this.$moment(this.dates[0]);
-        var t2 = this.$moment(this.dates[1]);
-        var diff = 0;
-        if(t1._i == t2._i) {
-          diff = 1;
-        } else {
-          diff = t2.diff(t1, 'days')+1;
-        }
-        this.compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
-        this.compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
-      },
-      articles() {
-        return this.$store.state.articles
-      },
       clickcount() {
         return this.$store.state.clickcount
       },
       totalgainfos(){
         return this.$store.state.totalgainfos
       },
-      dropdwninfos() {
-        return this.$store.state.dropdwninfos
-      },
-      compareDropInfos(){
-        return this.$store.state.compareDropInfos
-      },
       getGoalData() {
         return this.$store.state.goalData;
       }
     },
     mounted() {
-      this.getCompaerDates
-      this.$store.commit('fetchArticles');
       this.$store.commit('getTotalGaInfo',{
         startdate: this.dates[0],
         enddate: this.dates[1]
-      });
-      this.$store.commit('getDropDown',{
-        startdate: this.dates[0],
-        enddate: this.dates[1],
-        selectedDrop: this.selectedItem.item
-      });
-      this.$store.commit('getCompareDropDown',{
-        startdate: this.compareDates[0],
-        enddate: this.compareDates[1],
-        selectedDrop: this.selectedItem.item
       });
       this.$store.commit('fetchClicks',{
         startdate: this.dates[0],
@@ -540,23 +360,10 @@
       });
     },
     methods: {
-      complete (index) {
-        this.list[index] = !this.list[index]
-      },
       getDate(dates) {
         this.$store.commit('getTotalGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
-        });
-        this.$store.commit('getDropDown',{
-          startdate: this.dates[0],
-          enddate: this.dates[1],
-          selectedDrop: this.selectedItem.item
-        });
-        this.$store.commit('getCompareDropDown',{
-          startdate: this.compareDates[0],
-          enddate: this.compareDates[1],
-          selectedDrop: this.selectedItem.item
         });
       },
       setCurrentTotal(value){
@@ -581,7 +388,7 @@
         
         var calculatedData;
 
-        var compareDates = this.setCompreDates();
+        var compareDates = this.setCompareDates();
 
         arr["date"] = compareDates.join(' ~ ');
         
@@ -642,7 +449,7 @@
 
         return arr;
       },
-      setCompreDates(){
+      setCompareDates(){
         var t1 = this.$moment(this.dates[0]);
         var t2 = this.$moment(this.dates[1]);
         var compareDates = [];
@@ -657,19 +464,6 @@
         compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
 
         return compareDates;
-      },
-      getDropDwn(value){
-        this.selectedValue = value;
-        this.$store.commit('getDropDown',{
-          startdate: this.dates[0],
-          enddate: this.dates[1],
-          selectedDrop: value
-        })
-        this.$store.commit('getCompareDropDown',{
-          startdate: this.compareDates[0],
-          enddate: this.compareDates[1],
-          selectedDrop: value
-        })
       },
       setMcv(value){
         var clickData = this.$store.state.clickcount.length;
@@ -737,16 +531,11 @@
         var selectedDrop = this.selectedItem.item
         var arr=[];
         var compareset={};
-        // var dropdwn = this.$store.state.totalgainfos[2];
-        // var comparedata = this.$store.state.totalgainfos[3];
+
         var dropdwnarr = this.$store.state.totalgainfos[2];
         var comparedropdwnarr = this.$store.state.totalgainfos[3];
         var dropdwn = {}
         var comparedata = {}
-
-        // 이 아래 저 메쏘드들 다 지우자
-        // var dropdwn = this.$store.state.dropdwninfos;
-        // var comparedata = this.$store.state.compareDropInfos;
 
         // dropdown current data setting
         for(var key in dropdwnarr){
@@ -783,7 +572,7 @@
           }
         }
 
-        var compareDates = this.setCompreDates();
+        var compareDates = this.setCompareDates();
 
         var dropdwndata = {
           name: this.dates.join(' ~ '),
@@ -796,9 +585,6 @@
           color: '#E91E63',
           data: compareset
         } 
-        
-        // console.log(setcompare['data'])
-        // console.log(setdatatest['data'])
 
         arr[0] = dropdwndata;
         arr[1] = setcompare;

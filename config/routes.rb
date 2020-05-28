@@ -10,16 +10,14 @@ Rails.application.routes.draw do
       	resources :scrolls
       	resources :scroll_durations
   	  end
-  	  resources :clicks, only: [:index]
+  	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
 
-      get 'articles/:id', to: 'articles#show'
-
+      # get 'articles/:id', to: 'articles#show'
 
       # google analytics api data
       resources :ga_api_info do
         collection do
-          get 'getDropDown'
           get 'getArticleData'
           get 'getTotalGaInfo'
           get 'getDemographic'

@@ -33,9 +33,7 @@
       </v-col>
       
     </v-row>
-
-    {{ getDefaultMcv() }}
-
+    
     <v-row>
       <!-- graph data 1 start -->
       <v-col
@@ -85,11 +83,12 @@
         lg="4"
       >
         <material-chart-card
+          :mcvdata="checkIfDefault? getDefaultMcv() : getSelectedMcv()"
           color="success"
           type="Line"
           :sheetHeight="200"
           chartheight="150px"
-          graphType="column"
+          graphType="linel"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
             MCVR
@@ -316,6 +315,7 @@
       checkIfDefault: true,
       defaultPath: '',
       selectedPath: '',
+      articleId: '',
       columnchartData: [],
       headers: [
         {
@@ -345,7 +345,10 @@
           this.dates.reverse();
         }
         return this.dates.join(' ~ ')
-      },        
+      },
+      articles() {
+        return this.$store.state.articles
+      },
       gainfos() {
         return this.$store.state.gainfos
       },
@@ -355,9 +358,16 @@
       articleData() {
         return this.$store.state.articleData
       },
-      clickcount() {
-        return this.$store.state.clickcount
-      },
+      temp(){
+        console.log('just temp')
+        if(this.articleId != ''){
+          this.$store.commit('fetchClicks',{
+            startdate: this.dates[0],
+            enddate: this.dates[1],
+            articleId: this.articleId
+          });
+        }
+      }
     },
     mounted() {
       this.$store.commit('getGaInfo',{
@@ -368,10 +378,7 @@
           startdate: this.dates[0],
           enddate: this.dates[1]
       });
-      this.$store.commit('fetchClicks',{
-        startdate: this.dates[0],
-        enddate: this.dates[1]
-      });
+      this.$store.commit('fetchArticles');
     },
     methods: {
       getDate(dates) {
@@ -417,10 +424,31 @@
         return columnchartArr;
       },
       getDefaultMcv(){
-        // var defalutClickData = this.$store.state.clickcount;
         var defaultPath = this.$store.state.gainfos[10].pagePath;
+        var path = 'https://navivi.site' + defaultPath;
+        var articles = this.$store.state.articles;
+
+        for(var i=0; i<articles.length; i++){
+          if(path == articles[i].url){
+            var clickArr = articles[i].click
+          }
+        }
+
+        var formattedStartDate = Date.parse(this.dates[0]);
+        var formattedEndDate = Date.parse(this.dates[1]);
+        var count=0;
+
+        for(var i=0; i<clickArr.length; i++){
+          var clicktime =  new Date(clickArr[i].created_at).toISOString().substr(0, 10);
+          var formattedClicktime = Date.parse(clicktime);
+          
+          if(formattedClicktime >= formattedStartDate && formattedClicktime <= formattedEndDate){
+            count++;
+          }
+        }
         
-        
+        return count;
+
       },
       setDefaultTitle(){
         var defaultGAinfo = this.$store.state.gainfos[10];
@@ -472,6 +500,28 @@
         columnchartArr[1] = second;
 
         return columnchartArr;
+      },
+      getSelectedMcv(){
+        var gainfos = this.$store.state.gainfos;
+        var articles = this.$store.state.articles;
+        var selectedPath;
+        var selectedMcv;
+        
+        for(var key in gainfos){
+          if(this.selectedPath == gainfos[key].pagePath){
+            selectedPath = gainfos[key].pagePath;
+          }
+        }
+
+        var path = 'https://navivi.site' + selectedPath;
+
+        for(var i=0; i<articles.length; i++){
+          if(path == articles[i].url){
+            selectedMcv = articles[i].click.length;
+          }
+        }
+
+        return selectedMcv;
       },
       getAvg(value){
         var a = this.$store.state.gainfos;

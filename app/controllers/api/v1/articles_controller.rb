@@ -11,7 +11,7 @@ class Api::V1::ArticlesController < ApplicationController
 	# GET /articles/1
 	# GET /articles/1.json 
 	def show
-
+		# @article = Article.find_by(url: params[:path])
 	end
 
 	# GET /articles/new
@@ -70,7 +70,7 @@ class Api::V1::ArticlesController < ApplicationController
 	  end
 	  # Only allow a list of trusted parameters through.
 	  def article_params
-	    params.require(:article).permit(:id, :title, :url, :created_at)
+	    params.require(:article).permit(:id, :title, :url, :created_at, :path, :startdate, :enddate)
 	  end
 
 end

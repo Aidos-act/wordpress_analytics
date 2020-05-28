@@ -16,12 +16,6 @@ class Api::V1::GaApiInfoController < ApplicationController
     @demodata = demo.get_demo(params[:startdate], params[:enddate])
   end  
 
-  def getDropDown
-  	get_drop = GetAnalytics.new
-
-    @dropdata = get_drop.get_dropdown_data(params[:startdate], params[:enddate], params[:selectedDrop])
-  end
-
   def getArticleData
     get_article = GetAnalytics.new
 

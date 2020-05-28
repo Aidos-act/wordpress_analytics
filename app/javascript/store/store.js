@@ -14,8 +14,6 @@ export default new Vuex.Store({
     totalgainfos: [],
     gainfos: [],
     demographicData: [],
-    dropdwninfos: [],
-    compareDropInfos: [],
     articleData: [],
     drawer: null,
   },
@@ -23,8 +21,7 @@ export default new Vuex.Store({
     SET_DRAWER (state, payload) {
       state.drawer = payload
     },
-  	fetchArticles(state){
-  		state.articles = [];
+  	fetchArticles(state, payload){
   		axios
 	      .get('/api/v1/articles.json')
 	      .then(response => (state.articles = response.data), (error) => {console.log(error);})
@@ -33,17 +30,18 @@ export default new Vuex.Store({
       axios
         .get('/api/v1/clicks.json', {
           params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate
-            }
+            startdate: payload.startdate,
+            enddate: payload.enddate,
+            articleId: payload.articleId
+          }
         })
         .then(response => (state.clickcount = response.data), (error) => {console.log(error);})
-    },    
+    },
   	setArticleInfo(state, id){
   		axios
 	      .get('/api/v1/articles/'+id+'.json')
 	      .then(response => (state.article = response.data), (error) => {console.log(error);})
-  	},
+  	},  
     getTotalGaInfo(state, payload){
       axios
         .get('/api/v1/ga_api_info/getTotalGaInfo.json', {
@@ -73,28 +71,6 @@ export default new Vuex.Store({
             }
         })
         .then(response => (state.demographicData = response.data), (error) => {console.log(error);})
-    },    
-    getDropDown(state, payload){
-      axios
-        .get('/api/v1/ga_api_info/getDropDown.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate,
-              selectedDrop: payload.selectedDrop
-            }
-        })
-        .then(response => (state.dropdwninfos = response.data), (error) => {console.log(error);})
-    },
-    getCompareDropDown(state, payload){
-      axios
-        .get('/api/v1/ga_api_info/getDropDown.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate,
-              selectedDrop: payload.selectedDrop
-            }
-        })
-        .then(response => (state.compareDropInfos = response.data), (error) => {console.log(error);})
     },
     getAticleData(state, payload){
       axios
