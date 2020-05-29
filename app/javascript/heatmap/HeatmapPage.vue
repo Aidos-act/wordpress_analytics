@@ -59,8 +59,12 @@
                 <td class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
               </div>
             </tr>
+            <tr>
+              <td><router-link :to="{path: '/'}" tag="button"> Back </router-link></td>
+            </tr>
           </tbody>
         </table>
+
       </div>
     </div>
 </template>

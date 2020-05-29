@@ -112,11 +112,11 @@
           graphType="linel"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            MCVR
+            MCV
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            90% of article average, cheer up!
+            WORIKNG ON PROGRESS
           </p>
 
         </material-chart-card>
@@ -446,6 +446,7 @@
       },
       getDefaultMcv(){
         var defaultPath = this.$store.state.gainfos[10].pagePath;
+        
         var path = 'https://navivi.site' + defaultPath;
         var articles = this.$store.state.articles;
 
@@ -473,6 +474,7 @@
         var defaultPath = this.$store.state.gainfos[10].pagePath;
         var path = 'https://navivi.site' + defaultPath;
         var articles = this.$store.state.articles;
+        console.log(path);
         var defaultId;
 
         for(var i=0; i<articles.length; i++){
