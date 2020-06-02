@@ -73,7 +73,7 @@ class GetAnalytics
 			dimension = @analytics::Dimension.new(name: 'ga:date')
 		end
 
-		request = @analytics::GetReportsRequest.new(
+		request = @analytics::GetReportsRequest.new(s
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: @view_id, 
     			metrics: metric_type, 

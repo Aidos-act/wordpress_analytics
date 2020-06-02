@@ -2,25 +2,26 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: stg
-  name: rails
+  name: web
 spec:
   selector:
-    app: rails
-  type: ClusterIP
+    app: web
+  type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 8080
+      targetPort: 8080
+      name: http
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: stg
-  name: rails
+  name: web
 spec:
   replicas: 1
-  revisionHistoryLimit: 3  
+  revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -28,37 +29,43 @@ spec:
       maxSurge: 1
   selector:
     matchLabels:
-      app: rails
+      app: web
   template:
     metadata:
       labels:
-        app: rails
+        app: web
     spec:
       containers:
-      - name: rails
-        image: destiny1616/analytics_pjt:v5
+      - name: nginx
+        image: destiny1616/nginx:v3
         imagePullPolicy: Always
-        command:
-            - /bin/bash
-        args:
-            - -c
-            - rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b 0.0.0.0
+        envFrom:
+        - configMapRef:
+            name: rails-config
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: mysql-pv
+          mountPath: /var/lib/mysql 
+        - name: empty-dir
+          mountPath: /analytics_app/tmp/sockets
+      - name: rails
+        image: destiny1616/rails_app:v16
+        imagePullPolicy: Always
+        command: ["foreman", "start", "-f", "Procfile.dev"]
         envFrom:
         - configMapRef:
             name: rails-config
         ports:
         - containerPort: 3000
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          timeoutSeconds: 5
-          initialDelaySeconds: 10
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          timeoutSeconds: 5
-          initialDelaySeconds: 10
-          periodSeconds: 30        
+        volumeMounts:
+        - name: mysql-pv
+          mountPath: /var/lib/mysql 
+        - name: empty-dir
+          mountPath: /analytics_app/tmp/sockets
+      volumes:
+      - name: mysql-pv
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+      - name: empty-dir
+        emptyDir: {}                  

@@ -225,9 +225,7 @@
           chartheight="250px"
           graphType="linel"
         >
-          <!-- <v-col class="display-3" cols="6">
-            23&deg;C
-          </v-col> -->
+
           <h4 class="card-title font-weight-light mt-2 ml-2">
             MCVR
           </h4>
@@ -326,6 +324,7 @@
       // bus.$emit('end:spinner');
     },
     computed: {
+      // check if date select is correct
       dateError () {
         var currentdate =  new Date().toISOString().substr(0, 10);
         if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
@@ -383,6 +382,7 @@
         }
       },
       setCompareTotal(value){
+        // i forgot to delete this one
         var compareTotal = this.$store.state.totalgainfos[1];
         var arr = [];
         

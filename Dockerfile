@@ -28,8 +28,15 @@ RUN bundle install
 
 COPY . $WORKSPACE
 
+RUN gem install foreman
 
-EXPOSE 3000
+
+
+# RUN yarn upgrade && \
+#	gem install foreman
+
+# RUN mkdir -p tmp/sockets
+# EXPOSE 3000
 
 # ENTRYPOINT ["docker-entrypoint.sh"]
 
