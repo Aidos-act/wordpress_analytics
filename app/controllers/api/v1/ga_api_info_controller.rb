@@ -9,6 +9,7 @@ class Api::V1::GaApiInfoController < ApplicationController
   def getTotalGaInfo
     get_total = GetAnalytics.new
     @totaldata = get_total.get_total_ga_info(params[:startdate], params[:enddate])
+    puts 'im in total ga info'
   end
 
   def getDemographic

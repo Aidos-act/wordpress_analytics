@@ -29,7 +29,7 @@ RUN bundle install
 COPY . $WORKSPACE
 
 RUN gem install foreman
-
+RUN yarn install --check-files
 
 
 # RUN yarn upgrade && \

@@ -12,7 +12,7 @@ class GetAnalytics
 	end
 
 	def get_total_ga_info(startdate, enddate)
-
+		puts 'im in here plzzzzzzzzzz'
 		set_total_by_date = Array.new
 
 		formatted_startdate = DateTime.parse(startdate)
@@ -32,7 +32,6 @@ class GetAnalytics
 			diff = (formatted_enddate - formatted_startdate).to_i + 1
 			compare_startdate = (formatted_startdate - diff.days).strftime("%Y-%m-%d")
 			compare_enddate = (formatted_enddate - diff.days).strftime("%Y-%m-%d")
-
 		end	
 
 		# index 0 -> total data, index 1 -> data by date or hour
@@ -73,7 +72,7 @@ class GetAnalytics
 			dimension = @analytics::Dimension.new(name: 'ga:date')
 		end
 
-		request = @analytics::GetReportsRequest.new(s
+		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: @view_id, 
     			metrics: metric_type, 

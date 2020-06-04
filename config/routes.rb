@@ -1,10 +1,5 @@
 Rails.application.routes.draw do
 
-  namespace :api do
-    namespace :v1 do
-      get 'healths/health'
-    end
-  end
   root to: 'home#index'
 
   namespace :api do
