@@ -15,13 +15,7 @@ class Api::V1::GaApiInfoController < ApplicationController
   def getDemographic
     demo = GetAnalytics.new
     @demodata = demo.get_demo(params[:startdate], params[:enddate])
-  end  
-
-  def getArticleData
-    get_article = GetAnalytics.new
-
-    @articledata = get_article.get_article_data(params[:startdate], params[:enddate], params[:selectedPath])
-  end
+  end 
 
   def show
   	# article = Article.find(params[:id]) 이걸로 url갖고와서 그 url을 비지니스로직메소드에 담아 보냄. 비지니스로직에서 그걸로 처리한 후에 데이터 갖고 오고 그걸 골뱅이로 보냄.

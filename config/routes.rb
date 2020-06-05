@@ -29,7 +29,6 @@ Rails.application.routes.draw do
       # google analytics api data
       resources :ga_api_info do
         collection do
-          get 'getArticleData'
           get 'getTotalGaInfo'
           get 'getDemographic'
         end

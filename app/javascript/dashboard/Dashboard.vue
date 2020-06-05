@@ -23,7 +23,7 @@
             <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
             <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
               <span @click="$refs.menu.save(dates)">OK</span>
-            </v-btn>
+            </v-btn> 
           </v-date-picker>
         </v-menu>
       </v-col>
@@ -49,135 +49,135 @@
       </v-container>
       <!-- line chart end -->
 
-
       <!-- dropdown graph end -->
 
-      
-      
-        <!-- stats card 1 start - pageview -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="info"
-            icon="mdi-baby-face-outline"
-            title="Page views (PV)"
-            :value="setCurrentTotal('pageviews')"
-            :sub-data="setCompareTotal('pageviews')"
-          />
-        </v-col>
-        <!-- stats card 1 end -->
+      <!-- stats card 1 start - pageview -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="info"
+          icon="mdi-baby-face-outline"
+          title="Page views (PV)"
+          :value="setCurrentTotal('pageviews')"
+          :sub-data="setCompareTotal('pageviews')"
+        />
+      </v-col>
+      <!-- stats card 1 end -->
 
-        <!-- stats card 2 start - user -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="#fcba03"
-            icon="mdi-poll"
-            title="User"
-            :value="setCurrentTotal('users')"
-            :sub-data="setCompareTotal('users')"
-          />
-        </v-col>
-        <!-- stats card 2 end -->
+      <!-- stats card 2 start - user -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="#fcba03"
+          icon="mdi-poll"
+          title="User"
+          :value="setCurrentTotal('users')"
+          :sub-data="setCompareTotal('users')"
+        />
+      </v-col>
+      <!-- stats card 2 end -->
 
-        <!-- stats card 3 start - time on page -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="success"
-            icon="mdi-store"
-            title="Avg.Time on Page"
-            :value="setCurrentTotal('avgTimeOnPage')"
-            :sub-data="setCompareTotal('avgTimeOnPage')"
-          />
-        </v-col>
-        <!-- stats card 3 end -->
+      <!-- stats card 3 start - mcv -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="success"
+          icon="mdi-sofa"
+          title="MCV"
+          :value="setCurrentTotal('mcv')"
+          :sub-data="setCompareTotal('mcv')"
+        />
+      </v-col>
+      <!-- stats card 3 end -->
 
-        <!-- stats card 4 start - mcv -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="orange"
-            icon="mdi-sofa"
-            title="MCV temporary"
-            :value="setMcv('mcv')"
-          />
-        </v-col>
-        <!-- stats card 4 end -->
+      <!-- stats card 4 start - time on page -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="orange"
+          icon="mdi-store"
+          title="Avg.Time on Page"
+          :value="setCurrentTotal('avgTimeOnPage')"
+          :sub-data="setCompareTotal('avgTimeOnPage')"
+        />
+      </v-col>
+      <!-- stats card 4 end -->        
 
-        <!-- stats card 5 start - mcvr -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="info"
-            icon="mdi-duck"
-            title="mcvr temporary"
-            :value="setMcv('mcvr')"
-          />
-        </v-col>
-        <!-- stats card 5 end -->
+      <!-- stats card 5 start - mcvr -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="info"
+          icon="mdi-duck"
+          title="MCVR"
+          :value="setCurrentTotal('mcvr')"
+          :sub-data="setCompareTotal('mcvr')"
+        />
+      </v-col>
+      <!-- stats card 5 end -->
 
-        <!-- stats card 6 start - mcv/uv -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="#fcba03"
-            icon="mdi-poll"
-            title="mcv/uv temporary"
-            :value="setMcv('mcvPerUv')"
-          />
-        </v-col>
-        <!-- stats card 6 end -->
+      <!-- stats card 6 start - mcv/uv -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="#fcba03"
+          icon="mdi-poll"
+          title="MCV/UV"
+          :value="setCurrentTotal('mcvPerUv')"
+          :sub-data="setCompareTotal('mcvPerUv')"
+        />
+      </v-col>
+      <!-- stats card 6 end -->
 
-        <!-- stats card 7 start - pv/uv -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="success"
-            icon="mdi-store"
-            title="PV/UV temporary"
-            :value="setMcv('pvPerUv')"
-            :sub-data="setCompareTotal('pvPerUv')"
-          />
-        </v-col>
-        <!-- stats card 7 end -->
+      <!-- stats card 7 start - pv/uv -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="success"
+          icon="mdi-store"
+          title="PV/UV"
+          :value="setCurrentTotal('pvPerUv')"
+          :sub-data="setCompareTotal('pvPerUv')"
+        />
+      </v-col>
+      <!-- stats card 7 end -->
 
-        <!-- stats card 8 start - bounce rate -->
-        <v-col
-          cols="12"
-          sm="6"
-          lg="3"
-        >
-          <material-stats-card
-            color="orange"
-            icon="mdi-sofa"
-            title="%Bounce"
-            :value="setCurrentTotal('bounces')"
-            :sub-data="setCompareTotal('bounces')"
-          />
-        </v-col>
-        <!-- stats card 8 end -->  
+      <!-- stats card 8 start - bounce rate -->
+      <v-col
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <material-stats-card
+          color="orange"
+          icon="mdi-sofa"
+          title="%Bounce"
+          :value="setCurrentTotal('bounces')"
+          :sub-data="setCompareTotal('bounces')"
+        />
+      </v-col>
+      <!-- stats card 8 end -->  
 
       <!-- progress circular start -->
       <v-col
@@ -218,7 +218,34 @@
         lg="4"
       >
         <material-chart-card
-          :mcvdata="setMcv('mcvr')"
+          :columndata="setColumnChartData()"
+          color="success"
+          type="Line"
+          :sheetHeight="300"
+          chartheight="250px"
+          graphType="column"
+        >
+          <h4 class="card-title font-weight-light mt-2 ml-2">
+              MCV
+            </h4>
+
+            <p class="d-inline-flex font-weight-light ml-2 mt-1">
+              will be updated
+            </p>
+
+            <template v-slot:actions>
+              <v-icon
+                class="mr-1"
+                small
+              >
+                mdi-clock-outline
+              </v-icon>
+              <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
+            </template>
+        </material-chart-card>
+
+        <!-- <material-chart-card
+          :mcvdata="setCurrentTotal('mcv')"
           color="success"
           type="Line"
           :sheetHeight="300"
@@ -227,7 +254,7 @@
         >
 
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            MCVR
+            MCV
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
@@ -243,7 +270,7 @@
             </v-icon>
             <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
           </template>
-        </material-chart-card>
+        </material-chart-card> -->
       </v-col>
       <!-- mcvr line graph data end -->
 
@@ -367,7 +394,12 @@
       },
       setCurrentTotal(value){
         var currentTotal = this.$store.state.totalgainfos[0];
+        var check = /mcv/;
+        var pv;
+        var uv;
+        
         var data;
+
         for(var key in currentTotal){
           if(value == key){
             if(value == 'avgTimeOnPage'){
@@ -378,12 +410,18 @@
               data = currentTotal[key]
               return data
             }
+          }else if(value == 'pvPerUv'){
+            pv = parseInt(currentTotal['pageviews'], 10);
+            uv = parseInt(currentTotal['users'], 10);
+            return ((pv/uv)*100).toFixed(2) + '%';
           }
+        }
+
+        if(check.test(value)){
+          return this.setMcv(currentTotal, value);
         }
       },
       setCompareTotal(value){
-        // i forgot to delete this one
-        var compareTotal = this.$store.state.totalgainfos[1];
         var arr = [];
         
         var calculatedData;
@@ -423,12 +461,15 @@
         var compare;
         var pv;
         var uv;
+        var check = /mcv/;
 
         for(var key in currentTotal){
           if(value == 'pvPerUv'){
             pv = parseInt(currentTotal['pageviews'], 10);
             uv = parseInt(currentTotal['users'], 10);
             current = ((pv/uv)*100).toFixed(2)
+          }else if(check.test(value)){
+            current = this.setMcv(currentTotal, value);
           }else if(key == value){
             current = parseInt(currentTotal[key], 10);
           }
@@ -439,6 +480,8 @@
             pv = parseInt(compareTotal['pageviews'], 10);
             uv = parseInt(compareTotal['users'], 10);
             compare = ((pv/uv)*100).toFixed(2)
+          }else if(check.test(value)){
+            compare = this.setMcv(compareTotal, value);
           }else if(key == value){
             compare = parseInt(compareTotal[key], 10);
           }
@@ -465,27 +508,18 @@
 
         return compareDates;
       },
-      setMcv(value){
-        var clickData = this.$store.state.clickcount.length;
-        var totalValue = this.$store.state.totalgainfos[0];
+      setMcv(data, value){
+        var totalValue = data;
         var pv;
         var uv;
-
-        if(value == 'mcv'){
-          return clickData;
-        }
 
         for(var key in totalValue){
           if(value == 'mcvr'){
             pv = parseInt(totalValue['pageviews'], 10);
-            return ((clickData/pv)*100).toFixed(2) + '%';
+            return ((totalValue['mcv']/pv)*100).toFixed(2) + '%';
           }else if(value == 'mcvPerUv'){
             uv = parseInt(totalValue['users'], 10);
-            return ((clickData/uv)*100).toFixed(2) + '%';
-          }else if(value == 'pvPerUv'){
-            pv = parseInt(totalValue['pageviews'], 10);
-            uv = parseInt(totalValue['users'], 10);
-            return ((pv/uv)*100).toFixed(2) + '%';
+            return ((totalValue['mcv']/uv)*100).toFixed(2) + '%';
           }
         }
       },
@@ -531,8 +565,20 @@
         var selectedDrop = this.selectedItem.item
         var arr=[];
         var compareset={};
+        
 
         var dropdwnarr = this.$store.state.totalgainfos[2];
+
+        // var oderedDropdwnarr = new Map()
+
+        // Object.keys(dropdwnarr).sort().forEach(function(key) {
+        //   for(var k in dropdwnarr[key]){
+        //     if(k == selectedDrop){
+        //       oderedDropdwnarr.set(key, dropdwnarr[key][k]);    
+        //     }
+        //   }
+        // });
+        
         var comparedropdwnarr = this.$store.state.totalgainfos[3];
         var dropdwn = {}
         var comparedata = {}
@@ -556,7 +602,7 @@
         }
 
         var compareValueArr = Object.values(comparedata);
-        console.log(compareValueArr)
+        
         var i = 0;
 
         for(var key in dropdwn) {
@@ -590,6 +636,22 @@
         arr[1] = setcompare;
 
         return arr
+      },
+      setColumnChartData(){
+        var columnchartArr=[];
+        var current = this.$store.state.totalgainfos[0].mcv;
+        var compare = this.$store.state.totalgainfos[1].mcv;
+
+        var currentDate = this.dates.join(' ~ ');
+        var compareDates = this.setCompareDates().join(' ~ ');
+        
+        var first = ['current', current];
+        var second = ['compare', compare];
+
+        columnchartArr[0] = first;
+        columnchartArr[1] = second;
+
+        return columnchartArr;
       },
       setMinute(avgTimeOnPage){
         var m = Math.floor(avgTimeOnPage/60);

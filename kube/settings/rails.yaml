@@ -50,7 +50,7 @@ spec:
         - name: empty-dir
           mountPath: /analytics_app/tmp/sockets
       - name: rails
-        image: destiny1616/rails:v6
+        image: destiny1616/rails:v8
         imagePullPolicy: Always
         command: ["foreman", "start", "-f", "Procfile.dev"]
         envFrom:

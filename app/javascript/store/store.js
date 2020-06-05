@@ -72,17 +72,6 @@ export default new Vuex.Store({
         })
         .then(response => (state.demographicData = response.data), (error) => {console.log(error);})
     },
-    getAticleData(state, payload){
-      axios
-        .get('/api/v1/ga_api_info/getArticleData.json', {
-            params: {
-              startdate: payload.startdate,
-              enddate: payload.enddate,
-              selectedPath: payload.selectedPath
-            }
-        })
-        .then(response => (state.articleData = response.data), (error) => {console.log(error);})
-    }
   }
 })
 

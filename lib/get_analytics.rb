@@ -1,7 +1,7 @@
 require 'google/apis/analyticsreporting_v4'
 require 'date'
 
-class GetAnalytics
+class GetAnalytics < ApplicationController
 
 	VIEW_ID = "214644944"
 
@@ -22,8 +22,8 @@ class GetAnalytics
 		# index 0 -> total data, index 1 -> data by date or hour
 		current_arr = set_total_by_date(startdate, enddate)
 		current_data = current_arr[0]
-		current_datetime_data = current_arr[1]
-
+		current_linechart_data = current_arr[1]
+		
 
 		if startdate == enddate then
 			compare_startdate = (formatted_startdate - 1.day).strftime("%Y-%m-%d")
@@ -37,13 +37,13 @@ class GetAnalytics
 		# index 0 -> total data, index 1 -> data by date or hour
 		compare_arr = set_total_by_date(compare_startdate, compare_enddate)
 		compare_data = compare_arr[0]
-		compare_datetime_data = compare_arr[1]
-
+		compare_linechart_data = compare_arr[1]
+		
 
 		set_total_by_date.push(current_data)
 		set_total_by_date.push(compare_data)
-		set_total_by_date.push(current_datetime_data)
-		set_total_by_date.push(compare_datetime_data)
+		set_total_by_date.push(current_linechart_data)
+		set_total_by_date.push(compare_linechart_data)
 
 		return set_total_by_date
 	
@@ -68,9 +68,13 @@ class GetAnalytics
 
 		if startdate == enddate then
 			dimension = @analytics::Dimension.new(name: 'ga:hour')
+			order_by = @analytics::OrderBy.new(field_name: 'ga:hour', sort_order: 'ASCENDING')
 		else
 			dimension = @analytics::Dimension.new(name: 'ga:date')
+			order_by = @analytics::OrderBy.new(field_name: 'ga:date', sort_order: 'ASCENDING')
 		end
+
+
 
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
@@ -78,13 +82,16 @@ class GetAnalytics
     			metrics: metric_type, 
     			dimensions: [dimension],
     			# dimension_filter_clauses: [dimension_filters],
-    			date_ranges: [date_range]
+    			date_ranges: [date_range],
+    			order_bys: [order_by]
   			)]
 		)
 		response = @client.batch_get_reports(request)
 
 
 		set_total_array = Array.new
+
+		total_clicks_count = set_total_article(startdate, enddate)
 
 		# getting total data part start
 		
@@ -100,6 +107,7 @@ class GetAnalytics
 			t.values.each_with_index do |v, index|
 				datahash[key_array[index]] = v	
 			end
+			datahash['mcv'] = total_clicks_count
 			set_total_array.push(datahash)
 		end
 		# getting total data part end
@@ -125,11 +133,17 @@ class GetAnalytics
 		return set_total_array
 	end
 
+	def set_total_article(startdate, enddate)
+		start_date = startdate.to_date.beginning_of_day
+	    end_date = enddate.to_date.end_of_day
+		total_clicks_count = Click.where(:created_at => start_date..end_date).count
+		return total_clicks_count
+	end
+
 
 
 	def get_data(startdate, enddate)
-		puts startdate.class
-		puts "2020-04-30".class
+		
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
 		order_by = @analytics::OrderBy.new(field_name: 'ga:pageviews', sort_order: 'DESCENDING')
 		# metric = @analytics::Metric.new(expression: 'ga:sessions')
@@ -187,7 +201,7 @@ class GetAnalytics
 		messageHash = {}
 
 		if !response.reports.first.data.rows then
-			puts "error"
+			
 			key = "message"
 			messageHash[key.to_sym] = "no data"
 		 	return messageHash
@@ -202,6 +216,9 @@ class GetAnalytics
 			key_array[index] = k.gsub("ga:","")
 		end
 
+		key_array.push('id')
+		key_array.push('clickCount')
+
 		set_ga_data_array = Array.new
 
 
@@ -220,95 +237,41 @@ class GetAnalytics
 				i += 1
 			end
 
+			articleArr = set_article_data(r.dimensions.first, startdate, enddate)
+
+			articleArr.each do |a|
+				datahash[key_array[i]] = a
+				i += 1
+			end
+
 			set_ga_data_array.push(datahash)
 
 		end
-
+		
 		return set_ga_data_array
 	end
 
-	def get_article_data(startdate, enddate, selectedPath)
+	# db data
+	def set_article_data(uri, startdate, enddate) 
+		url = 'https://navivi.site' + uri
+		article = Article.find_by(url: url)
+		start_date = startdate.to_date.beginning_of_day 
+		end_date = enddate.to_date.end_of_day
+		
+		articleArr = Array.new
 
-		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
-
-		metrics = ['ga:pageviews', 'ga:uniquePageviews', 'ga:avgTimeOnPage', 'ga:bounces', 'ga:entrances', 'ga:exits']
-		metric_type = Array.new
-		metrics.each do |m|
-			metric = @analytics::Metric.new
-			metric.expression = m
-			metric_type.push(metric)
+		if article
+			id = article.id
+			clickCount = article.clicks.where(:created_at => start_date..end_date).count
+		else
+			id = 0
+			clickCount = 0
 		end
 
-		dimensions = ['ga:pagePath', 'ga:pageTitle']
-		dimension_type = Array.new
-		dimensions.each do |d|
-			dimension  = @analytics::Dimension.new
-			dimension.name = d
-			dimension_type.push(dimension)
-		end
+		articleArr = [id, clickCount]
 
+		return articleArr
 
-		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
-
-		dimension_filters = @analytics::DimensionFilterClause.new(
-	      filters: [
-	        @analytics::DimensionFilter.new(
-	          dimension_name: 'ga:pagePath',
-	          operator: "EXACT",
-	          expressions: [selectedPath]
-	        )
-	      ]
-	    )
-
-		request = @analytics::GetReportsRequest.new(
-  			report_requests: [@analytics::ReportRequest.new(
-    			view_id: @view_id, 
-    			metrics: metric_type, 
-    			dimension_filter_clauses: [dimension_filters],
-    			dimensions: dimension_type,
-    			date_ranges: [date_range]
-  			)]
-		)
-		response = @client.batch_get_reports(request)
-
-		if !response.reports.first.data.rows then
-			puts "error"
-			key = "message"
-			datahash[key.to_sym] = "no data"
-		 	return datahash
-		end
-
-
-		data_from_google = response.reports.first.data.rows
-
-		key_array = dimensions + metrics
-
-		key_array.each_with_index do |k, index| 
-			key_array[index] = k.gsub("ga:","")
-		end
-
-		set_ga_data_array = Array.new
-
-		data_from_google.each_with_index do |r, index|
-
-			datahash = {}
-			i = 0;
-
-			r.dimensions.each do |d|
-				datahash[key_array[i]] = d
-				i += 1
-			end
-
-			r.metrics.first.values.each do |m|
-				datahash[key_array[i]] = m
-				i += 1
-			end
-
-			set_ga_data_array.push(datahash)
-
-		end
-
-		return set_ga_data_array
 	end
 
 

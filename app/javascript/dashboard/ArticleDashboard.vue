@@ -31,30 +31,30 @@
 
       <!-- article title part start -->
       <v-col cols="12" sm="6">
-        <v-text-field readonly v-model="checkIfDefault? setDefaultTitle() : title" label="Article Title"></v-text-field>
+        <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="Article Title"></v-text-field>
       </v-col>
       <!-- article title part end -->
-      
+
       <v-col cols="3" sm="3">
         <div class="my-2">
           <router-link 
             v-if="checkIfDefault"
-            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getDefaultId() } }"
+            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getDefault('id')[1][1] } }"
           >
-            <v-btn color="primary">Go To HeatMap</v-btn>
+            <v-btn color="primary">HeatMap</v-btn>
           </router-link>
           <router-link 
             v-else
-            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getSelectedId() } }"
+            :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getSelected('id')[1][1] } }"
           >
-            <v-btn color="primary">Go To HeatMap</v-btn>
+            <v-btn color="primary">HeatMap</v-btn>
           </router-link>
           
         </div>
       </v-col>
 
     </v-row>
-    
+
     <v-row>
       <!-- graph data 1 start -->
       <v-col
@@ -84,13 +84,13 @@
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
             {{ Math.floor((getDefault('pageviews')[1][1]/getDefault('pageviews')[0][1])*100) }}
-            % of top20 article PV Avg,
+            % of top20 PV Avg,
             {{ getDefault('pageviews')[1][1]>getDefault('pageviews')[0][1]? "Good!" : "Cheer Up!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
             {{ Math.floor((getSelected('pageviews')[1][1]/getSelected('pageviews')[0][1])*100) }}
-            % of top20 article PV Avg,
+            % of top20 PV Avg,
             {{ getSelected('pageviews')[1][1]>getSelected('pageviews')[0][1]? "Good!" : "Cheer Up!" }}
           </p>
 
@@ -104,19 +104,36 @@
         lg="4"
       >
         <material-chart-card
-          :mcvdata="checkIfDefault? getDefaultMcv() : getSelectedMcv()"
+          :columndata="checkIfDefault? getDefault('clickCount') : getSelected('clickCount')"
           color="success"
           type="Line"
           :sheetHeight="200"
           chartheight="150px"
-          graphType="linel"
+          graphType="column"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
             MCV
+            <v-icon
+              class="mr-1"
+              small
+            >
+              mdi-arrow-right-bold
+            </v-icon>
+            <span>
+              {{ checkIfDefault? getDefault('clickCount')[1][1] : getSelected('clickCount')[1][1] }}
+            </span>
           </h4>
 
-          <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            WORIKNG ON PROGRESS
+          <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
+            {{ Math.floor((getDefault('clickCount')[1][1]/getDefault('clickCount')[0][1])*100) }}
+            % of top20 MCV Avg,
+            {{ getDefault('clickCount')[1][1]>getDefault('clickCount')[0][1]? "Good!" : "Cheer Up!" }}
+          </p>
+
+          <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
+            {{ Math.floor((getSelected('clickCount')[1][1]/getSelected('clickCount')[0][1])*100) }}
+            % of top20 MCV Avg,
+            {{ getSelected('clickCount')[1][1]>getSelected('clickCount')[0][1]? "Good!" : "Cheer Up!" }}
           </p>
 
         </material-chart-card>
@@ -249,8 +266,6 @@
       </v-col>
       <!-- graph data 6 end -->    
 
-      <!-- {{ gainfos }} -->
-
       <!-- article list part start -->
       <v-col
         cols="12"
@@ -290,14 +305,23 @@
               <tbody>
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
-                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(35, '...') }}</p>
-                    <small class="page-path">{{ data.pagePath }}</small>
+                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(30, '...') }}</p>
+                    <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
                   </td>
+                  <td>{{ data.clickCount }}</td>
                   <td>{{ data.pageviews }}</td>
                   <td>{{ data.users }}</td>
-                  <td>{{ data.avgTimeOnPage }}</td>
-                  <td>{{ data.bounces }}</td>
-                  <td>{{ data.timeOnPage }}</td>
+                  <td>{{ setMinute(data.avgTimeOnPage) }}</td>
+                  <td>{{ getBounceRate(data.bounces, data.sessions) }}</td>
+                  <td>
+                    <router-link 
+                      v-if = "data.id != 0"
+                      :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: data.id } }"
+                    >
+                      <v-btn small color="primary">Heatmap</v-btn>
+                    </router-link>
+                  </td>
+                  
                   <td v-show="false">{{ data.pagePath }}</td>
                 </tr>
               </tbody>
@@ -344,13 +368,18 @@
           align: 'start',
           sortable: false,
           value: 'pageTitle',
-          width: '50%',
+          width: '45%',
         },
+        { text: 'MCV', value: 'clickCount' },
         { text: 'PV', value: 'pageviews' },
         { text: 'UV', value: 'users' },
         { text: 'duration', value: 'avgTimeOnPage' },
         { text: 'bounce', value: 'bounces' },
-        { text: 'entrance', value: 'users' },
+        { 
+          text: 'heatMap', 
+          value: 'heatMap',
+          sortable: false
+        },
         { value: 'pagePath' }
       ],  
     }),
@@ -375,9 +404,6 @@
       },
       demographicData() {
         return this.$store.state.demographicData
-      },
-      articleData() {
-        return this.$store.state.articleData
       },
       temp(){
         console.log('just temp')
@@ -411,7 +437,7 @@
       },
       getDefault(value){
         var columnchartArr=[];
-        var defaultGAinfo = this.$store.state.gainfos[10];
+        var defaultGAinfo = this.$store.state.gainfos[0];
         var defaultData;
         for(var key in defaultGAinfo){
           if(key == value){
@@ -419,12 +445,13 @@
               var b = parseInt(defaultGAinfo[key], 10);
               var pv = parseInt(defaultGAinfo['pageviews'], 10);
               defaultData = Math.floor((b/pv)*100);
+            }else if(value == 'pageTitle'){
+              defaultData = defaultGAinfo[key]
+              return defaultData
             }else{
               defaultData = parseInt(defaultGAinfo[key], 10);
             }
           }
-          var tt = defaultGAinfo['pageTitle'];
-          // this.title = defaultGAinfo['pageTitle'];
         }
         var avg = this.getAvg(value);
 
@@ -443,55 +470,6 @@
         columnchartArr[1] = second;
 
         return columnchartArr;
-      },
-      getDefaultMcv(){
-        var defaultPath = this.$store.state.gainfos[10].pagePath;
-        
-        var path = 'https://navivi.site' + defaultPath;
-        var articles = this.$store.state.articles;
-
-        for(var i=0; i<articles.length; i++){
-          if(path == articles[i].url){
-            var clickArr = articles[i].click
-          }
-        }
-
-        var formattedStartDate = Date.parse(this.dates[0]);
-        var formattedEndDate = Date.parse(this.dates[1]);
-        var count=0;
-
-        for(var i=0; i<clickArr.length; i++){
-          var clicktime =  new Date(clickArr[i].created_at).toISOString().substr(0, 10);
-          var formattedClicktime = Date.parse(clicktime);
-          
-          if(formattedClicktime >= formattedStartDate && formattedClicktime <= formattedEndDate){
-            count++;
-          }
-        }
-        return count;
-      },
-      getDefaultId(){
-        var defaultPath = this.$store.state.gainfos[10].pagePath;
-        var path = 'https://navivi.site' + defaultPath;
-        var articles = this.$store.state.articles;
-        console.log(path);
-        var defaultId;
-
-        for(var i=0; i<articles.length; i++){
-          if(path == articles[i].url){
-            defaultId = articles[i].id
-          }
-        }
-        return defaultId;
-      },
-      setDefaultTitle(){
-        var defaultGAinfo = this.$store.state.gainfos[10];
-        var title;
-        for(var key in defaultGAinfo){
-          title = defaultGAinfo['pageTitle']
-        }
-
-        return title;
       },
       getSelected(value) {
         var columnchartArr=[];
@@ -535,49 +513,6 @@
 
         return columnchartArr;
       },
-      getSelectedMcv(){
-        var gainfos = this.$store.state.gainfos;
-        var articles = this.$store.state.articles;
-        var selectedPath;
-        var selectedMcv;
-        
-        for(var key in gainfos){
-          if(this.selectedPath == gainfos[key].pagePath){
-            selectedPath = gainfos[key].pagePath;
-          }
-        }
-
-        var path = 'https://navivi.site' + selectedPath;
-
-        for(var i=0; i<articles.length; i++){
-          if(path == articles[i].url){
-            selectedMcv = articles[i].click.length;
-          }
-        }
-        return selectedMcv;
-      },
-      getSelectedId(){
-        var gainfos = this.$store.state.gainfos;
-        var articles = this.$store.state.articles;
-        var selectedPath;
-        var SelectedId;
-        
-        for(var key in gainfos){
-          if(this.selectedPath == gainfos[key].pagePath){
-            selectedPath = gainfos[key].pagePath;
-          }
-        }
-
-        var path = 'https://navivi.site' + selectedPath;
-
-        for(var i=0; i<articles.length; i++){
-          if(path == articles[i].url){
-            SelectedId = articles[i].id;
-          }
-        }
-
-        return SelectedId;
-      },
       getAvg(value){
         var a = this.$store.state.gainfos;
         var arr=[];
@@ -618,6 +553,10 @@
         s = (s < 10) ? "0" + s : s;
 
         return h + ":" + m + ":" + s;
+      },
+      getBounceRate(bounces, sessions) {
+        var bounceRate = ((bounces/sessions)*100).toFixed(2)
+        return bounceRate + "%";
       },
       setPathTitle(path, title){
         this.selectedPath = path;
