@@ -1,2 +1,1 @@
-rails: rails s
-webpacker: ./bin/webpack-dev-server
+rails: bundle exec puma -C config/puma.rb

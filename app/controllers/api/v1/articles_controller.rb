@@ -16,11 +16,22 @@ class Api::V1::ArticlesController < ApplicationController
 
 	# GET /articles/new
 	def new
-	  @article = Article.new
-      @article.title = params[:title]
-      @article.url = params[:url]
-      @article.id = params[:id]
-      @article.save
+      if Article.exists?(params[:id])
+        @article = Article.find(params[:id])
+        @article.title = params[:title]
+        @article.url = params[:url]
+        if params[:maxpos].to_i > @article.maxpos
+          @article.maxpos = params[:maxpos]
+        end
+        @article.save
+      else
+        @article = Article.new
+        @article.title = params[:title]
+        @article.url = params[:url]
+        @article.id = params[:id]
+        @article.maxpos = params[:maxpos]
+        @article.save
+      end
 	end
 
 	# GET /articles/1/edit
