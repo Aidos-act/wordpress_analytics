@@ -365,9 +365,6 @@
         }
         return this.dates.join(' ~ ')
       },
-      clickcount() {
-        return this.$store.state.clickcount
-      },
       totalgainfos(){
         return this.$store.state.totalgainfos
       },
@@ -377,10 +374,6 @@
     },
     mounted() {
       this.$store.commit('getTotalGaInfo',{
-        startdate: this.dates[0],
-        enddate: this.dates[1]
-      });
-      this.$store.commit('fetchClicks',{
         startdate: this.dates[0],
         enddate: this.dates[1]
       });

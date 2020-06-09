@@ -1,7 +1,6 @@
 <template>
   <v-content>
     <router-view />
-    <spinner :loading="true"></spinner>
     <!-- <dashboard-core-footer /> -->
   </v-content>
 </template>

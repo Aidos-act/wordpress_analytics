@@ -26,7 +26,9 @@
     <v-toolbar-title
       class="hidden-sm-and-down font-weight-light"
     >
-      Dashboard
+      {{ this.$route.params.id ? 'Article Id : ' + this.$route.params.id : 'Dashboard' }}
+      
+      
     </v-toolbar-title>
 
     <v-spacer />

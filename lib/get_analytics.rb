@@ -277,7 +277,6 @@ class GetAnalytics < ApplicationController
 
 	def get_demo(startdate, enddate)
 		
-
 		date_range = @analytics::DateRange.new(start_date: '2020-05-21', end_date: '2020-05-21')
 		metric = @analytics::Metric.new(expression: 'ga:users')
 

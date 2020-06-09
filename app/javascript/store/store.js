@@ -10,12 +10,12 @@ export default new Vuex.Store({
     goalData: 0,
   	articles: [],
   	article: {},
-    clickcount: 0,
     totalgainfos: [],
     gainfos: [],
     demographicData: [],
     articleData: [],
     drawer: null,
+    articleId: ''
   },
   mutations: {
     SET_DRAWER (state, payload) {
@@ -26,17 +26,6 @@ export default new Vuex.Store({
 	      .get('/api/v1/articles.json')
 	      .then(response => (state.articles = response.data), (error) => {console.log(error);})
   	},
-    fetchClicks(state, payload){
-      axios
-        .get('/api/v1/clicks.json', {
-          params: {
-            startdate: payload.startdate,
-            enddate: payload.enddate,
-            articleId: payload.articleId
-          }
-        })
-        .then(response => (state.clickcount = response.data), (error) => {console.log(error);})
-    },
   	setArticleInfo(state, id){
   		axios
 	      .get('/api/v1/articles/'+id+'.json')

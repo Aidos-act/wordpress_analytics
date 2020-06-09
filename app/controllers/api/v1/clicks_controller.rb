@@ -4,11 +4,8 @@ class Api::V1::ClicksController < ApplicationController
 	# GET /clicks  
 	# GET /clicks.json
 	def index
-    start_date = params[:startdate].to_date.beginning_of_day
-    end_date = params[:enddate].to_date.end_of_day
-    puts 'oh my god'
-	  @clicks = Click.where(:created_at => start_date..end_date)
-
+    clicks = @article.clicks.all
+    render json:clicks
 	end
 
   def show

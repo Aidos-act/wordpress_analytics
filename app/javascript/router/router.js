@@ -19,13 +19,13 @@ const routes = [
         path: 'articleDashboard',
         component: () => import('../dashboard/ArticleDashboard.vue'),
       },
+      { 
+        name: 'HeatmapPage',
+        path: '/api/v1/articles/:id',
+        component: () => import("../heatmap/HeatmapPage.vue")
+      }
     ],
   },
-  { 
-    name: 'HeatmapPage',
-    path: '/api/v1/articles/:id',
-    component: () => import("../heatmap/HeatmapPage.vue")
-  }
 ];
 
 export default new VueRouter({ mode: 'hash', routes });

@@ -33,20 +33,41 @@
          </div>
          <iframe :src="article.url" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.maxpos "></iframe>
       </div>
-      <!-- <a :href="article.url"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.title }}></small> </p></a> -->
+
+
       <div class="values-set">
-        <h3> <strong> Article: </strong> {{ article.id }} </h3> 
+        <h3> <strong> {{ article.title }} </strong> </h3> 
         <a :href="article.url"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.title }}></small> </p></a>
-        <table>
-          <tbody class="info">
-            <tr>
-              <td> <p> Created at: </p> {{ article.created_at.split('T')[0] }} </td>
-              <td> <p> Clicks: </p>{{ countclick.count_click }} </td>
-              <td> <p> Views(IP): </p>{{ ipcount.length }} </td>
-            </tr>
-          </tbody>
-        </table>
-        <h3> <strong> Clicks </strong>  </h3>
+        
+        <v-simple-table>
+          <template v-slot:default>
+            <tbody>
+              <tr v-for="(value, key) in getArticleData()">
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+                
+              </tr>
+              <tr>
+                <td>Created at</td>
+                <td>{{ article.created_at.split('T')[0] }}</td>
+              </tr>
+              <tr>
+                <td>MCV(Clicks)</td>
+                <td>{{ countclick.count_click }}</td>
+              </tr>
+              <tr>
+                <td>Views(IP)</td>
+                <td>{{ ipcount.length }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
+
+        <br>
+        <hr>
+        <br>
+
+        <h3> <strong> Clicks </strong> </h3>
         <table>
           <tbody class="btns">
             <tr v-for="e in countbtnurl" >
@@ -59,22 +80,106 @@
                 <td class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
               </div>
             </tr>
-            <tr>
-              <td><router-link :to="{path: '/'}" tag="button"> Back </router-link></td>
-            </tr>
           </tbody>
         </table>
 
+        <br>
+        <hr>
+        <br>
+        
+        <h3> <strong> List </strong> </h3>
+        
+        <material-card
+          color="warning"
+          class="px-5 py-3"
+        >
+           <template v-slot:heading>
+            <div class="display-2 font-weight-light">
+              Article List
+            </div>
+
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search by Title or URL"
+              single-line
+              hide-details
+            ></v-text-field>
+           </template>
+           <v-data-table
+              :headers="headers"
+              :items="gainfos"
+              :search="search"
+              :sort-desc="[false, true]"
+              multi-sort
+              :footer-props="{
+                showFirstLastPage: true,
+                firstIcon: 'mdi-arrow-collapse-left',
+                lastIcon: 'mdi-arrow-collapse-right'
+              }"
+            >
+              <template v-slot:body="{ items }">
+                <tbody>
+                  <tr v-for="data in items">
+                    <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
+                    <td class="page-title-wrapper" @click="updateArticle(data.id)">  
+                      <p class="page-title">{{ data.pageTitle | truncate(20, '...') }}</p>
+                      <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
+                    </td>
+                    <td>{{ data.clickCount }}</td>
+                    <td>{{ data.pageviews }}</td>
+                    <td>{{ data.users }}</td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-data-table>
+          </material-card>
+
       </div>
-    </div>
+      <!-- <div class="lists-set">
+        <div>hoon</div>
+      </div> -->
+  </div>
+<!--   <div class="lists-set">
+        <div>hoon</div>
+      </div> -->
+<!-- <dashboard-core-footer /> -->
 </template>
 
 <script type="text/javascript">
   import axios from 'axios';
+  import MaterialCard from '../dashboard/components/base/MaterialCard.vue'
+  import MaterialChartCard from '../dashboard/components/base/MaterialChartCard.vue'
+  import MaterialStatsCard from '../dashboard/components/base/MaterialStatsCard.vue'
 
   export default {
+    components: {
+      // LineChart,
+      MaterialCard,
+      MaterialChartCard,
+      MaterialStatsCard,
+      // DashboardCoreFooter: () => import('../dashboard/components/core/Footer'),
+    },
     data: function () {
       return {
+        dates: [
+          new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+          new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+        ],
+        search: '',
+        headers: [
+          {
+            text: 'Title',
+            align: 'start',
+            sortable: false,
+            value: 'pageTitle',
+            width: '45%',
+          },
+          { text: 'MCV', value: 'clickCount' },
+          { text: 'PV', value: 'pageviews' },
+          { text: 'UV', value: 'users' },
+          { value: 'pagePath' }
+        ], 
         clicks: [],
         scrolls: [],
         article: [],
@@ -89,6 +194,11 @@
         errors: ''
       }
     },
+    computed: {
+      gainfos() {
+        return this.$store.state.gainfos
+      },
+    },
     mounted () {
       // this.updateClicks ();
       this.updateScrolls ();
@@ -101,6 +211,10 @@
       this.getScrolld();
       this.getTotald();
       this.getIp();
+      this.$store.commit('getGaInfo',{
+          startdate: this.dates[0],
+          enddate: this.dates[1]
+      });
       },
     methods: {
       // updateClicks: function () {
@@ -153,7 +267,28 @@
           .get('api/v1/articles/' + this.$route.params.id + '/counter/ipcount.json')
           .then(response => (this.ipcount = response.data)) 
       },
-    }
+      updateArticle(newid){
+        this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
+        this.$router.go();
+      },
+      getArticleData(){
+        var gainfos = this.$store.state.gainfos;
+        var articleData = {};
+        for(var key in gainfos){
+          if(this.$route.params.id == gainfos[key].id ){
+            articleData['pageviews'] = gainfos[key].pageviews;
+            articleData['users'] = gainfos[key].users;
+          }
+        }
+
+        return articleData;
+      }
+    },
+    filters: {
+      truncate: function (text, length, suffix) {
+          return text.substring(0, length) + suffix;
+      },
+    }  
   }
 </script>
 
@@ -232,7 +367,15 @@
     display: block;
     position: relative;
     height: 100%;
-    width: 70%;
+    width: 60%;
+    margin: 10px;
+    margin-bottom: 10%;
+  }
+  .lists-set {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
     margin: 10px;
     margin-bottom: 10%;
   }
@@ -346,6 +489,10 @@
   }
   .info tr{
     height: 20%;
+  }
+  .page-title-wrapper:hover {
+    color: #42b883;
+    cursor: pointer;
   }
 
 

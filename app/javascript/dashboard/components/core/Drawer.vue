@@ -14,7 +14,9 @@
       dense
       nav
     >
-      <v-list-item>
+      <v-list-item
+        to="/"
+      >
         <v-list-item-avatar
           class="align-self-center"
           color="white"
@@ -76,9 +78,14 @@
         },
         {
           title: 'Article Dashboard',
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-align-vertical-bottom',
           to: '/articleDashboard',
         },
+        {
+          title: 'HeatMap Page',
+          icon: 'mdi-chart-bubble',
+          to: '/api/v1/articles/1',
+        }
       ],
     }),
 

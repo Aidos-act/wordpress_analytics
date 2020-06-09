@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: setup
-        image: destiny1616/rails:v9
+        image: destiny1616/rails:v10
         imagePullPolicy: Always
         command: ["/bin/sh"]
         args: ["-c", "bundle exec rake db:create && bundle exec rake db:migrate"]

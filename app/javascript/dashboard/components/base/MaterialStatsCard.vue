@@ -47,37 +47,7 @@
       </span>
     </template>
 
-    <template v-else>
-      <v-icon
-        :color="subIconColor"
-        size="16"
-        class="ml-2 mr-1"
-      >
-        mdi-emoticon-dead-outline
-      </v-icon>
 
-      <span
-        :class="subTextColor"
-        class="caption grey--text font-weight-light" 
-      >
-        Working on progress
-      </span>
-
-      <span
-        class="caption grey--text font-weight-light"
-        style="text-align: right;"
-      >
-            Working on progress
-      </span>
-      
-      <v-icon
-        :color="subIconColor"
-        size="16"
-        class="ml-2 mr-1"
-      >
-        mdi-emoticon-dead-outline
-      </v-icon>
-    </template>
     
   </material-card>
 </template>
