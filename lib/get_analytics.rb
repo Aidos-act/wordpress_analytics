@@ -124,6 +124,11 @@ class GetAnalytics < ApplicationController
 			r.metrics.first.values.each_with_index do |v, index|
 				vhash[key_array[index]] = v
 			end
+
+			if startdate == enddate
+				key = key + ":00"
+			end
+			
 			dropdwnhash[key.to_sym] = vhash
 		end
 

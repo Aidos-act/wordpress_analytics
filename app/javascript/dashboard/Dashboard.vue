@@ -28,7 +28,7 @@
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-
+      
       <!-- dropdown graph start -->
       <v-col class="d-flex" cols="12" sm="6">
         <v-container fluid>
@@ -59,8 +59,8 @@
       >
         <material-stats-card
           color="info"
-          icon="mdi-baby-face-outline"
-          title="Page views (PV)"
+          icon="mdi-book-open-page-variant"
+          title="PageView"
           :value="setCurrentTotal('pageviews')"
           :sub-data="setCompareTotal('pageviews')"
         />
@@ -75,7 +75,7 @@
       >
         <material-stats-card
           color="#fcba03"
-          icon="mdi-poll"
+          icon="mdi-baby-face-outline"
           title="User"
           :value="setCurrentTotal('users')"
           :sub-data="setCompareTotal('users')"
@@ -91,8 +91,8 @@
       >
         <material-stats-card
           color="success"
-          icon="mdi-sofa"
-          title="MCV"
+          icon="mdi-cursor-default-click-outline"
+          title="MCV(Clicks)"
           :value="setCurrentTotal('mcv')"
           :sub-data="setCompareTotal('mcv')"
         />
@@ -107,8 +107,8 @@
       >
         <material-stats-card
           color="orange"
-          icon="mdi-store"
-          title="Avg.Time on Page"
+          icon="mdi-clock-outline"
+          title="滞留時間"
           :value="setCurrentTotal('avgTimeOnPage')"
           :sub-data="setCompareTotal('avgTimeOnPage')"
         />
@@ -123,7 +123,7 @@
       >
         <material-stats-card
           color="info"
-          icon="mdi-duck"
+          icon="mdi-poll"
           title="MCVR"
           :value="setCurrentTotal('mcvr')"
           :sub-data="setCompareTotal('mcvr')"
@@ -139,8 +139,8 @@
       >
         <material-stats-card
           color="#fcba03"
-          icon="mdi-poll"
-          title="MCV/UV"
+          icon="mdi-chart-line"
+          title="MCV/User"
           :value="setCurrentTotal('mcvPerUv')"
           :sub-data="setCompareTotal('mcvPerUv')"
         />
@@ -155,8 +155,8 @@
       >
         <material-stats-card
           color="success"
-          icon="mdi-store"
-          title="PV/UV"
+          icon="mdi-chart-pie"
+          title="PV/User"
           :value="setCurrentTotal('pvPerUv')"
           :sub-data="setCompareTotal('pvPerUv')"
         />
@@ -171,7 +171,7 @@
       >
         <material-stats-card
           color="orange"
-          icon="mdi-sofa"
+          icon="mdi-exit-run"
           title="%Bounce"
           :value="setCurrentTotal('bounces')"
           :sub-data="setCompareTotal('bounces')"
@@ -192,22 +192,15 @@
           graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            MCV Goal Achievement Rate {{ getGoalData }}
+            MCV Goal Achievement Rate 
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            cheer up!
+            goal : {{ getGoalData }}
+            <br>
+            current : 00
           </p>
 
-          <template v-slot:actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
-          </template>
         </material-chart-card>
       </v-col>
       <!-- progress circular end -->
@@ -230,47 +223,13 @@
             </h4>
 
             <p class="d-inline-flex font-weight-light ml-2 mt-1">
-              will be updated
+              current({{dateRangeText}}) : {{ setColumnChartData()[0][1] }} 
+              <br>
+              compare({{compareRangeText}}) : {{ setColumnChartData()[1][1] }}
             </p>
 
-            <template v-slot:actions>
-              <v-icon
-                class="mr-1"
-                small
-              >
-                mdi-clock-outline
-              </v-icon>
-              <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
-            </template>
         </material-chart-card>
 
-        <!-- <material-chart-card
-          :mcvdata="setCurrentTotal('mcv')"
-          color="success"
-          type="Line"
-          :sheetHeight="300"
-          chartheight="250px"
-          graphType="linel"
-        >
-
-          <h4 class="card-title font-weight-light mt-2 ml-2">
-            MCV
-          </h4>
-
-          <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            will be updated
-          </p>
-
-          <template v-slot:actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
-          </template>
-        </material-chart-card> -->
       </v-col>
       <!-- mcvr line graph data end -->
 
@@ -280,7 +239,7 @@
         lg="4"
       >
         <material-chart-card
-          :piedata="getPieChartData()"
+          :piedata="setPieChartData()"
           color="#E91E63"
           type="Pie"
           :sheetHeight="300"
@@ -292,22 +251,18 @@
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            will be updated
+            New : {{ setPieChartData()[0][1].toLocaleString() }} 
+            ({{ Math.floor((setPieChartData()[0][1]/totalgainfos[0].users)*100) }}% of User)
+            <br>
+            Returning : {{ setPieChartData()[1][1].toLocaleString() }} 
+            ({{ Math.floor((setPieChartData()[1][1]/totalgainfos[0].users)*100) }}% of User)
+
           </p>
 
-          <template v-slot:actions>
-            <v-icon
-              class="mr-1"
-              small
-            >
-              mdi-clock-outline
-            </v-icon>
-            <span class="caption grey--text font-weight-light">NNNNNNNNNNN</span>
-          </template>
         </material-chart-card>
       </v-col>
       <!-- pie chart data end-->
-
+  
     </v-row>
   </v-container>
 </template>
@@ -365,11 +320,32 @@
         }
         return this.dates.join(' ~ ')
       },
+      compareRangeText(){
+        var t1 = this.$moment(this.dates[0]);
+        var t2 = this.$moment(this.dates[1]);
+        var compareDates = [];
+
+        var diff = 0;
+        if(t1._i == t2._i) {
+          diff = 1;
+        } else {
+          diff = t2.diff(t1, 'days')+1;
+        }
+        compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
+        compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
+
+        return compareDates.join(' ~ ');
+      },
       totalgainfos(){
         return this.$store.state.totalgainfos
       },
-      getGoalData() {
+      getGoalData(){
         return this.$store.state.goalData;
+      },
+      goalAchivRate(){
+        var totalPv = this.$store.state.totalgainfos[0].pageviews;
+        var goal = this.$store.state.goalData;
+
       }
     },
     mounted() {
@@ -400,13 +376,15 @@
             }else if(value == 'bounces'){
               return this.getBounceRate(currentTotal[key], currentTotal['sessions'])
             }else {
-              data = currentTotal[key]
-              return data
+              data = currentTotal[key];
+              var formattedData = parseInt(data, 10).toLocaleString();
+              return formattedData;
             }
           }else if(value == 'pvPerUv'){
             pv = parseInt(currentTotal['pageviews'], 10);
             uv = parseInt(currentTotal['users'], 10);
-            return ((pv/uv)*100).toFixed(2) + '%';
+            
+            return (pv/uv).toFixed(2);
           }
         }
 
@@ -419,9 +397,9 @@
         
         var calculatedData;
 
-        var compareDates = this.setCompareDates();
+        var compareDates = this.compareRangeText;
 
-        arr["date"] = compareDates.join(' ~ ');
+        arr["date"] = compareDates;
         
         var currentValue = this.setValue(value)[0];
         var compareValue = this.setValue(value)[1];
@@ -485,22 +463,6 @@
 
         return arr;
       },
-      setCompareDates(){
-        var t1 = this.$moment(this.dates[0]);
-        var t2 = this.$moment(this.dates[1]);
-        var compareDates = [];
-
-        var diff = 0;
-        if(t1._i == t2._i) {
-          diff = 1;
-        } else {
-          diff = t2.diff(t1, 'days')+1;
-        }
-        compareDates[0] = t1.subtract(diff,'days').format('YYYY-MM-DD')
-        compareDates[1] = t2.subtract(diff,'days').format('YYYY-MM-DD')
-
-        return compareDates;
-      },
       setMcv(data, value){
         var totalValue = data;
         var pv;
@@ -516,7 +478,7 @@
           }
         }
       },
-      getPieChartData(){
+      setPieChartData(){
         var totalValue = this.$store.state.totalgainfos[0];
         var arr = [];
         var newUsersArr = [];
@@ -533,26 +495,18 @@
             newUsers = parseInt(totalValue[key], 10);
           }
         };
-
         returningUsers = users - newUsers;
+        newUsers = newUsers;
+
+
 
         newUsersArr = ['NewUser', newUsers];
-        returningUsersArr = ['ReturningUser', returningUsers]
-
-        var test1=['test1', 10];
-        var test2=['test2', 20];
-        
+        returningUsersArr = ['ReturningUser', returningUsers];
 
         this.piechartData[0] = newUsersArr;
         this.piechartData[1] = returningUsersArr;
 
-
-        // this.piechartData.push(newUsersArr);
-        // this.piechartData.push(returningUsersArr);
-
-        // console.log(this.piechartData);
         return this.piechartData;
-
       },
       setLineChartData() {
         var selectedDrop = this.selectedItem.item
@@ -560,23 +514,10 @@
         var compareset={};
         
 
-        var dropdwnarr = this.$store.state.totalgainfos[2];
-
-        // var oderedDropdwnarr = new Map()
-
-        // Object.keys(dropdwnarr).sort().forEach(function(key) {
-        //   for(var k in dropdwnarr[key]){
-        //     if(k == selectedDrop){
-        //       oderedDropdwnarr.set(key, dropdwnarr[key][k]);    
-        //     }
-        //   }
-        // });
-        
-        var comparedropdwnarr = this.$store.state.totalgainfos[3];
-        var dropdwn = {}
-        var comparedata = {}
-
         // dropdown current data setting
+        var dropdwnarr = this.$store.state.totalgainfos[2];
+        var dropdwn = {}
+        
         for(var key in dropdwnarr){
           for(var j in dropdwnarr[key]){
             if(j == selectedDrop){
@@ -586,6 +527,9 @@
         }
 
         // compare dropdown current data setting
+        var comparedropdwnarr = this.$store.state.totalgainfos[3];
+        var comparedata = {}
+
         for(var key in comparedropdwnarr){
           for(var j in comparedropdwnarr[key]){
             if(j == selectedDrop){
@@ -611,7 +555,7 @@
           }
         }
 
-        var compareDates = this.setCompareDates();
+        var compareDates = this.compareRangeText;
 
         var dropdwndata = {
           name: this.dates.join(' ~ '),
@@ -620,7 +564,7 @@
         };
         
         var setcompare = {
-          name: compareDates.join(' ~ '),
+          name: compareDates,
           color: '#E91E63',
           data: compareset
         } 
@@ -635,14 +579,16 @@
         var current = this.$store.state.totalgainfos[0].mcv;
         var compare = this.$store.state.totalgainfos[1].mcv;
 
-        var currentDate = this.dates.join(' ~ ');
-        var compareDates = this.setCompareDates().join(' ~ ');
+        // var currentDate = this.dates.join(' ~ ');
+        // var compareDate = this.setCompareDates().join(' ~ ');
         
         var first = ['current', current];
         var second = ['compare', compare];
+        // var dates = [currentDate, compareDate];
 
         columnchartArr[0] = first;
         columnchartArr[1] = second;
+        
 
         return columnchartArr;
       },

@@ -9,6 +9,7 @@
       link
       min-width="100"
       style="position: fixed; top: 115px; right: -35px; border-radius: 8px;"
+      @click="setClickBool()"
     >
       <v-icon large>
         mdi-filter
@@ -16,7 +17,7 @@
     </v-card>
 
     <v-menu
-      :close-on-content-click="false"
+      :close-on-content-click="clickBool"
       activator="#settings"
       bottom
       content-class="v-settings"
@@ -95,12 +96,17 @@
         goalData: 0,
         arr: [],
         slider: '',
+        clickBool: false
       }
     },
     methods: {
+      setClickBool(){
+        this.clickBool = false;
+      },
       setGoal() {
         console.log(this.slider);
         this.$store.state.goalData = this.slider;
+        this.clickBool = !this.clickBool;
       },
       setPV(){
         var totalValue = this.$store.state.totalgainfos[0];

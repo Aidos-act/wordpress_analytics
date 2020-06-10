@@ -17,61 +17,21 @@ class Api::V1::ArticlesController < ApplicationController
 	# GET /articles/new
 	def new
       if Article.exists?(params[:id])
-        @article = Article.find(params[:id])
-        @article.title = params[:title]
-        @article.url = params[:url]
-        if params[:maxpos].to_i > @article.maxpos
-          @article.maxpos = params[:maxpos]
-        end
-        @article.save
-      else
-        @article = Article.new
-        @article.title = params[:title]
-        @article.url = params[:url]
-        @article.id = params[:id]
-        @article.maxpos = params[:maxpos]
-        @article.save
-      end
-	end
-
-	# GET /articles/1/edit
-	def edit
-	end
-
-	# POST /articles
-	# POST /articles.json
-	def create
-	  @article = Article.new(article_params)
-
-	  respond_to do |format|
-	    if @article.save
-	      format.html { redirect_to @article, notice: 'Article was successfully created.' }
-	      format.json { render :show, status: :created, location: @article }
-	    else
-	      format.html { render :new } 
-	      format.json { render json: @article.errors, status: :unprocessable_entity }
-	    end
-	  end
-	end
-
-	# PATCH/PUT /articles/1
-	# PATCH/PUT /articles/1.json
-	def update
-	  respond_to do |format|
-	    if @article.update(article_params)
-	      format.html { redirect_to @article, notice: 'Article was successfully updated.' }
-	      format.json { render :show, status: :ok, location: @article }
-	    else
-	      format.html { render :edit }
-	      format.json { render json: @article.errors, status: :unprocessable_entity }
-	    end
-	  end
-	end
-
-	# DELETE /articles/1
-	# DELETE /articles/1.json
-	def destroy
-	  @article.destroy
+		@article = Article.find(params[:id])
+		@article.title = params[:title]
+		@article.url = params[:url]
+		if params[:maxpos].to_i > @article.maxpos
+		  @article.maxpos = params[:maxpos]
+		end
+		@article.save
+	      else
+		@article = Article.new
+		@article.title = params[:title]
+		@article.url = params[:url]
+		@article.id = params[:id]
+		@article.maxpos = params[:maxpos]
+		@article.save
+      end	  
 	end
 
 	private
@@ -79,10 +39,7 @@ class Api::V1::ArticlesController < ApplicationController
 	  def set_article
 	    @article = Article.find(params[:id])
 	  end
-	  # Only allow a list of trusted parameters through.
-	  def article_params
-	    params.require(:article).permit(:id, :title, :url, :created_at, :path, :startdate, :enddate)
-	  end
+
 
 end
 

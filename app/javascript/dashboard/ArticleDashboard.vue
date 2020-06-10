@@ -78,7 +78,7 @@
               mdi-arrow-right-bold
             </v-icon>
             <span>
-              {{ checkIfDefault? getDefault('pageviews')[1][1] : getSelected('pageviews')[1][1] }}
+              {{ checkIfDefault? getDefault('pageviews')[1][1].toLocaleString() : getSelected('pageviews')[1][1].toLocaleString() }}
             </span>
           </h4>
 
@@ -120,7 +120,7 @@
               mdi-arrow-right-bold
             </v-icon>
             <span>
-              {{ checkIfDefault? getDefault('clickCount')[1][1] : getSelected('clickCount')[1][1] }}
+              {{ checkIfDefault? getDefault('clickCount')[1][1].toLocaleString() : getSelected('clickCount')[1][1].toLocaleString() }}
             </span>
           </h4>
 
@@ -308,9 +308,9 @@
                     <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(30, '...') }}</p>
                     <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
                   </td>
-                  <td>{{ data.clickCount }}</td>
-                  <td>{{ data.pageviews }}</td>
-                  <td>{{ data.users }}</td>
+                  <td>{{ parseInt(data.clickCount, 10).toLocaleString() }}</td>
+                  <td>{{ parseInt(data.pageviews, 10).toLocaleString() }}</td>
+                  <td>{{ parseInt(data.users, 10).toLocaleString() }}</td>
                   <td>{{ setMinute(data.avgTimeOnPage) }}</td>
                   <td>{{ getBounceRate(data.bounces, data.sessions) }}</td>
                   <td>

@@ -19,12 +19,15 @@ Rails.application.routes.draw do
         get 'counter/scrollcalculate'
         get 'counter/durationcalculate'
         get 'counter/totalduration'
+        get 'counter/avgdurarticle'
         get 'counter/ipcount'
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
 
       post 'articles/new' => 'articles#new'
+
+      get 'counter/avgdurall'
       get '/health' => 'healths#health'
       # google analytics api data
       resources :ga_api_info do

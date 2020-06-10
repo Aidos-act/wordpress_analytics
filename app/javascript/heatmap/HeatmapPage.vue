@@ -70,18 +70,15 @@
         <h3> <strong> Clicks </strong> </h3>
         <table>
           <tbody class="btns">
-            <tr v-for="e in countbtnurl" >
-              <div v-if="e.btn_url != 'undefined'">
-                <td class="clicks-list"> <img class="btn-img" :src="e.btn_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
-              </div>
-            </tr>
-            <tr v-for="e in countbtntext">
-              <div v-if="e.btn_text != 'undefined'">
-                <td class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
-              </div>
-            </tr>
+            <div class="click-item" v-for="e in countbtnurl" >
+                <td v-if="e.btn_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.btn_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
+            </div>
+            <div class="click-item" v-for="e in countbtntext">
+                <td v-if="e.btn_text != 'undefined'" class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
+            </div>
           </tbody>
         </table>
+
 
         <br>
         <hr>
@@ -151,7 +148,6 @@
   import MaterialCard from '../dashboard/components/base/MaterialCard.vue'
   import MaterialChartCard from '../dashboard/components/base/MaterialChartCard.vue'
   import MaterialStatsCard from '../dashboard/components/base/MaterialStatsCard.vue'
-
   export default {
     components: {
       // LineChart,
@@ -280,7 +276,6 @@
             articleData['users'] = gainfos[key].users;
           }
         }
-
         return articleData;
       }
     },
@@ -293,7 +288,6 @@
 </script>
 
 <style scoped >
-
   html {
     height: 100%;
     background-color: lightgray;
@@ -315,6 +309,9 @@
     overflow-y: visible; 
     z-index: -1;
     pointer-events: none;
+  }
+  div:empty {
+    display: none;
   }
   .heat-red {
     background: linear-gradient(transparent, yellow, red, yellow, transparent);
@@ -406,10 +403,13 @@
     width: 100%
   }
   .clicks-list {
-    width: 50%;
     margin: 10px;
     display: block;
     margin-left: 70px;
+  }
+  .click-item {
+    width: 30%;
+    display: inline-block;
   }
   .btn-dis {
     display: block;
@@ -494,6 +494,4 @@
     color: #42b883;
     cursor: pointer;
   }
-
-
 </style>

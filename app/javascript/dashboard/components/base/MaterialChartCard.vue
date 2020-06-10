@@ -26,7 +26,7 @@
           v-if="graphType === 'pie'"
           :data="piedata"
           :height="chartheight"
-          :colors="['#c8e6c9', '#e0f7fa']"
+          :colors="['#f8bbd0', '#FFFFFF']"
           :dataset="{borderWidth: 0}"
         />
         <column-chart
