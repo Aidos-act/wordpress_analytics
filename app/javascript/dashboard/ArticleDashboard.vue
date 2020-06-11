@@ -63,7 +63,6 @@
       >
         <material-chart-card
           color="success"
-          type="Line"
           :columndata="checkIfDefault? getDefault('pageviews') : getSelected('pageviews')"
           :sheetHeight="200"
           chartheight="150px"
@@ -106,7 +105,6 @@
         <material-chart-card
           :columndata="checkIfDefault? getDefault('clickCount') : getSelected('clickCount')"
           color="success"
-          type="Line"
           :sheetHeight="200"
           chartheight="150px"
           graphType="column"
@@ -147,7 +145,6 @@
       >
         <material-chart-card
           color="success"
-          type="Line"
           :columndata="checkIfDefault? getDefault('avgTimeOnPage') : getSelected('avgTimeOnPage')"
           :sheetHeight="200"
           chartheight="150px"
@@ -184,18 +181,19 @@
       >
         <material-chart-card
           color="success"
-          type="Line"
+          :progressdata="checkIfDefault? getDefault('goal') : getSelected('goal')"
           :sheetHeight="200"
           chartheight="150px"
           :chartsize="150"
           graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Goal Achievement
+            Goal1 : Stay on Page Over 1minute
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            Still has 40%, Cheer Up!
+            CVR : {{ checkIfDefault? getDefault('goal')[0] : getSelected('goal')[0] }}% &nbsp; 
+            Completion : {{ checkIfDefault? getDefault('goal')[1] : getSelected('goal')[1] }}
           </p>
 
         </material-chart-card>
@@ -209,7 +207,6 @@
       >
         <material-chart-card
           color="success"
-          type="Line"
           :columndata="checkIfDefault? getDefault('bounces') : getSelected('bounces')"
           :sheetHeight="200"
           chartheight="150px"
@@ -249,7 +246,6 @@
       >
         <material-chart-card
           color="success"
-          type="Line"
           :sheetHeight="200"
           chartheight="170px"
           :columndata="demographicData"
@@ -265,7 +261,7 @@
         </material-chart-card>
       </v-col>
       <!-- graph data 6 end -->    
-
+      
       <!-- article list part start -->
       <v-col
         cols="12"
@@ -276,7 +272,7 @@
           class="px-5 py-3"
         >
           <template v-slot:heading>
-            <div class="display-2 font-weight-light">
+            <div class="display-2 font-weight-light" style="text-align: start;">
               Article List
             </div>
 
@@ -439,6 +435,7 @@
         var columnchartArr=[];
         var defaultGAinfo = this.$store.state.gainfos[0];
         var defaultData;
+
         for(var key in defaultGAinfo){
           if(key == value){
             if(value == 'bounces'){
@@ -451,6 +448,13 @@
             }else{
               defaultData = parseInt(defaultGAinfo[key], 10);
             }
+          }else if(value == 'goal'){
+            var cvr = defaultGAinfo['goal1ConversionRate'];
+            var comp = defaultGAinfo['goal1Completions'];
+
+            var goalArr = [parseFloat(cvr, 10).toFixed(2), comp];
+
+            return goalArr;
           }
         }
         var avg = this.getAvg(value);
@@ -492,8 +496,14 @@
             }else{
               selectedData = parseInt(selectedGainfos[key], 10);
             }
+          }else if(value == 'goal'){
+            var cvr = selectedGainfos['goal1ConversionRate'];
+            var comp = selectedGainfos['goal1Completions'];
+
+            var goalArr = [parseFloat(cvr, 10).toFixed(2), comp];
+
+            return goalArr;
           }
-          // this.title = selectedGainfos['pageTitle'];
         }
         var avg = this.getAvg(value);
 
@@ -574,6 +584,7 @@
 </script>
 
 <style scoped>
+
   .chart-container {
     flex-grow: 1;
     min-height: 0;
@@ -583,6 +594,7 @@
       height: 100%;
     }
 }
+
 .v-card > *:first-child:not(.v-btn):not(.v-chip), .v-card > .v-card__progress + *:not(.v-btn):not(.v-chip){
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;

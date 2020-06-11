@@ -34,9 +34,9 @@ spec:
         - name: empty-dir
           mountPath: /analytics_app/tmp/sockets
       - name: rails
-        image: destiny1616/rails:v10
+        image: destiny1616/rails:v12
         imagePullPolicy: Always
-        command: ["foreman", "start", "-f", "Procfile.dev"]
+        command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
         - configMapRef:
             name: rails-config

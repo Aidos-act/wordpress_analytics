@@ -185,6 +185,7 @@
         lg="4"
       >
         <material-chart-card
+          :progressdata="setProgressData()"
           color="info"
           type="Bar"
           :sheetHeight="300"
@@ -192,13 +193,13 @@
           graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            MCV Goal Achievement Rate 
+            Goal1 : Stay on Page Over 1minute 
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            goal : {{ getGoalData }}
+            goal1 ConversionRate : {{ setProgressData()[0] }}%
             <br>
-            current : 00
+            goal1 Completion : {{ setProgressData()[1] }}
           </p>
 
         </material-chart-card>
@@ -345,8 +346,7 @@
       goalAchivRate(){
         var totalPv = this.$store.state.totalgainfos[0].pageviews;
         var goal = this.$store.state.goalData;
-
-      }
+      },
     },
     mounted() {
       this.$store.commit('getTotalGaInfo',{
@@ -478,6 +478,25 @@
           }
         }
       },
+      setProgressData(){
+        var totalValue = this.$store.state.totalgainfos[0];
+        var cvr;
+        var comp;
+
+        for(var key in totalValue){
+          if(key == 'goal1ConversionRate'){
+            cvr = totalValue[key];
+          }
+          if(key == 'goal1Completions'){
+            comp = totalValue[key];
+          }
+        }
+
+        var arr = [parseFloat(cvr, 10).toFixed(2), comp];
+        // var arr = [totalValue.goal1ConversionRate, totalValue.goal1Completions];
+
+        return arr;
+      },
       setPieChartData(){
         var totalValue = this.$store.state.totalgainfos[0];
         var arr = [];
@@ -576,11 +595,23 @@
       },
       setColumnChartData(){
         var columnchartArr=[];
-        var current = this.$store.state.totalgainfos[0].mcv;
-        var compare = this.$store.state.totalgainfos[1].mcv;
 
-        // var currentDate = this.dates.join(' ~ ');
-        // var compareDate = this.setCompareDates().join(' ~ ');
+        var currentTotal = this.$store.state.totalgainfos[0];
+        var current;
+        for(var key in currentTotal){
+          if(key == 'mcv') {
+            current = currentTotal[key];
+          }
+        }
+
+        var compareTotal = this.$store.state.totalgainfos[1];
+        var compare;
+        for(var key in compareTotal){
+          if(key == 'mcv') {
+            compare = compareTotal[key];
+          }
+        }
+        
         
         var first = ['current', current];
         var second = ['compare', compare];
@@ -690,5 +721,9 @@ tr:hover {
   position: fixed;
   bottom: 0px;
 }
+
+.v-application .text-start {
+    text-align: center;
+  }
 
 </style>
