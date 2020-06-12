@@ -73,16 +73,16 @@
       items: [
         {
           icon: 'mdi-view-dashboard',
-          title: 'Main Dashboard',
+          title: 'メインダッシュボード',
           to: '/',
         },
         {
-          title: 'Article Dashboard',
+          title: '記事ダッシュボード',
           icon: 'mdi-align-vertical-bottom',
           to: '/articleDashboard',
         },
         {
-          title: 'HeatMap Page',
+          title: 'ヒートマップ',
           icon: 'mdi-chart-bubble',
           to: '/api/v1/articles/1',
         }

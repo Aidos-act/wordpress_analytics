@@ -16,7 +16,7 @@
     >
       <v-icon v-if="!drawer">
         mdi-view-quilt
-      </v-icon>
+      </v-icon> 
 
       <v-icon v-else>
         mdi-dots-vertical
