@@ -33,10 +33,24 @@ spec:
           mountPath: /var/lib/mysql 
         - name: empty-dir
           mountPath: /analytics_app/tmp/sockets
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          timeoutSeconds: 30
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          timeoutSeconds: 30
+          initialDelaySeconds: 30
+          periodSeconds: 30
       - name: rails
-        image: destiny1616/rails:v10
+        image: destiny1616/rails:v15
         imagePullPolicy: Always
-        command: ["foreman", "start", "-f", "Procfile.dev"]
+        command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
         - configMapRef:
             name: rails-config
@@ -47,6 +61,20 @@ spec:
           mountPath: /var/lib/mysql 
         - name: empty-dir
           mountPath: /analytics_app/tmp/sockets
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          timeoutSeconds: 30
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          timeoutSeconds: 30
+          initialDelaySeconds: 30
+          periodSeconds: 30            
       volumes:
       - name: mysql-pv
         persistentVolumeClaim:

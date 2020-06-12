@@ -56,7 +56,7 @@ class GetAnalytics < ApplicationController
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
 
 		metrics = ['ga:pageviews', 'ga:users', 'ga:bounces', 'ga:sessions',
-				   'ga:avgTimeOnPage', 'ga:users', 'ga:newUsers'
+				   'ga:avgTimeOnPage', 'ga:newUsers', 'ga:goal1ConversionRate', 'ga:goal1Completions'
 				  ]
 
 		metric_type = Array.new
@@ -157,7 +157,7 @@ class GetAnalytics < ApplicationController
 		# metric.expression = ['ga:sessions', 'ga:uniquePageviews']
 
 		metrics = ['ga:pageviews', 'ga:users', 'ga:bounces', 'ga:sessions',
-				   'ga:avgTimeOnPage', 'ga:users', 'ga:newUsers', 'ga:timeOnPage'
+				   'ga:avgTimeOnPage', 'ga:newUsers', 'ga:goal1ConversionRate', 'ga:goal1Completions'
 				  ]
 
 

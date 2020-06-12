@@ -7,13 +7,13 @@
     <template v-slot:heading>
         <v-progress-circular  
           v-if="graphType === 'goal'"
-          :value="50"
+          :value="progressdata[0]"
           :rotate="-90"
           :size="chartsize"
           :width="20"
           color="‎teal"
         >
-          <h1>50%</h1>
+          <h1>{{ progressdata[0] }}%</h1>
         </v-progress-circular>
         <!-- <line-chart
           v-if="graphType === 'linel'"
@@ -94,6 +94,10 @@
         type: Array,
         default: () => ([]),
       },
+      progressdata: {
+        type: Array,
+        default: () => ([]),
+      },
       columndata: {
         type: Array,
         default: () => ([]),
@@ -130,10 +134,6 @@
         type: Array,
         default: () => ([]),
       },
-      type: {
-        type: String,
-        required: true,
-      },
     },
   }
 </script>
@@ -167,11 +167,14 @@
         }
   	}
   }
-  .v-progress-circular {
+  .v-progress-circular ‎teal--text {
     margin: 1rem;
     margin-top: 0rem;
   }
+
   .v-application .text-start {
-    text-align: center;
+    text-align: center !important;
   }
+  
+
 </style>

@@ -16,7 +16,7 @@
     >
       <v-icon v-if="!drawer">
         mdi-view-quilt
-      </v-icon>
+      </v-icon> 
 
       <v-icon v-else>
         mdi-dots-vertical
@@ -26,7 +26,7 @@
     <v-toolbar-title
       class="hidden-sm-and-down font-weight-light"
     >
-      {{ this.$route.params.id ? 'Article Id : ' + this.$route.params.id : 'Dashboard' }}
+      {{ this.$route.params.id ? '記事 ID : ' + this.$route.params.id : 'ダッシュボード' }}
       
       
     </v-toolbar-title>
@@ -53,7 +53,7 @@
           </v-icon>
         </v-btn>
       </template>
-      <span>Main Dashboard</span>
+      <span>メインダッシュボード</span>
     </v-tooltip>
 
     <v-tooltip

@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
   root to: 'home#index'
+  get '/health' => 'api/v1/healths#health'
 
   namespace :api do
     namespace :v1 do
@@ -28,7 +29,7 @@ Rails.application.routes.draw do
       post 'articles/new' => 'articles#new'
 
       get 'counter/avgdurall'
-      get '/health' => 'healths#health'
+      # get '/health' => 'healths#health'
       # google analytics api data
       resources :ga_api_info do
         collection do
