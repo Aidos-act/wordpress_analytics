@@ -34,13 +34,13 @@
       
 
         <v-card-text>
-          <strong class="mb-3 d-inline-block">Goal Setting</strong>
+          <strong class="mb-3 d-inline-block">ゴール 設定</strong>
           <v-row
             align="center"
             no-gutters
           >
             <v-col cols="auto">
-              Please Set up Company's Goal
+              作業中
             </v-col>
           </v-row>
           <v-row>
@@ -73,13 +73,13 @@
             default
             @click="setGoal()"
           >
-            ADD
+            設定
           </v-btn>
 
           <div class="my-12" />
 
           <div>
-            <strong class="mb-3 d-inline-block">It's Coming!</strong>
+            <strong class="mb-3 d-inline-block">作業中</strong>
           </div>
         </v-card-text>
       </v-card>

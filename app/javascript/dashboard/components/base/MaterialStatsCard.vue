@@ -43,7 +43,7 @@
         class="caption grey--text font-weight-light"
         style="text-align: right;"
       >
-            compared to {{ subData.date }} 
+            {{ subData.date }}と比較する
       </span>
     </template>
 

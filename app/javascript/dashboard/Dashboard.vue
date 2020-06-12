@@ -17,12 +17,12 @@
         min-width="200px" 
       >
           <template v-slot:activator="{ on }">
-            <v-text-field v-model="dateRangeText" label="Date range" readonly v-on="on"></v-text-field>
+            <v-text-field v-model="dateRangeText" label="期間" readonly v-on="on"></v-text-field>
           </template>
           <v-date-picker v-model="dates" range no-title scrollable>
-            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
             <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
-              <span @click="$refs.menu.save(dates)">OK</span>
+              <span @click="$refs.menu.save(dates)">選擇</span>
             </v-btn> 
           </v-date-picker>
         </v-menu>
@@ -37,7 +37,7 @@
             item-text="key"
             item-value="item"
             :items="dropdownitems"
-            label="Select"
+            label="セレクト"
             dense
           ></v-select>
         </v-container>
@@ -60,7 +60,7 @@
         <material-stats-card
           color="info"
           icon="mdi-book-open-page-variant"
-          title="PageView"
+          title="PV(ページビュー)"
           :value="setCurrentTotal('pageviews')"
           :sub-data="setCompareTotal('pageviews')"
         />
@@ -76,7 +76,7 @@
         <material-stats-card
           color="#fcba03"
           icon="mdi-baby-face-outline"
-          title="User"
+          title="ユーザー"
           :value="setCurrentTotal('users')"
           :sub-data="setCompareTotal('users')"
         />
@@ -92,7 +92,7 @@
         <material-stats-card
           color="success"
           icon="mdi-cursor-default-click-outline"
-          title="MCV(Clicks)"
+          title="MCV(クリック数)"
           :value="setCurrentTotal('mcv')"
           :sub-data="setCompareTotal('mcv')"
         />
@@ -108,7 +108,7 @@
         <material-stats-card
           color="orange"
           icon="mdi-clock-outline"
-          title="滞留時間"
+          title="平均滞在時間"
           :value="setCurrentTotal('avgTimeOnPage')"
           :sub-data="setCompareTotal('avgTimeOnPage')"
         />
@@ -140,7 +140,7 @@
         <material-stats-card
           color="#fcba03"
           icon="mdi-chart-line"
-          title="MCV/User"
+          title="MCV/ユーザー"
           :value="setCurrentTotal('mcvPerUv')"
           :sub-data="setCompareTotal('mcvPerUv')"
         />
@@ -156,7 +156,7 @@
         <material-stats-card
           color="success"
           icon="mdi-chart-pie"
-          title="PV/User"
+          title="PV/ユーザー"
           :value="setCurrentTotal('pvPerUv')"
           :sub-data="setCompareTotal('pvPerUv')"
         />
@@ -172,7 +172,7 @@
         <material-stats-card
           color="orange"
           icon="mdi-exit-run"
-          title="%Bounce"
+          title="直帰率"
           :value="setCurrentTotal('bounces')"
           :sub-data="setCompareTotal('bounces')"
         />
@@ -193,13 +193,13 @@
           graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Goal1 : Stay on Page Over 1minute 
+            ゴール1 : 1分以上ページに滞在
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            goal1 ConversionRate : {{ setProgressData()[0] }}%
+            ゴール1 コンバージョン率 : {{ setProgressData()[0] }}%
             <br>
-            goal1 Completion : {{ setProgressData()[1] }}
+            ゴール1 完了数 : {{ setProgressData()[1] }}
           </p>
 
         </material-chart-card>
@@ -224,9 +224,9 @@
             </h4>
 
             <p class="d-inline-flex font-weight-light ml-2 mt-1">
-              current({{dateRangeText}}) : {{ setColumnChartData()[0][1] }} 
+              現在({{dateRangeText}}) : {{ setColumnChartData()[0][1] }} 
               <br>
-              compare({{compareRangeText}}) : {{ setColumnChartData()[1][1] }}
+              比較({{compareRangeText}}) : {{ setColumnChartData()[1][1] }}
             </p>
 
         </material-chart-card>
@@ -248,15 +248,15 @@
           graphType="pie"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            New User VS Returning User
+            新規 ユーザー VS 再訪問 ユーザー
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            New : {{ setPieChartData()[0][1].toLocaleString() }} 
-            ({{ Math.floor((setPieChartData()[0][1]/totalgainfos[0].users)*100) }}% of User)
+            新規 : {{ setPieChartData()[0][1].toLocaleString() }} 
+            (ユーザー比 {{ Math.floor((setPieChartData()[0][1]/totalgainfos[0].users)*100) }}%)
             <br>
-            Returning : {{ setPieChartData()[1][1].toLocaleString() }} 
-            ({{ Math.floor((setPieChartData()[1][1]/totalgainfos[0].users)*100) }}% of User)
+            再訪問 : {{ setPieChartData()[1][1].toLocaleString() }} 
+            (ユーザー比 {{ Math.floor((setPieChartData()[1][1]/totalgainfos[0].users)*100) }}%)
 
           </p>
 
@@ -292,12 +292,12 @@
         menu: false,
         dateCheckBool: true,
         piechartData: [],
-        selectedItem: { key: "pageView", item: "pageviews"},
+        selectedItem: { key: "PV(ページビュー)", item: "pageviews"},
         dropdownitems: [
-          { key: "pageView", item: "pageviews"},
-          { key: "User", item: "users"},
-          { key: "bounce rate", item: "bounces"},
-          { key: "avgTimeOnPage", item: "avgTimeOnPage"},
+          { key: "PV(ページビュー)", item: "pageviews"},
+          { key: "ユーザー", item: "users"},
+          { key: "直帰率", item: "bounces"},
+          { key: "平均滞在時間", item: "avgTimeOnPage"},
           
         ],
       }
@@ -519,8 +519,8 @@
 
 
 
-        newUsersArr = ['NewUser', newUsers];
-        returningUsersArr = ['ReturningUser', returningUsers];
+        newUsersArr = ['新規ユーザー', newUsers];
+        returningUsersArr = ['再訪問ユーザー', returningUsers];
 
         this.piechartData[0] = newUsersArr;
         this.piechartData[1] = returningUsersArr;
@@ -613,8 +613,8 @@
         }
         
         
-        var first = ['current', current];
-        var second = ['compare', compare];
+        var first = ['現在', current];
+        var second = ['比較', compare];
         // var dates = [currentDate, compareDate];
 
         columnchartArr[0] = first;

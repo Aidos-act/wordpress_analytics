@@ -48,7 +48,7 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
       - name: rails
-        image: destiny1616/rails:v14
+        image: destiny1616/rails:v15
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:

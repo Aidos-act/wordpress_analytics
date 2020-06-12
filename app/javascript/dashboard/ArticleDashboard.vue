@@ -17,12 +17,12 @@
         min-width="200px"
       >
           <template v-slot:activator="{ on }">
-            <v-text-field v-model="dateRangeText" label="Date range" readonly v-on="on"></v-text-field>
+            <v-text-field v-model="dateRangeText" label="期間" readonly v-on="on"></v-text-field>
           </template>
           <v-date-picker v-model="dates" range no-title scrollable>
-            <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+            <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
             <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
-              <span @click="$refs.menu.save(dates)">OK</span>
+              <span @click="$refs.menu.save(dates)">選擇</span>
             </v-btn>
           </v-date-picker>
         </v-menu>
@@ -31,7 +31,7 @@
 
       <!-- article title part start -->
       <v-col cols="12" sm="6">
-        <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="Article Title"></v-text-field>
+        <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="記事タイトル"></v-text-field>
       </v-col>
       <!-- article title part end -->
 
@@ -41,13 +41,17 @@
             v-if="checkIfDefault"
             :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getDefault('id')[1][1] } }"
           >
-            <v-btn color="primary">HeatMap</v-btn>
+            <v-btn color="primary">
+              ヒートマップ GO
+            </v-btn>
           </router-link>
           <router-link 
             v-else
             :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getSelected('id')[1][1] } }"
           >
-            <v-btn color="primary">HeatMap</v-btn>
+            <v-btn color="primary">
+              ヒートマップ GO
+            </v-btn>
           </router-link>
           
         </div>
@@ -69,7 +73,7 @@
           graphType="column"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Page View
+            PV(ページビュー)
             <v-icon
               class="mr-1"
               small
@@ -82,15 +86,17 @@
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getDefault('pageviews')[1][1]/getDefault('pageviews')[0][1])*100) }}
-            % of top20 PV Avg,
-            {{ getDefault('pageviews')[1][1]>getDefault('pageviews')[0][1]? "Good!" : "Cheer Up!" }}
+            トップ20平均PV 比
+            {{ Math.floor((getDefault('pageviews')[1][1]/getDefault('pageviews')[0][1])*100) }}%
+            , 
+            {{ getDefault('pageviews')[1][1]>getDefault('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getSelected('pageviews')[1][1]/getSelected('pageviews')[0][1])*100) }}
-            % of top20 PV Avg,
-            {{ getSelected('pageviews')[1][1]>getSelected('pageviews')[0][1]? "Good!" : "Cheer Up!" }}
+            トップ20平均PV 比
+            {{ Math.floor((getSelected('pageviews')[1][1]/getSelected('pageviews')[0][1])*100) }}%
+            ,
+            {{ getSelected('pageviews')[1][1]>getSelected('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
         </material-chart-card>
@@ -123,15 +129,17 @@
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getDefault('clickCount')[1][1]/getDefault('clickCount')[0][1])*100) }}
-            % of top20 MCV Avg,
-            {{ getDefault('clickCount')[1][1]>getDefault('clickCount')[0][1]? "Good!" : "Cheer Up!" }}
+            トップ20平均MCV 比
+            {{ Math.floor((getDefault('clickCount')[1][1]/getDefault('clickCount')[0][1])*100) }}%
+            ,
+            {{ getDefault('clickCount')[1][1]>getDefault('clickCount')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getSelected('clickCount')[1][1]/getSelected('clickCount')[0][1])*100) }}
-            % of top20 MCV Avg,
-            {{ getSelected('clickCount')[1][1]>getSelected('clickCount')[0][1]? "Good!" : "Cheer Up!" }}
+            トップ20平均MCV 比
+            {{ Math.floor((getSelected('clickCount')[1][1]/getSelected('clickCount')[0][1])*100) }}%
+            ,
+            {{ getSelected('clickCount')[1][1]>getSelected('clickCount')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
         </material-chart-card>
@@ -151,7 +159,7 @@
           graphType="column"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Time On Page
+            平均滞在時間
             <v-icon
               class="mr-1"
               small
@@ -162,13 +170,13 @@
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            AVG {{ getDefault('avgTimeOnPage')[0][1] }} &nbsp; Article {{ getDefault('avgTimeOnPage')[1][1] }} ,
-            {{ getDefault('avgTimeOnPage')[1][1]>getDefault('avgTimeOnPage')[0][1]? "Good!" : "Cheer Up!" }}
+            平均 {{ getDefault('avgTimeOnPage')[0][1] }} &nbsp; 記事 {{ getDefault('avgTimeOnPage')[1][1] }} ,
+            {{ getDefault('avgTimeOnPage')[1][1]>getDefault('avgTimeOnPage')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            AVG {{ getSelected('avgTimeOnPage')[0][1] }} &nbsp; Article {{ getSelected('avgTimeOnPage')[1][1] }} ,
-            {{ getSelected('avgTimeOnPage')[1][1]>getSelected('avgTimeOnPage')[0][1]? "Good!" : "Cheer Up!" }}
+            平均 {{ getSelected('avgTimeOnPage')[0][1] }} &nbsp; 記事 {{ getSelected('avgTimeOnPage')[1][1] }} ,
+            {{ getSelected('avgTimeOnPage')[1][1]>getSelected('avgTimeOnPage')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
         </material-chart-card>
       </v-col>
@@ -188,12 +196,12 @@
           graphType="goal"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Goal1 : Stay on Page Over 1minute
+            ゴール1 : 1分以上ページに滞在
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            CVR : {{ checkIfDefault? getDefault('goal')[0] : getSelected('goal')[0] }}% &nbsp; 
-            Completion : {{ checkIfDefault? getDefault('goal')[1] : getSelected('goal')[1] }}
+            CV率 : {{ checkIfDefault? getDefault('goal')[0] : getSelected('goal')[0] }}% &nbsp; 
+            完了数 : {{ checkIfDefault? getDefault('goal')[1] : getSelected('goal')[1] }}
           </p>
 
         </material-chart-card>
@@ -213,7 +221,7 @@
           graphType="column"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Bounce Rate
+            直帰率
             <v-icon
               class="mr-1"
               small
@@ -224,15 +232,17 @@
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}
-            % of top20 article Bounce Avg,
-            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "Cheer Up!" : "Good!" }}
+            トップ20平均直帰率 比
+            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}%
+            ,
+            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}
-            % of top20 article Bounce Avg,
-            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "Cheer Up!" : "Good!" }}
+            トップ20平均直帰率 比
+            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}%
+            ,
+            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
 
         </material-chart-card>
@@ -252,11 +262,11 @@
           graphType="stacked"
         >
           <h4 class="card-title font-weight-light mt-2 ml-2">
-            Age and Gender <span class="red--text">(Total)</span>
+            年齢と性別 <span class="red--text">(トータル)</span>
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1 red--text">
-            25% of accuracy, Use for reference only
+            25% 正確度, 参照用にのみ使用
           </p>
         </material-chart-card>
       </v-col>
@@ -273,13 +283,13 @@
         >
           <template v-slot:heading>
             <div class="display-2 font-weight-light" style="text-align: start;">
-              Article List
+              記事リスト
             </div>
 
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search by Title or URL"
+              label="タイトルやURLご入力ください"
               single-line
               hide-details
             ></v-text-field>
@@ -314,7 +324,7 @@
                       v-if = "data.id != 0"
                       :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: data.id } }"
                     >
-                      <v-btn small color="primary">Heatmap</v-btn>
+                      <v-btn small color="primary">ヒートマップ</v-btn>
                     </router-link>
                   </td>
                   
@@ -360,7 +370,7 @@
       columnchartData: [],
       headers: [
         {
-          text: 'Title',
+          text: 'タイトル',
           align: 'start',
           sortable: false,
           value: 'pageTitle',
@@ -368,9 +378,9 @@
         },
         { text: 'MCV', value: 'clickCount' },
         { text: 'PV', value: 'pageviews' },
-        { text: 'UV', value: 'users' },
-        { text: 'duration', value: 'avgTimeOnPage' },
-        { text: 'bounce', value: 'bounces' },
+        { text: 'ユーザー', value: 'users' },
+        { text: '滞在時間', value: 'avgTimeOnPage' },
+        { text: '直帰率', value: 'bounces' },
         { 
           text: 'heatMap', 
           value: 'heatMap',

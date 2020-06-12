@@ -48,15 +48,15 @@
                 
               </tr>
               <tr>
-                <td>Created at</td>
+                <td>生成時間</td>
                 <td>{{ article.created_at.split('T')[0] }}</td>
               </tr>
               <tr>
-                <td>MCV(Clicks)</td>
+                <td>MCV(クリック数)</td>
                 <td>{{ countclick.count_click }}</td>
               </tr>
               <tr>
-                <td>Views(IP)</td>
+                <td>ビュー(IP)</td>
                 <td>{{ ipcount.length }}</td>
               </tr>
             </tbody>
@@ -67,7 +67,7 @@
         <hr>
         <br>
 
-        <h3> <strong> Clicks </strong> </h3>
+        <h3> <strong> クリック </strong> </h3>
         <table>
           <tbody class="btns">
             <div class="click-item" v-for="e in countbtnurl" >
@@ -84,7 +84,7 @@
         <hr>
         <br>
         
-        <h3> <strong> List </strong> </h3>
+        <h3> <strong> リスト </strong> </h3>
         
         <material-card
           color="warning"
@@ -92,7 +92,7 @@
         >
            <template v-slot:heading>
             <div class="display-2 font-weight-light">
-              Article List
+              記事リスト
             </div>
 
             <v-text-field
@@ -173,7 +173,7 @@
           },
           { text: 'MCV', value: 'clickCount' },
           { text: 'PV', value: 'pageviews' },
-          { text: 'UV', value: 'users' },
+          { text: 'ユーザー', value: 'users' },
           { value: 'pagePath' }
         ], 
         clicks: [],
