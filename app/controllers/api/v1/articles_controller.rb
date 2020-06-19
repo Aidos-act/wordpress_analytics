@@ -25,7 +25,7 @@ class Api::V1::ArticlesController < ApplicationController
 		  @article.maxpos = params[:maxpos]
 		end
 		@article.save
-	      else
+	  else
 		@article = Article.new
 		@article.title = params[:title]
 		@article.url = params[:url]

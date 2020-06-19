@@ -15,7 +15,7 @@
         mdi-filter
       </v-icon>
     </v-card>
-
+    <!-- please refer to v-menu and close-on-content-click in the https://vuetifyjs.com/ -->
     <v-menu
       :close-on-content-click="clickBool"
       activator="#settings"
@@ -45,6 +45,7 @@
           </v-row>
           <v-row>
             <v-col class="pr-4">
+              <!-- setup goal by slider function -->
               <v-slider
                 v-model="slider"
                 class="align-center"
@@ -92,7 +93,7 @@
   export default {
     name: 'DashboardCoreSettings',
     data() {
-      return{
+      return{ 
         goalData: 0,
         arr: [],
         slider: '',

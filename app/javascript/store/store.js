@@ -14,7 +14,7 @@ export default new Vuex.Store({
     gainfos: [],
     demographicData: [],
     articleData: [],
-    drawer: null,
+    drawer: true,
     articleId: ''
   },
   mutations: {

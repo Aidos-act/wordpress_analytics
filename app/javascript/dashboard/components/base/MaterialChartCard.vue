@@ -4,6 +4,7 @@
     v-bind="$attrs"
     :sheetHeight="sheetHeight"
   >
+    <!-- shows the chart according to its graphtype which is from parent side -->
     <template v-slot:heading>
         <v-progress-circular  
           v-if="graphType === 'goal'"
@@ -15,13 +16,7 @@
         >
           <h1>{{ progressdata[0] }}%</h1>
         </v-progress-circular>
-        <!-- <line-chart
-          v-if="graphType === 'linel'"
-          :data="{'2017-05-13': 2, '2017-05-14': 5}"
-          :height="chartheight"
-          :colors="['#FFFFF3', '#FFFFF3']"
-          backgroundColor="#FFFFF3"
-        /> -->
+
         <pie-chart
           v-if="graphType === 'pie'"
           :data="piedata"
@@ -29,24 +24,21 @@
           :colors="['#f8bbd0', '#FFFFFF']"
           :dataset="{borderWidth: 0}"
         />
+
         <column-chart
           v-if="graphType === 'column'"
           :data="columndata"
           :height="chartheight"
           :colors="['#2962ff', '#E91E63']"
         />
+
         <column-chart
           v-if="graphType === 'stacked'"
           :data="columndata"
           :stacked="true"
           :height="chartheight"
         />
-        <v-col 
-          v-if="graphType === 'linel'"
-          class="display-3" 
-        >
-          {{ mcvdata }}
-        </v-col>
+
     </template>
 
     <slot />
@@ -69,22 +61,6 @@
       MaterialCard
     },
     inheritAttrs: false,
-    data() {
-      return {
-        testdata: [
-          {
-            name: "Male",
-            data: [["18-24", 24], ["25-34", 22], ["35-44", 19], ["45-54", 30], ["55-64", 11], ["65+", 12]],
-            stack: "stack 1" 
-          },
-          {
-            name: "Female", 
-            data: [["18-24", 32], ["25-34", 14], ["35-44", 17], ["45-54", 12], ["55-64", 10], ["65+", 14]],
-            stack: "stack 2"
-          }
-        ], 
-      }
-    },
     props: {
       data: {
         type: Object,

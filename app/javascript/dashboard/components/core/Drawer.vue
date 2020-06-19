@@ -1,15 +1,14 @@
 <template>
+  <!-- please refer to navigation drawer in the https://vuetifyjs.com/ -->
+  <!-- drawer is from store.js -->
   <v-navigation-drawer
     id="core-navigation-drawer"
     v-model="drawer"
     :dark="true"
-    :expand-on-hover="expandOnHover"
     mobile-break-point="960"
     app
     width="260"
-    v-bind="$attrs"
   >
-
     <v-list
       dense
       nav
@@ -86,17 +85,14 @@
           icon: 'mdi-chart-bubble',
           to: '/api/v1/articles/1',
         }
-      ],
+      ]
     }),
 
     computed: {
       drawer: {
         get () {
           return this.$store.state.drawer
-        },
-        set (val) {
-          this.$store.commit('SET_DRAWER', val)
-        },
+        }
       },
     },
   }

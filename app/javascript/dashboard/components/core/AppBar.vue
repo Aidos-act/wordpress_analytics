@@ -1,4 +1,5 @@
 <template>
+  <!-- please refer to AppVar in the https://vuetifyjs.com/ -->
   <v-app-bar
     id="app-bar"
     absolute
@@ -7,6 +8,8 @@
     flat
     height="75"
   >
+    <!-- please refer to Vbtn in the https://vuetifyjs.com/ -->
+    <!-- setDrawer is from store.js, please refer to vuex, vuex map. https://qiita.com/terufumi1122/items/6f9470c8d416a4af7502 -->
     <v-btn
       class="mr-3"
       elevation="1"
@@ -26,9 +29,8 @@
     <v-toolbar-title
       class="hidden-sm-and-down font-weight-light"
     >
+      <!-- showing up article id when user access to heatmap page -->
       {{ this.$route.params.id ? '記事 ID : ' + this.$route.params.id : 'ダッシュボード' }}
-      
-      
     </v-toolbar-title>
 
     <v-spacer />
@@ -38,6 +40,7 @@
       content-class="bottom"
       bottom
     >
+      <!-- please refer to https://qiita.com/aotoriii/items/06ae49c135061a12b75e -->
       <template v-slot:activator="{ attrs, on }">
         <v-btn
           class="ml-2"
