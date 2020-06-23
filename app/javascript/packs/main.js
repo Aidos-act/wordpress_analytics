@@ -42,7 +42,10 @@ import VueMomentJS from "vue-momentjs";
 import Chartkick from 'vue-chartkick'
 import Chart from 'chart.js'
 
-Vue.use(Chartkick.use(Chart))
+// for chartkick
+Vue.use(Chartkick.use(Chart));
+
+// for moment.js
 Vue.use(VueMomentJS, moment);
 
 

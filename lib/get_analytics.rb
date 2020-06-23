@@ -5,14 +5,16 @@ class GetAnalytics < ApplicationController
 
 	VIEW_ID = "214644944"
 
+	# initialize 
 	def initialize() 
 		@view_id = VIEW_ID
 		@analytics = Google::Apis::AnalyticsreportingV4
 		auth
 	end
 
+	# total data by selected period
 	def get_total_ga_info(startdate, enddate)
-		puts 'im in here plzzzzzzzzzz'
+		puts 'totla data'
 		set_total_by_date = Array.new
 
 		formatted_startdate = DateTime.parse(startdate)
@@ -24,7 +26,7 @@ class GetAnalytics < ApplicationController
 		current_data = current_arr[0]
 		current_linechart_data = current_arr[1]
 		
-
+		# get compare dates
 		if startdate == enddate then
 			compare_startdate = (formatted_startdate - 1.day).strftime("%Y-%m-%d")
 			compare_enddate = (formatted_enddate - 1.day).strftime("%Y-%m-%d")
@@ -46,19 +48,21 @@ class GetAnalytics < ApplicationController
 		set_total_by_date.push(compare_linechart_data)
 
 		return set_total_by_date
-	
-
 	end
 
 
-
+	# total data by dates
 	def set_total_by_date(startdate, enddate)
+
+		# setup date range
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
 
+		# set metircs data. 10 metrices are allowed per one request
 		metrics = ['ga:pageviews', 'ga:users', 'ga:bounces', 'ga:sessions',
 				   'ga:avgTimeOnPage', 'ga:newUsers', 'ga:goal1ConversionRate', 'ga:goal1Completions'
 				  ]
 
+		# make new array and put metric type data in the array
 		metric_type = Array.new
 		metrics.each do |m|
 			metric = @analytics::Metric.new
@@ -66,6 +70,7 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
+		# set dimension and order by hour or date
 		if startdate == enddate then
 			dimension = @analytics::Dimension.new(name: 'ga:hour')
 			order_by = @analytics::OrderBy.new(field_name: 'ga:hour', sort_order: 'ASCENDING')
@@ -75,7 +80,7 @@ class GetAnalytics < ApplicationController
 		end
 
 
-
+		# setup request with the data i set up above to google analytics server
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: @view_id, 
@@ -86,17 +91,23 @@ class GetAnalytics < ApplicationController
     			order_bys: [order_by]
   			)]
 		)
+
+		# send request and get the result in the response
 		response = @client.batch_get_reports(request)
 
-
+		# make new array for the total data. it will has datahash and dropdwnhash, datahash is for total data and
+		# the other is for hourly/daily data. key would be time(00,01,02,...) or date(i.e. 5/20.5/21,...). 
 		set_total_array = Array.new
 
+		# this data is mcv and it is from database
 		total_clicks_count = set_total_article(startdate, enddate)
 
+
 		# getting total data part start
-		
+
 		total_data = response.reports.first.data.totals
 		key_array = metrics
+		# get rid of 'ga:'
 		key_array.each_with_index do |k, index| 
 			key_array[index] = k.gsub("ga:","")
 		end
@@ -110,6 +121,8 @@ class GetAnalytics < ApplicationController
 			datahash['mcv'] = total_clicks_count
 			set_total_array.push(datahash)
 		end
+		# datahash sample -> { "pageviews": "11", "users": "22", "bounces": "33", ... , "mcv": 0 }
+
 		# getting total data part end
 
 		# getting daily or hourly data part start
@@ -117,10 +130,12 @@ class GetAnalytics < ApplicationController
 
 		data_from_google = response.reports.first.data.rows
 		
-
 		data_from_google.each do |r|
 			vhash = {}
+			# key would be hour or date
 			key = r.dimensions.first
+
+			# vhash is the data such as pageview, users and so on for specific time or date
 			r.metrics.first.values.each_with_index do |v, index|
 				vhash[key_array[index]] = v
 			end
@@ -132,12 +147,17 @@ class GetAnalytics < ApplicationController
 			dropdwnhash[key.to_sym] = vhash
 		end
 
+		# dropdwnhash sample (hour) -> "00:00": { "pageviews": "534", "users": "478", "bounces": "432", ... },  "01:00": { ... }
+		# dropdwnhash sample (date) -> "20200608": { "pageviews": "534", "users": "478", "bounces": "432", ... },  "20200609": { ... }
+
 		set_total_array.push(dropdwnhash)
+
 		# getting daily or hourly data part end
 
 		return set_total_array
 	end
 
+	# get mcv date from database
 	def set_total_article(startdate, enddate)
 		start_date = startdate.to_date.beginning_of_day
 	    end_date = enddate.to_date.end_of_day
@@ -146,7 +166,7 @@ class GetAnalytics < ApplicationController
 	end
 
 
-
+	# each article data by selected period
 	def get_data(startdate, enddate)
 		
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
@@ -205,6 +225,7 @@ class GetAnalytics < ApplicationController
 		response = @client.batch_get_reports(request)
 		messageHash = {}
 
+		# handling error 
 		if !response.reports.first.data.rows then
 			
 			key = "message"
@@ -217,6 +238,7 @@ class GetAnalytics < ApplicationController
 
 		key_array = dimensions + metrics
 
+		# get rid of 'ga:'
 		key_array.each_with_index do |k, index| 
 			key_array[index] = k.gsub("ga:","")
 		end
@@ -232,18 +254,22 @@ class GetAnalytics < ApplicationController
 			datahash = {}
 			i = 0;
 
+			# setup dimension part
 			r.dimensions.each do |d|
 				datahash[key_array[i]] = d
 				i += 1
 			end
 
+			# setup metrics part
 			r.metrics.first.values.each do |m|
 				datahash[key_array[i]] = m
 				i += 1
 			end
 
+			# r.dimensions.first : uri
 			articleArr = set_article_data(r.dimensions.first, startdate, enddate)
 
+			# setup id, mcv
 			articleArr.each do |a|
 				datahash[key_array[i]] = a
 				i += 1
@@ -251,12 +277,13 @@ class GetAnalytics < ApplicationController
 
 			set_ga_data_array.push(datahash)
 
+			#datahash sample ->  { "pagePath": "/archives/69839", ... , "goal1Completions": "23", "id": 4, "clickCount": 0 },
 		end
 		
 		return set_ga_data_array
 	end
 
-	# db data
+	# db data by url
 	def set_article_data(uri, startdate, enddate) 
 		url = 'https://navivi.site' + uri
 		article = Article.find_by(url: url)
@@ -279,7 +306,7 @@ class GetAnalytics < ApplicationController
 
 	end
 
-
+	# demographic data
 	def get_demo(startdate, enddate)
 		
 		date_range = @analytics::DateRange.new(start_date: '2020-05-21', end_date: '2020-05-21')
@@ -327,6 +354,7 @@ class GetAnalytics < ApplicationController
 
 		end
 
+		# formatting data for stacked bar chart
 		malehash = {}
 		malehash['name'] = 'Male'
 		malehash['data'] = maledata

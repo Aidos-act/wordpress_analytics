@@ -6,30 +6,33 @@
   >
     <v-row>
       <!-- datepicker start -->
+      <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers  -->
+      <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
       <v-col cols="12" sm="3">
         <v-menu
-        ref="menu"
-        v-model="menu"
-        :close-on-content-click="false"
-        :return-value.sync="dates"
-        transition="scale-transition"
-        offset-y
-        min-width="200px" 
-      >
+          ref="menu"
+          v-model="menu"
+          :close-on-content-click="false"
+          :return-value.sync="dates"
+          transition="scale-transition"
+          offset-y
+          min-width="200px" 
+        >
           <template v-slot:activator="{ on }">
             <v-text-field v-model="dateRangeText" label="期間" readonly v-on="on"></v-text-field>
           </template>
           <v-date-picker v-model="dates" range no-title scrollable>
             <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
-            <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
+            <v-btn text color="primary" @click="getTotalByDate(dates)" :disabled="dateError">
               <span @click="$refs.menu.save(dates)">選擇</span>
             </v-btn> 
           </v-date-picker>
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-      
+      <!-- {{ totalgainfos }} -->
       <!-- dropdown graph start -->
+      <!-- please refer to v-select in the vuetify -->
       <v-col class="d-flex" cols="12" sm="6">
         <v-container fluid>
           <v-select
@@ -45,6 +48,7 @@
       
       <!-- line chart start -->
       <v-container class="chart-container">
+        <!-- please refer to Chartkick-vue. https://chartkick.com/vue -->
         <line-chart :data="setLineChartData()"></line-chart>
       </v-container>
       <!-- line chart end -->
@@ -57,6 +61,7 @@
         sm="6"
         lg="3"
       >
+        <!-- please refer to dashboard/components/base/MaterialStatsCard.vue -->
         <material-stats-card
           color="info"
           icon="mdi-book-open-page-variant"
@@ -184,10 +189,11 @@
         cols="12"
         lg="4"
       >
+        <!-- please refer to dashboard/components/base/MaterialChartCard.vue -->
+        <!-- get the chart according to graphType -->
         <material-chart-card
           :progressdata="setProgressData()"
           color="info"
-          type="Bar"
           :sheetHeight="300"
           :chartsize="250"
           graphType="goal"
@@ -214,7 +220,6 @@
         <material-chart-card
           :columndata="setColumnChartData()"
           color="success"
-          type="Line"
           :sheetHeight="300"
           chartheight="250px"
           graphType="column"
@@ -242,7 +247,6 @@
         <material-chart-card
           :piedata="setPieChartData()"
           color="#E91E63"
-          type="Pie"
           :sheetHeight="300"
           chartheight="250px"
           graphType="pie"
@@ -309,6 +313,7 @@
     computed: {
       // check if date select is correct
       dateError () {
+        // it needs to be today so set current data as today
         var currentdate =  new Date().toISOString().substr(0, 10);
         if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
           
@@ -343,32 +348,35 @@
       getGoalData(){
         return this.$store.state.goalData;
       },
-      goalAchivRate(){
-        var totalPv = this.$store.state.totalgainfos[0].pageviews;
-        var goal = this.$store.state.goalData;
-      },
     },
     mounted() {
+      // bring whole total data from lib/get_analytics.rb by selected period
       this.$store.commit('getTotalGaInfo',{
         startdate: this.dates[0],
         enddate: this.dates[1]
       });
     },
     methods: {
-      getDate(dates) {
+      getTotalByDate(dates) {
         this.$store.commit('getTotalGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
         });
       },
+      // setup data by each metrics such as pageviews, user, and so on.
       setCurrentTotal(value){
+        // get total data from lib/get_analytics.rb by selected time period 
         var currentTotal = this.$store.state.totalgainfos[0];
+
+        // it is regex and check if value has 'mcv' in the text. for example, mcvr, mcvPerUv.
         var check = /mcv/;
+
         var pv;
         var uv;
         
         var data;
 
+        // return data according to value. data is modified by methods if needed.
         for(var key in currentTotal){
           if(value == key){
             if(value == 'avgTimeOnPage'){
@@ -388,10 +396,13 @@
           }
         }
 
+        // the value which has text 'mcv' in it need to setup by setMcv method.
+        // they are not in the currentTotal[key]
         if(check.test(value)){
           return this.setMcv(currentTotal, value);
         }
       },
+      // comparing data between current period and compared period.
       setCompareTotal(value){
         var arr = [];
         
@@ -400,10 +411,13 @@
         var compareDates = this.compareRangeText;
 
         arr["date"] = compareDates;
-        
-        var currentValue = this.setValue(value)[0];
-        var compareValue = this.setValue(value)[1];
 
+        var setValueArr = this.setValue(value);
+        
+        var currentValue = setValueArr[0];
+        var compareValue = setValueArr[1];
+
+        // comparing and setup arr data and send it to dashboard/components/base/MaterialStatsCard.vue as subdata
         if(currentValue > compareValue){
           calculatedData = (((currentValue - compareValue)/compareValue)*100).toFixed(2);
           arr["color"] = 'green';
@@ -424,6 +438,7 @@
           return arr
         }
       },
+      // basically similar with setCurrentTotal method but it has 2 values which are current and compare. 
       setValue(value){
         var currentTotal = this.$store.state.totalgainfos[0];
         var compareTotal = this.$store.state.totalgainfos[1];
@@ -478,6 +493,7 @@
           }
         }
       },
+      // it is for progress bar showing goal acheivement
       setProgressData(){
         var totalValue = this.$store.state.totalgainfos[0];
         var cvr;
@@ -493,10 +509,10 @@
         }
 
         var arr = [parseFloat(cvr, 10).toFixed(2), comp];
-        // var arr = [totalValue.goal1ConversionRate, totalValue.goal1Completions];
 
         return arr;
       },
+      // set the new, returning user data for pie chart. refer to pie chart in the https://chartkick.com/vue
       setPieChartData(){
         var totalValue = this.$store.state.totalgainfos[0];
         var arr = [];
@@ -528,15 +544,21 @@
         return this.piechartData;
       },
       setLineChartData() {
+        // set value by selected item which is from dropdown
         var selectedDrop = this.selectedItem.item
+
         var arr=[];
         var compareset={};
         
 
-        // dropdown current data setting
+        // get total data by daily or hourly from lib/get_analytics/rb. which is the data for current period that user setup with datepicker.
         var dropdwnarr = this.$store.state.totalgainfos[2];
         var dropdwn = {}
         
+        // data format is like below
+        // { "00:00": { "pageviews": "534", "users": "478", "bounces": "432", "sessions": "480", "avgTimeOnPage": "123.35714285714286", "newUsers": "348", "goal1ConversionRate": "3.958333333333333", "goal1Completions": "19" }, "01:00": {...} ...}
+        // key -> hour or date, j -> pageview, users, ... 
+        // setup hash with selected item in dropdown menu. key -> hour or date
         for(var key in dropdwnarr){
           for(var j in dropdwnarr[key]){
             if(j == selectedDrop){
@@ -545,10 +567,10 @@
           }
         }
 
-        // compare dropdown current data setting
+        // get total data by daily or hourly from lib/get_analytics/rb. which is the data for compare period.
         var comparedropdwnarr = this.$store.state.totalgainfos[3];
         var comparedata = {}
-
+        // setup hash with selected item in dropdown menu. key -> hour or date
         for(var key in comparedropdwnarr){
           for(var j in comparedropdwnarr[key]){
             if(j == selectedDrop){
@@ -557,10 +579,10 @@
           }
         }
 
+        // this part is for making compare part's key same with current key so that showing up stacked data on the line chart
         var compareValueArr = Object.values(comparedata);
         
         var i = 0;
-
         for(var key in dropdwn) {
           if(this.dates[0] == this.dates[1]){
             for(var j in comparedata) {
@@ -572,9 +594,15 @@
             compareset[key] = compareValueArr[i]
             i++;
           }
-        }
+        }        
 
+
+        // setup compare dates
         var compareDates = this.compareRangeText;
+
+
+
+        // formatting data according to chart kick line chart. https://chartkick.com/vue
 
         var dropdwndata = {
           name: this.dates.join(' ~ '),
@@ -593,6 +621,7 @@
 
         return arr
       },
+      // it is colum chart for mcv
       setColumnChartData(){
         var columnchartArr=[];
 
@@ -623,15 +652,12 @@
 
         return columnchartArr;
       },
+      // set avgTimeonPage as HMS time format
       setMinute(avgTimeOnPage){
         var m = Math.floor(avgTimeOnPage/60);
         var h = Math.floor(avgTimeOnPage/3600);
 
         var s = Math.floor(avgTimeOnPage - (m*60));
-
-        var seconds = Math.floor((avgTimeOnPage / 1000) % 60),
-          minutes = Math.floor((avgTimeOnPage / (1000 * 60)) % 60),
-          hours = Math.floor((avgTimeOnPage / (1000 * 60 * 60)) % 24);
 
         h = (h < 10) ? "0" + h : h;
         m = (m < 10) ? "0" + m : m;
@@ -643,11 +669,6 @@
         var bounceRate = ((bounces/sessions)*100).toFixed(2)
         return bounceRate + "%";
       }
-    },
-    filters: {
-      truncate: function (text, length, suffix) {
-          return text.substring(0, length) + suffix;
-      },
     }
   }
 </script>

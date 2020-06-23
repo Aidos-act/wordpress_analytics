@@ -1,9 +1,12 @@
 <template>
+  <!-- refer to dashboard/components/base/MaterialCard.vue -->
+  <!-- $attrs is the attributions including color, title , ... , from parent component. in this case, Dashboard.vue -->
   <material-card
     :icon="icon"
     class="v-card--material-stats"
     v-bind="$attrs"
   >
+    <!-- slot part for material card -->
     <template v-slot:after-heading>
       <div class="ml-auto text-right">
         <div
@@ -12,7 +15,7 @@
         />
 
         <h3 class="display-2 font-weight-light text--primary">
-          {{ value }} <small>{{ smallValue }}</small>
+          {{ value }}
         </h3>
       </div>
     </template>
@@ -45,10 +48,7 @@
       >
             {{ subData.date }}と比較する
       </span>
-    </template>
-
-
-    
+    </template>    
   </material-card>
 </template>
 

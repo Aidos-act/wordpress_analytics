@@ -6,6 +6,8 @@
   >
     <v-row no-gutters>
       <!-- datepicker start -->
+      <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers -->
+      <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
       <v-col cols="12" sm="3">
         <v-menu
         ref="menu"
@@ -21,7 +23,7 @@
           </template>
           <v-date-picker v-model="dates" range no-title scrollable>
             <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
-            <v-btn text color="primary" @click="getDate(dates)" :disabled="dateError">
+            <v-btn text color="primary" @click="getTotalByDate(dates)" :disabled="dateError">
               <span @click="$refs.menu.save(dates)">選擇</span>
             </v-btn>
           </v-date-picker>
@@ -34,9 +36,12 @@
         <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="記事タイトル"></v-text-field>
       </v-col>
       <!-- article title part end -->
-
+      
+      <!-- button part start - it is for routing heatmap page by article id -->
+      <!-- default is the first data of the list that sort by pagevies -->
       <v-col cols="3" sm="3">
         <div class="my-2">
+          <!-- getDefault('id')[1][1] or getSelected('id')[1][1] is the article_id for default or selected aticle -->
           <router-link 
             v-if="checkIfDefault"
             :to="{ path: '/api/v1/articles/:id', name: 'HeatmapPage', params: { id: getDefault('id')[1][1] } }"
@@ -56,15 +61,18 @@
           
         </div>
       </v-col>
-
+      <!-- button part end - it is for routing heatmap page by article id -->
     </v-row>
 
+    <!-- graph part start -->
+
     <v-row>
-      <!-- graph data 1 start -->
+      <!-- graph data 1 start -pageviews -->
       <v-col
         cols="12"
         lg="4"
       >
+        <!-- please refer to dashboard/components/base/MaterialChartCard.vue -->
         <material-chart-card
           color="success"
           :columndata="checkIfDefault? getDefault('pageviews') : getSelected('pageviews')"
@@ -80,13 +88,15 @@
             >
               mdi-arrow-right-bold
             </v-icon>
+            <!-- getDefault('pageviews')[1][1] or getSelected('pageviews')[1][1] is the PV data for default or selected aticle -->
             <span>
               {{ checkIfDefault? getDefault('pageviews')[1][1].toLocaleString() : getSelected('pageviews')[1][1].toLocaleString() }}
             </span>
           </h4>
-
+          <!-- check if it is default -->
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
             トップ20平均PV 比
+            <!-- calculate the percentage of 'pv of this article'/'pv of top 20 articles order by pv' -->
             {{ Math.floor((getDefault('pageviews')[1][1]/getDefault('pageviews')[0][1])*100) }}%
             , 
             {{ getDefault('pageviews')[1][1]>getDefault('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
@@ -94,6 +104,7 @@
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
             トップ20平均PV 比
+            <!-- calculate the percentage of 'pv of this article'/' avg.pv of top 20 articles order by pv' -->
             {{ Math.floor((getSelected('pageviews')[1][1]/getSelected('pageviews')[0][1])*100) }}%
             ,
             {{ getSelected('pageviews')[1][1]>getSelected('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
@@ -103,7 +114,7 @@
       </v-col>
       <!-- graph data 1 end -->
 
-      <!-- graph data 2 start -->
+      <!-- graph data 2 start - mcv -->
       <v-col
         cols="12"
         lg="4"
@@ -123,6 +134,7 @@
             >
               mdi-arrow-right-bold
             </v-icon>
+            <!-- getDefault('clickCount')[1][1] or getSelected('clickCount')[1][1] is the mcv data for default or selected aticle -->
             <span>
               {{ checkIfDefault? getDefault('clickCount')[1][1].toLocaleString() : getSelected('clickCount')[1][1].toLocaleString() }}
             </span>
@@ -130,6 +142,8 @@
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
             トップ20平均MCV 比
+            <!-- getDefault('clickCount')[1][1] - clickcounts of this article -->
+            <!-- getDefault('clickCount')[0][1] - avg of clickcounts of top 20 article ordered by pv -->
             {{ Math.floor((getDefault('clickCount')[1][1]/getDefault('clickCount')[0][1])*100) }}%
             ,
             {{ getDefault('clickCount')[1][1]>getDefault('clickCount')[0][1]? "すごい!" : "頑張れ!" }}
@@ -146,7 +160,7 @@
       </v-col>
       <!-- graph data 2 end -->
 
-      <!-- graph data 3 start -->
+      <!-- graph data 3 start - avgTimeOnPage -->
       <v-col
         cols="12"
         lg="4"
@@ -166,10 +180,13 @@
             >
               mdi-arrow-right-bold
             </v-icon>
+            <!-- getDefault('avgTimeOnPage')[1][1]/getSelected('avgTimeOnPage')[1][1] is the avgTimeOnPage for default/selected aticle -->
             {{ checkIfDefault? getDefault('avgTimeOnPage')[1][1] : getSelected('avgTimeOnPage')[1][1] }}
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
+            <!-- getDefault('avgTimeOnPage')[1][1] - avgTimeOnPage of this article -->
+            <!-- getDefault('avgTimeOnPage')[0][1] - avg of avgTimeOnPage of top 20 article ordered by pv -->
             平均 {{ getDefault('avgTimeOnPage')[0][1] }} &nbsp; 記事 {{ getDefault('avgTimeOnPage')[1][1] }} ,
             {{ getDefault('avgTimeOnPage')[1][1]>getDefault('avgTimeOnPage')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
@@ -182,7 +199,7 @@
       </v-col>
       <!-- graph data 3 end -->       
 
-      <!-- graph data 4 start -->
+      <!-- graph data 4 start - goal achievement progress bar -->
       <v-col
         cols="12"
         lg="4"
@@ -198,7 +215,7 @@
           <h4 class="card-title font-weight-light mt-2 ml-2">
             ゴール1 : 1分以上ページに滞在
           </h4>
-
+          
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
             CV率 : {{ checkIfDefault? getDefault('goal')[0] : getSelected('goal')[0] }}% &nbsp; 
             完了数 : {{ checkIfDefault? getDefault('goal')[1] : getSelected('goal')[1] }}
@@ -208,7 +225,7 @@
       </v-col>
       <!-- graph data 4 end -->
 
-      <!-- graph data 5 start -->
+      <!-- graph data 5 start - bounce rate -->
       <v-col
         cols="12"
         lg="4"
@@ -228,11 +245,14 @@
             >
               mdi-arrow-right-bold
             </v-icon>
+            <!-- getDefault('bounces')[1][1] or getSelected('bounces')[1][1] is the bounces data for default or selected aticle -->
             {{ checkIfDefault? getDefault('bounces')[1][1] : getSelected('bounces')[1][1] }}%
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
             トップ20平均直帰率 比
+            <!-- getDefault('bounces')[1][1] - bounces of this article -->
+            <!-- getDefault('bounces')[0][1] - avg of bounces of top 20 article ordered by pv -->
             {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}%
             ,
             {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "頑張れ!" : "すごい!" }}
@@ -249,11 +269,14 @@
       </v-col>
       <!-- graph data 5 end -->
 
-      <!-- graph data 6 start -->
+      <!-- graph data 6 start - demographic -->
       <v-col
         cols="12"
         lg="4"
       >
+        <!-- please refer to get_demo method of lib/get_analytics.rb -->
+        <!-- demographic data is just around 25% accuracy. it is because of the way google get the demographic data -->
+        <!-- for the detail, please refer to https://support.google.com/analytics/answer/2799357?hl=en -->
         <material-chart-card
           color="success"
           :sheetHeight="200"
@@ -271,21 +294,26 @@
         </material-chart-card>
       </v-col>
       <!-- graph data 6 end -->    
+
+    <!-- graph part end -->
       
       <!-- article list part start -->
       <v-col
         cols="12"
         md="12"
       >
+        <!-- please refer to dashboard/components/base/MaterialCard.vue -->
         <material-card
           color="warning"
           class="px-5 py-3"
         >
+
+          <!-- please refer to https://vuetifyjs.com/en/components/data-tables/ -->
+          <!-- especially Search and Slots part -->
           <template v-slot:heading>
             <div class="display-2 font-weight-light" style="text-align: start;">
               記事リスト
             </div>
-
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
@@ -311,6 +339,7 @@
               <tbody>
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
+                    <!-- use filters for making the text short -->
                     <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(30, '...') }}</p>
                     <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
                   </td>
@@ -402,27 +431,15 @@
         }
         return this.dates.join(' ~ ')
       },
-      articles() {
-        return this.$store.state.articles
-      },
       gainfos() {
         return this.$store.state.gainfos
       },
       demographicData() {
         return this.$store.state.demographicData
-      },
-      temp(){
-        console.log('just temp')
-        if(this.articleId != ''){
-          this.$store.commit('fetchClicks',{
-            startdate: this.dates[0],
-            enddate: this.dates[1],
-            articleId: this.articleId
-          });
-        }
       }
     },
     mounted() {
+      // bring whole each article data from lib/get_analytics.rb by selected period
       this.$store.commit('getGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
@@ -431,21 +448,24 @@
           startdate: this.dates[0],
           enddate: this.dates[1]
       });
-      this.$store.commit('fetchArticles');
     },
     methods: {
-      getDate(dates) {
+      getTotalByDate(dates) {
         console.log("please")
         this.$store.commit('getGaInfo',{
           startdate: this.dates[0],
           enddate: this.dates[1]
         });
       },
+      // default data when user visit the page
       getDefault(value){
         var columnchartArr=[];
+
+        // setup first data of article list and it is ordered by pagevies
         var defaultGAinfo = this.$store.state.gainfos[0];
         var defaultData;
 
+        // setup first data of selected metrics such as pageviews, bounces and so on.
         for(var key in defaultGAinfo){
           if(key == value){
             if(value == 'bounces'){
@@ -467,8 +487,11 @@
             return goalArr;
           }
         }
+
+        // setup average data of top 20 article list ordered by pageviews
         var avg = this.getAvg(value);
 
+        // make the data as time format if value is avgTimeOnPage
         if(value == 'avgTimeOnPage'){
           var a = this.setMinute(avg);
           var b = this.setMinute(defaultData);
@@ -490,7 +513,8 @@
         var gainfos = this.$store.state.gainfos;
         var selectedGainfos;
         var selectedData;
-        
+
+        // setup data by selected path
         for(var key in gainfos){
           if(this.selectedPath == gainfos[key].pagePath){
             selectedGainfos = gainfos[key];
@@ -533,6 +557,7 @@
 
         return columnchartArr;
       },
+      // average data of top 20 articles sorted by pageviews
       getAvg(value){
         var a = this.$store.state.gainfos;
         var arr=[];
@@ -551,7 +576,7 @@
             arr[i] = (b/pv)*100;
           }
         }
-        
+        // sum up every data in the array
         var sum = arr.reduce((a, b) => a + b, 0);
 
         average = Math.floor(sum/length);
@@ -564,10 +589,6 @@
 
         var s = Math.floor(avgTimeOnPage - (m*60));
 
-        var seconds = Math.floor((avgTimeOnPage / 1000) % 60),
-          minutes = Math.floor((avgTimeOnPage / (1000 * 60)) % 60),
-          hours = Math.floor((avgTimeOnPage / (1000 * 60 * 60)) % 24);
-
         h = (h < 10) ? "0" + h : h;
         m = (m < 10) ? "0" + m : m;
         s = (s < 10) ? "0" + s : s;
@@ -578,6 +599,7 @@
         var bounceRate = ((bounces/sessions)*100).toFixed(2)
         return bounceRate + "%";
       },
+      // it setup path, selected title and change boolean When user click on the title of the list user want to see
       setPathTitle(path, title){
         this.selectedPath = path;
         this.title = title;

@@ -5,9 +5,11 @@
     class="v-card--material pa-3"
   >
     <div class="d-flex grow flex-wrap">
+      <!-- please refer to v-sheet part in the vuetify docs. https://vuetifyjs.com/en/components/sheets/#sheets -->
+      <!-- data(props) is from parent components. for example, Dashboard.vue -> MaterialStatsCard.vue -> here -->
       <v-sheet
         :class="{
-          'pa-7': !$slots.image
+          'pa-7': true
         }"
         :color="color"
         :max-height="icon ? 90 : undefined"
@@ -22,28 +24,12 @@
           name="heading"
         />
 
-        <slot
-          v-else-if="$slots.image"
-          name="image"
-        />
-
-        <div
-          v-else-if="title && !icon"
-          class="display-1 font-weight-light"
-          v-text="title"
-        />
-
         <v-icon
           v-else-if="icon"
           size="32"
           v-text="icon"
         />
 
-        <div
-          v-if="text"
-          class="headline font-weight-thin"
-          v-text="text"
-        />
       </v-sheet>
 
       <div
@@ -54,16 +40,10 @@
       </div>
 
     </div>
-
+    
+    <!-- slot for sub part -->
     <slot />
 
-    <template v-if="$slots.actions">
-      <v-divider class="mt-2" />
-
-      <v-card-actions class="pb-0">
-        <slot name="actions" />
-      </v-card-actions>
-    </template>
   </v-card>
 </template>
 

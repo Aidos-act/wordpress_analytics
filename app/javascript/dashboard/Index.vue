@@ -11,15 +11,16 @@
   export default {
     name: 'DashboardMainIndex',
 
+    // lazy load(chunk)
     components: {
+      // header part
       DashboardCoreAppBar: () => import('./components/core/AppBar'),
+      // side part
       DashboardCoreDrawer: () => import('./components/core/Drawer'),
+      // pop up part
       DashboardCoreSettings: () => import('./components/core/Settings'),
+      // main view
       DashboardCoreView: () => import('./components/core/View'),
-    },
-
-    data: () => ({
-      expandOnHover: false,
-    }),
+    }
   }
 </script>

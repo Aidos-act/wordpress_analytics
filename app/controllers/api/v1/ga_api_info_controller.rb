@@ -1,6 +1,8 @@
 require "#{Rails.root}/lib/get_analytics.rb"
 
 class Api::V1::GaApiInfoController < ApplicationController
+  caches_action :index, :getTotalGaInfo, :getDemographic, expires_in: 5.hour
+
   def index
   	get_analytics_data = GetAnalytics.new
     @data = get_analytics_data.get_data(params[:startdate], params[:enddate])

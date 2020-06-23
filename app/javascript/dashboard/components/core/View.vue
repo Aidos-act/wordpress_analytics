@@ -7,7 +7,7 @@
 
 <script>
   // import Spinner from '../../../components/Spinner.vue'
-  import bus from '../../utils/bus.js'
+  // import bus from '../../utils/bus.js'
   export default {
     name: 'DashboardCoreView',
 
