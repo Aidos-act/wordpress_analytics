@@ -43,6 +43,9 @@ gem 'foreman', '~> 0.87.1'
 # for ga api
 gem 'google-api-client', '~> 0.37.2'
 
+# Action caching for Action Pack (removed from core in Rails 4.0)
+gem 'actionpack-action_caching', '~> 1.2', '>= 1.2.1'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
