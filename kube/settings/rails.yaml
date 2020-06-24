@@ -21,34 +21,34 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: destiny1616/nginx:v3
+        image: destiny1616/nginx:v6
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
             name: rails-config
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         volumeMounts:
         - name: mysql-pv
           mountPath: /var/lib/mysql 
         - name: empty-dir
-          mountPath: /analytics_app/tmp/sockets
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          timeoutSeconds: 30
-          initialDelaySeconds: 30
-          periodSeconds: 30
+          mountPath: /app/tmp/sockets
         readinessProbe:
           httpGet:
             path: /health
-            port: 8080
-          timeoutSeconds: 30
-          initialDelaySeconds: 30
+            port: 80
+          timeoutSeconds: 5
+          initialDelaySeconds: 5
           periodSeconds: 30
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          timeoutSeconds: 5
+          initialDelaySeconds: 300
+          periodSeconds: 30          
       - name: rails
-        image: destiny1616/rails:v15
+        image: destiny1616/rails:v19
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
@@ -58,23 +58,23 @@ spec:
         - containerPort: 3000
         volumeMounts:
         - name: mysql-pv
-          mountPath: /var/lib/mysql 
+          mountPath: /var/lib/mysql
         - name: empty-dir
-          mountPath: /analytics_app/tmp/sockets
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          timeoutSeconds: 30
-          initialDelaySeconds: 30
-          periodSeconds: 30
+          mountPath: /app/tmp/sockets
         readinessProbe:
           httpGet:
             path: /health
-            port: 3000
-          timeoutSeconds: 30
-          initialDelaySeconds: 30
-          periodSeconds: 30            
+            port: 80
+          timeoutSeconds: 5
+          initialDelaySeconds: 5
+          periodSeconds: 30    
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          timeoutSeconds: 5
+          initialDelaySeconds: 300
+          periodSeconds: 30                     
       volumes:
       - name: mysql-pv
         persistentVolumeClaim:
