@@ -1,0 +1,9 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: stg
+  name: rails-ing
+spec:
+  backend:
+    serviceName: web
+    servicePort: 80

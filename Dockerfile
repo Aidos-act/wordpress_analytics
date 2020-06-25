@@ -14,9 +14,8 @@ RUN apt-get update && apt-get install -y curl apt-transport-https wget && \
   	apt-get update && apt-get install -y yarn && \
   	gem install bundler
 
-# RUN yarn install --check-files
 
-ENV WORKSPACE=/analytics_app
+ENV WORKSPACE=/app
 ENV LANG C.UTF-8
 
 RUN mkdir -p $WORKSPACE
@@ -28,7 +27,7 @@ RUN bundle install
 
 COPY . $WORKSPACE
 
-# RUN gem install foreman
+
 RUN yarn install --check-files
 
 
