@@ -36,7 +36,8 @@ export default new Vuex.Store({
         .get('/api/v1/ga_api_info/getTotalGaInfo.json', {
             params: {
               startdate: payload.startdate,
-              enddate: payload.enddate
+              enddate: payload.enddate,
+              hostname: payload.hostname
             }
         })
         .then(response => (state.totalgainfos = response.data), (error) => {console.log(error);})

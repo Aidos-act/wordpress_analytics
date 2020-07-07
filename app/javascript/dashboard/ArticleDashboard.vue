@@ -30,7 +30,7 @@
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-
+      {{gainfos}}
       <!-- article title part start -->
       <v-col cols="12" sm="6">
         <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="記事タイトル"></v-text-field>
@@ -340,8 +340,12 @@
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
                     <!-- use filters for making the text short -->
-                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(30, '...') }}</p>
-                    <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
+                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">
+                      {{ data.pageTitle | truncate(30, '...') }}
+                    </p>
+                    <a :href="'//' + data.hostname + data.pagePath">
+                      <small class="page-path">{{ data.hostname }}{{ data.pagePath | truncate(20, '') }}</small>
+                    </a>
                   </td>
                   <td>{{ parseInt(data.clickCount, 10).toLocaleString() }}</td>
                   <td>{{ parseInt(data.pageviews, 10).toLocaleString() }}</td>

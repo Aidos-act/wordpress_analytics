@@ -8,7 +8,7 @@
       <!-- datepicker start -->
       <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers  -->
       <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
-      <v-col cols="12" sm="3">
+      <v-col cols="6" sm="3">
         <v-menu
           ref="menu"
           v-model="menu"
@@ -30,10 +30,9 @@
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-      <!-- {{ totalgainfos }} -->
-      <!-- dropdown graph start -->
-      <!-- please refer to v-select in the vuetify -->
-      <v-col class="d-flex" cols="12" sm="6">
+      
+      <!-- dropdown for line chart --> <!-- please refer to v-select in the vuetify -->
+      <v-col class="d-flex" cols="6" sm="3">
         <v-container fluid>
           <v-select
             v-model="selectedItem.item"
@@ -46,14 +45,28 @@
         </v-container>
       </v-col>
       
+      <!-- dropdown for host name -->
+      <v-col class="d-flex" cols="6" sm="3">
+        <v-container fluid>
+          <v-select
+            v-model="selectedHost.item"
+            item-text="key"
+            item-value="item"
+            :items="dropdownHost"
+            label="ページグループ"
+            @input="getTotalByHost(selectedHost.item)"
+            dense
+          ></v-select>
+        </v-container>
+      </v-col>
+      
       <!-- line chart start -->
       <v-container class="chart-container">
         <!-- please refer to Chartkick-vue. https://chartkick.com/vue -->
         <line-chart :data="setLineChartData()"></line-chart>
       </v-container>
       <!-- line chart end -->
-
-      <!-- dropdown graph end -->
+      <!-- {{totalgainfos}} -->
 
       <!-- stats card 1 start - pageview -->
       <v-col
@@ -304,6 +317,12 @@
           { key: "平均滞在時間", item: "avgTimeOnPage"},
           
         ],
+        selectedHost: { key: "トータル", item: "total"},
+        dropdownHost: [
+          { key: "トータル", item: "total"},
+          { key: "navivi.site", item: "navivi.site"},
+          { key: "testtest", item: "reportv3.ptengine.jp"},
+        ]
       }
     },
     created() {
@@ -353,14 +372,23 @@
       // bring whole total data from lib/get_analytics.rb by selected period
       this.$store.commit('getTotalGaInfo',{
         startdate: this.dates[0],
-        enddate: this.dates[1]
+        enddate: this.dates[1],
+        hostname: 'total'
       });
     },
     methods: {
       getTotalByDate(dates) {
         this.$store.commit('getTotalGaInfo',{
           startdate: this.dates[0],
-          enddate: this.dates[1]
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+      },
+      getTotalByHost(value){
+        this.$store.commit('getTotalGaInfo',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: value
         });
       },
       // setup data by each metrics such as pageviews, user, and so on.
@@ -668,7 +696,7 @@
       getBounceRate(bounces, sessions) {
         var bounceRate = ((bounces/sessions)*100).toFixed(2)
         return bounceRate + "%";
-      }
+      },
     }
   }
 </script>

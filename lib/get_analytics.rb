@@ -13,7 +13,7 @@ class GetAnalytics < ApplicationController
 	end
 
 	# total data by selected period
-	def get_total_ga_info(startdate, enddate)
+	def get_total_ga_info(startdate, enddate, hostname)
 		puts 'totla data'
 		set_total_by_date = Array.new
 
@@ -22,7 +22,7 @@ class GetAnalytics < ApplicationController
 		
 
 		# index 0 -> total data, index 1 -> data by date or hour
-		current_arr = set_total_by_date(startdate, enddate)
+		current_arr = set_api_by_date(startdate, enddate, hostname)
 		current_data = current_arr[0]
 		current_linechart_data = current_arr[1]
 		
@@ -37,7 +37,7 @@ class GetAnalytics < ApplicationController
 		end	
 
 		# index 0 -> total data, index 1 -> data by date or hour
-		compare_arr = set_total_by_date(compare_startdate, compare_enddate)
+		compare_arr = set_api_by_date(compare_startdate, compare_enddate, hostname)
 		compare_data = compare_arr[0]
 		compare_linechart_data = compare_arr[1]
 		
@@ -52,7 +52,7 @@ class GetAnalytics < ApplicationController
 
 
 	# total data by dates
-	def set_total_by_date(startdate, enddate)
+	def set_api_by_date(startdate, enddate, hostname)
 
 		# setup date range
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
@@ -70,23 +70,60 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
-		# set dimension and order by hour or date
-		if startdate == enddate then
-			dimension = @analytics::Dimension.new(name: 'ga:hour')
-			order_by = @analytics::OrderBy.new(field_name: 'ga:hour', sort_order: 'ASCENDING')
-		else
-			dimension = @analytics::Dimension.new(name: 'ga:date')
-			order_by = @analytics::OrderBy.new(field_name: 'ga:date', sort_order: 'ASCENDING')
-		end
+		
+		# if startdate == enddate then
+		# 	dimension = @analytics::Dimension.new(name: 'ga:hour')
+		# 	order_by = @analytics::OrderBy.new(field_name: 'ga:hour', sort_order: 'ASCENDING')
+		# else
+		# 	dimension = @analytics::Dimension.new(name: 'ga:date')
+		# 	order_by = @analytics::OrderBy.new(field_name: 'ga:date', sort_order: 'ASCENDING')
+		# end
+
+
+	 	# set dimensions, dimension_filters by hostname. if hostname is total, then set only hour or date in dimension
+
+	 	if hostname == 'total'
+			if startdate == enddate then
+				dimensions = ['ga:hour']
+			else
+				dimensions = ['ga:date']
+			end	 		
+	 	else
+	 		if startdate == enddate then
+				dimensions = ['ga:hour', 'ga:hostname']
+			else
+				dimensions = ['ga:date', 'ga:hostname']
+			end	
+	 		dimension_filters = @analytics::DimensionFilterClause.new(
+		      filters: [
+		        @analytics::DimensionFilter.new(
+		          dimension_name: 'ga:hostname',
+		          not: false,
+		          operator: "IN_LIST",
+		          expressions: [hostname]
+		        )
+		      ]
+		    )
+	 	end
+
+	 	dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end			
+
+		#set order_bys
+		order_by = @analytics::OrderBy.new(field_name: dimensions[0], sort_order: 'ASCENDING')
 
 
 		# setup request with the data i set up above to google analytics server
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: @view_id, 
-    			metrics: metric_type, 
-    			dimensions: [dimension],
-    			# dimension_filter_clauses: [dimension_filters],
+    			metrics: metric_type,
+    			dimensions: dimension_type,
+    			dimension_filter_clauses: [dimension_filters],
     			date_ranges: [date_range],
     			order_bys: [order_by]
   			)]
@@ -175,7 +212,7 @@ class GetAnalytics < ApplicationController
 		# metric = @analytics::Metric.new(expression: ['ga:sessions', 'ga:uniquePageviews'])
 		# metric = @analytics::Metric.new
 		# metric.expression = ['ga:sessions', 'ga:uniquePageviews']
-
+		
 		metrics = ['ga:pageviews', 'ga:users', 'ga:bounces', 'ga:sessions',
 				   'ga:avgTimeOnPage', 'ga:newUsers', 'ga:goal1ConversionRate', 'ga:goal1Completions'
 				  ]
@@ -188,7 +225,7 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
-		dimensions = ['ga:pagePath', 'ga:pageTitle']
+		dimensions = ['ga:dateHour','ga:pagePath', 'ga:pageTitle', 'ga:hostname' ]
 		dimension_type = Array.new
 		dimensions.each do |d|
 			dimension  = @analytics::Dimension.new
@@ -266,8 +303,9 @@ class GetAnalytics < ApplicationController
 				i += 1
 			end
 
-			# r.dimensions.first : uri
-			articleArr = set_article_data(r.dimensions.first, startdate, enddate)
+			
+			# get aticle data from db
+			articleArr = set_article_data(datahash['hostname'], datahash['pagePath'], startdate, enddate)
 
 			# setup id, mcv
 			articleArr.each do |a|
@@ -284,8 +322,8 @@ class GetAnalytics < ApplicationController
 	end
 
 	# db data by url
-	def set_article_data(uri, startdate, enddate) 
-		url = 'https://navivi.site' + uri
+	def set_article_data(hostname, uri, startdate, enddate) 
+		url = 'https://' + hostname + uri
 		article = Article.find_by(url: url)
 		start_date = startdate.to_date.beginning_of_day 
 		end_date = enddate.to_date.end_of_day

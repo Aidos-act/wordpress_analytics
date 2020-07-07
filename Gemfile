@@ -43,6 +43,9 @@ gem 'foreman', '~> 0.87.1'
 # for ga api
 gem 'google-api-client', '~> 0.37.2'
 
+# cron job
+gem 'whenever', '~> 1.0'
+
 # Action caching for Action Pack (removed from core in Rails 4.0)
 gem 'actionpack-action_caching', '~> 1.2', '>= 1.2.1'
 
