@@ -19,16 +19,16 @@ class Api::V1::ArticlesController < ApplicationController
 	def new
       if Article.exists?(params[:id])
         @article = Article.find(params[:id])
-        @article.title = params[:title]
-        @article.url = params[:url]
+        @article.article_title = params[:article_title]
+        @article.article_url = params[:article_url]
         if params[:maxpos].to_i > @article.maxpos
           @article.maxpos = params[:maxpos]
         end
         @article.save
       else
         @article = Article.new
-        @article.title = params[:title]
-        @article.url = params[:url]
+        @article.article_title = params[:article_title]
+        @article.article_url = params[:article_url]
         @article.id = params[:id]
         @article.maxpos = params[:maxpos]
         @article.save

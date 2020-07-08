@@ -25,6 +25,10 @@ Rails.application.routes.draw do
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
+      resources :domains
+      resources :ga_apis
+      resources :goals
+      resources :goal_achievements
 
       post 'articles/new' => 'articles#new'
 

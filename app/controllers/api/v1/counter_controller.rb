@@ -10,7 +10,7 @@ class Api::V1::CounterController < ApplicationController
 
   def groupbyurl
     
-    geturl = @article.clicks.select('btn_url, COUNT(ID) AS url_count').group(:btn_url)
+    geturl = @article.clicks.select('button_url, COUNT(ID) AS url_count').group(:button_url)
     render json:geturl
 
   end
@@ -25,7 +25,7 @@ class Api::V1::CounterController < ApplicationController
 
   def groupbytext
 
-    gettext = @article.clicks.select('btn_text, COUNT(ID) AS text_count').group(:btn_text)
+    gettext = @article.clicks.select('button_text, COUNT(ID) AS text_count').group(:button_text)
     render json:gettext
 
   end
@@ -48,7 +48,7 @@ class Api::V1::CounterController < ApplicationController
   total = @article.scrolls.count
 
     for i in 0..maxscroll do
-      percent = ((@article.scrolls.where('scroll_pos >='+(i*loopcount).to_s+'').count)*100)/total
+      percent = ((@article.scrolls.where('scroll_position >='+(i*loopcount).to_s+'').count)*100)/total
       scrolls[i] = percent
     end
 
@@ -58,9 +58,9 @@ class Api::V1::CounterController < ApplicationController
 
   def durationcalculate
 
-  maxdur = @article.scrolls.maximum(:scroll_dur)
+  maxdur = @article.scrolls.maximum(:scroll_duration)
   halfmax = maxdur/2
-  getdur = @article.scrolls.where('scroll_pos <= 100').select('scroll_pos, SUM(scroll_dur) AS sum_dur').group(:scroll_pos)
+  getdur = @article.scrolls.where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
 
   render json:getdur
 
@@ -68,7 +68,7 @@ class Api::V1::CounterController < ApplicationController
 
   def avgdurall
 
-    avgdur = Article.select('(select AVG(scroll_dur) FROM SCROLLS) AS total_avg_dur' )
+    avgdur = Article.select('(select AVG(scroll_duration) FROM SCROLLS) AS total_avg_dur' )
 
     render json:avgdur[0]
 
@@ -76,14 +76,14 @@ class Api::V1::CounterController < ApplicationController
 
   def avgdurarticle
 
-    avgdur = @article.scrolls.average(:scroll_dur)
+    avgdur = @article.scrolls.average(:scroll_duration)
     render json:avgdur
 
   end
 
   def totalduration
 
-    totaldur = @article.scrolls.sum(:scroll_dur)
+    totaldur = @article.scrolls.sum(:scroll_duration)
     render json:totaldur
 
   end

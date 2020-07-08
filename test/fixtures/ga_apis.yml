@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  article_id: 1
+  date_hour: 2020-07-07 21:32:33
+  page_view: 1
+  user: 1
+  new_user: 1
+  bounce: 1
+  session: 1
+  avg_time_on_page: 1
+
+two:
+  article_id: 1
+  date_hour: 2020-07-07 21:32:33
+  page_view: 1
+  user: 1
+  new_user: 1
+  bounce: 1
+  session: 1
+  avg_time_on_page: 1

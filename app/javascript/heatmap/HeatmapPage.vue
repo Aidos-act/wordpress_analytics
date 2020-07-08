@@ -11,19 +11,19 @@
          <div class="heat-map" v-bind:style="{ height: article.maxpos + 'px' }">
            <div v-for="e in scrolld">
               <div v-if="e.sum_dur >= totald/100">  
-                <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                   <h1 class="heat-red"></h1>
                 </div>  
               </div>
               <div v-if="e.sum_dur <= totald/100"> 
                 <div v-if="e.sum_dur >= totald/200">  
-                  <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                  <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                     <h2 class="heat-yellow"></h2>
                   </div>  
                 </div>
                 <div v-if="e.sum_dur < totald/200">
                   <div v-if="e.sum_dur > totald/400">  
-                    <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                    <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                       <h3 class="heat-green"></h3>
                     </div>  
                   </div>
@@ -71,10 +71,10 @@
         <table>
           <tbody class="btns">
             <div class="click-item" v-for="e in countbtnurl" >
-                <td v-if="e.btn_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.btn_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
+                <td v-if="e.button_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.button_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
             </div>
             <div class="click-item" v-for="e in countbtntext">
-                <td v-if="e.btn_text != 'undefined'" class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
+                <td v-if="e.button_text != 'undefined'" class="clicks-list" v> <p class="btn-info" >{{ e.button_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
             </div>
           </tbody>
         </table>

@@ -8,8 +8,8 @@ class Api::V1::ScrollsController < ApplicationController
 
   def new
     @scroll = Scroll.new
-    @scroll.scroll_pos = params[:scroll_pos]
-    @scroll.scroll_dur = params[:scroll_dur]
+    @scroll.scroll_position = params[:scroll_position]
+    @scroll.scroll_duration = params[:scroll_duration]
     @scroll.article_id = params[:article_id]
     @scroll.save
   end
