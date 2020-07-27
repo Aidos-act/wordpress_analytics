@@ -4,6 +4,7 @@ require 'date'
 class GetAnalytics < ApplicationController
 
 	VIEW_ID = "214644944"
+	# VIEW_ID = "222861936"
 
 	# initialize 
 	def initialize() 
@@ -217,6 +218,9 @@ class GetAnalytics < ApplicationController
 				   'ga:avgTimeOnPage', 'ga:newUsers', 'ga:goal1ConversionRate', 'ga:goal1Completions'
 				  ]
 
+		# metrics = ['ga:totalEvents'
+		# 		  ]		  
+
 
 		metric_type = Array.new
 		metrics.each do |m|
@@ -225,7 +229,8 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
-		dimensions = ['ga:dateHour','ga:pagePath', 'ga:pageTitle', 'ga:hostname' ]
+		dimensions = ['ga:pagePath', 'ga:pageTitle', 'ga:hostname' ]
+		# dimensions = ['ga:pagePath', 'ga:eventCategory']
 		dimension_type = Array.new
 		dimensions.each do |d|
 			dimension  = @analytics::Dimension.new
@@ -256,7 +261,8 @@ class GetAnalytics < ApplicationController
     			# dimension_filter_clauses: [dimension_filters],
     			# dimensions: [dimension], 
     			date_ranges: [date_range],
-    			order_bys: [order_by]
+    			order_bys: [order_by],
+    			pageSize: 10000
   			)]
 		)
 		response = @client.batch_get_reports(request)
@@ -324,7 +330,7 @@ class GetAnalytics < ApplicationController
 	# db data by url
 	def set_article_data(hostname, uri, startdate, enddate) 
 		url = 'https://' + hostname + uri
-		article = Article.find_by(url: url)
+		article = Article.find_by(article_url: url)
 		start_date = startdate.to_date.beginning_of_day 
 		end_date = enddate.to_date.end_of_day
 		
@@ -347,7 +353,7 @@ class GetAnalytics < ApplicationController
 	# demographic data
 	def get_demo(startdate, enddate)
 		
-		date_range = @analytics::DateRange.new(start_date: '2020-05-21', end_date: '2020-05-21')
+		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
 		metric = @analytics::Metric.new(expression: 'ga:users')
 
 		dimensions = ['ga:userAgeBracket', 'ga:userGender']
@@ -411,8 +417,561 @@ class GetAnalytics < ApplicationController
 		return set_demo_array
 	end
 
+	def get_goal_data(startdate, enddate)
+
+		# setup date range
+		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
+
+		# set metircs data. 10 metrices are allowed per one request
+		metrics = ['ga:goal1ConversionRate', 'ga:goal1Completions']
+
+		# make new array and put metric type data in the array
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
 
 
+		# setup request with the data i set up above to google analytics server
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: @view_id,
+    			metrics: metric_type,
+    			date_ranges: [date_range]
+  			)]
+		)
+
+		# send request and get the result in the response
+		response = @client.batch_get_reports(request)
+
+
+
+		# getting total data part start
+
+		total_data = response.reports.first.data.totals.first.values
+
+		return total_data
+	end
+
+	def get_goal_data_by_article(startdate, enddate)
+
+		# setup date range
+		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
+
+		# set metircs data. 10 metrices are allowed per one request
+		metrics = ['ga:goal1ConversionRate', 'ga:goal1Completions']
+
+		# make new array and put metric type data in the array
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
+		dimension = @analytics::Dimension.new(name: 'ga:pagePath')
+
+		# setup request with the data i set up above to google analytics server
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: @view_id,
+    			metrics: metric_type,
+    			date_ranges: [date_range],
+    			dimensions: [dimension],
+    			page_size: 100_000
+  			)]
+		)
+
+		# send request and get the result in the response
+		response = @client.batch_get_reports(request)
+
+		goal_arr = Array.new
+
+		data_from_google = response.reports.first.data.rows
+
+		key_array = ['article_url', 'goal1ConversionRate', 'goal1Completions']
+
+		data_from_google.each_with_index do |r, index|
+
+			datahash = {}
+			i = 0;
+
+			# setup dimension part
+			r.dimensions.each do |d|
+				datahash[key_array[i]] = d
+				i += 1
+			end
+
+			# setup metrics part
+			r.metrics.first.values.each do |m|
+				datahash[key_array[i]] = m
+				i += 1
+			end
+
+			goal_arr.push(datahash)
+
+		end
+
+
+		return goal_arr
+	end
+
+
+	# method for cron job
+	def get_ga_data(yesterday, view_id, ga_key)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = @analytics::OrderBy.new(field_name: 'ga:pageviews', sort_order: 'DESCENDING')
+		
+		metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:avgTimeOnPage']
+
+
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
+		dimensions = ['ga:dateHour', 'ga:pagePath']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+
+		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
+
+		# dimension_filters = @analytics::DimensionFilterClause.new(
+	 #      filters: [
+	 #        @analytics::DimensionFilter.new(
+	 #          dimension_name: 'ga:pagePath',
+	 #          operator: "IN_LIST",
+	 #          expressions: ['/archives/77566', '/archives/67186', '/archives/69839', '/archives/65171', '/archives/76562', 
+	 #          				'/archives/79297', '/archives/68169', '/archives/78550', '/archives/58437', '/archives/68416'
+	 #          			   ]		   
+	 #        )
+	 #      ]
+	 #    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id, 
+    			metrics: metric_type, 
+    			dimensions: dimension_type,
+    			# dimension_filter_clauses: [dimension_filters],
+    			date_ranges: [date_range],
+    			order_bys: [order_by]
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+
+		# handling error 
+		if !response.reports.first.data.rows then
+		 	return
+		end
+
+
+		data_from_google = response.reports.first.data.rows
+		
+		
+		set_ga_data_array = Array.new
+
+
+		data_from_google.each_with_index do |r, index|
+
+			datahash = {}
+			i = 0
+
+			article = Article.select(:id).find_by(article_url: r.dimensions.second)
+			next if !article
+			
+			datahash[ga_key[i]] = article.id
+			i += 1
+
+			datahash[ga_key[i]] = r.dimensions.first
+			i += 1
+
+			# setup metrics part
+			r.metrics.first.values.each do |m|
+				datahash[ga_key[i]] = m
+				i += 1
+			end
+
+			datahash[ga_key[i]] = Time.zone.now
+			i += 1
+			datahash[ga_key[i]] = Time.zone.now
+
+			set_ga_data_array.push(datahash)
+
+		end
+		
+		return set_ga_data_array
+	end
+
+	# get article table data from ga
+	def get_article_data(yesterday, view_id, domain_id, article_key)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = @analytics::OrderBy.new(field_name: 'ga:pageviews', sort_order: 'DESCENDING')
+		metric = @analytics::Metric.new(expression: 'ga:pageviews')
+
+		dimensions = ['ga:pageTitle', 'ga:pagePath']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+
+		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
+		# '/2020/04/27/43987/'
+		# dimension_filters = @analytics::DimensionFilterClause.new(
+	 #      filters: [
+	 #        @analytics::DimensionFilter.new(
+	 #          dimension_name: 'ga:pagePath',
+	 #          operator: "IN_LIST",
+	 #          expressions: ['/archives/77566', '/archives/67186', '/archives/69839', '/archives/65171', '/archives/76562', 
+	 #          				'/archives/79297', '/archives/68169', '/archives/78550', '/archives/58437', '/archives/68416',
+	 #          				'/2020/06/23/tiktok/', '/2020/04/27/43987/'
+	 #          			   ]			   
+	 #        )
+	 #      ]
+	 #    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id,
+    			dimensions: dimension_type,
+    			metrics: [metric], 
+    			# dimension_filter_clauses: [dimension_filters],
+    			# dimensions: [dimension], 
+    			date_ranges: [date_range],
+    			order_bys: [order_by],
+    			page_size: 100_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+		messageHash = {}
+
+		# handling error 
+		if !response.reports.first.data.rows then
+			return
+		end
+
+
+		data_from_google = response.reports.first.data.rows
+
+		max_position_array = get_max_position(yesterday, view_id)
+		
+		set_ga_data_array = Array.new
+
+		
+		data_from_google.each_with_index do |r, index|
+
+			datahash = {}
+			i = 0
+			# domain_id
+			datahash[article_key[i]] = domain_id
+			i += 1
+
+			# setup dimension part
+			# article_title, article_url
+			r.dimensions.each do |d|
+				datahash[article_key[i]] = d
+				i += 1
+			end
+
+			# maxpos
+			if max_position_array != nil
+				max_position_array.each do |max_position|
+					if max_position['article_url'] == r.dimensions[1]
+						datahash[article_key[i]] = max_position['max_position']
+					end
+				end
+			else
+				datahash[article_key[i]] = 10000
+			end
+			set_ga_data_array.push(datahash)
+		end
+		
+		return set_ga_data_array
+	end
+
+	def get_max_position(yesterday, view_id)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = [
+			@analytics::OrderBy.new(
+				field_name: 'ga:pagePath',
+				sort_order: 'ASCENDING'),
+			@analytics::OrderBy.new(
+				field_name: 'ga:eventAction',
+				sort_order: 'ASCENDING')
+
+		]
+		metric = @analytics::Metric.new(expression: 'ga:totalEvents')
+
+		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+
+
+		dimension_filters = @analytics::DimensionFilterClause.new(
+	      filters: [
+	        @analytics::DimensionFilter.new(
+	          dimension_name: 'ga:eventCategory',
+	          operator: "IN_LIST",
+	          expressions: ['Article_max_position']
+	        )
+	      ]
+	    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id,
+    			dimensions: dimension_type,
+    			metrics: [metric], 
+    			dimension_filter_clauses: [dimension_filters],
+    			date_ranges: [date_range],
+    			order_bys: order_by,
+    			page_size: 100_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+
+		# handling error 
+		if !response.reports.first.data.rows then
+			return
+		end
+
+
+		data_from_google = response.reports.first.data.rows
+
+		set_max_position_array = Array.new
+
+		data_from_google.each_with_index do |r, index|
+
+			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction']
+
+			datahash = {}
+			
+			datahash['article_url'] = r.dimensions[0]
+			max_position = r.dimensions[2]
+			datahash['max_position'] = max_position.to_i
+
+			set_max_position_array.push(datahash)
+		end
+
+		return set_max_position_array
+	end
+
+
+	def get_click_data(yesterday, view_id)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = @analytics::OrderBy.new(field_name: 'ga:totalEvents', sort_order: 'DESCENDING')
+		metric = @analytics::Metric.new(expression: 'ga:totalEvents')
+
+		dimensions = ['ga:pagePath', 'ga:dateHour', 'ga:eventCategory', 'ga:eventAction', 'ga:eventLabel']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+		dimension_filters = @analytics::DimensionFilterClause.new(
+	      filters: [
+	        @analytics::DimensionFilter.new(
+	          dimension_name: 'ga:eventCategory',
+	          operator: "IN_LIST",
+	          expressions: ['Click_img', 'Click_text']
+	        )
+	      ]
+	    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id,
+    			dimensions: dimension_type,
+    			metrics: [metric], 
+    			dimension_filter_clauses: [dimension_filters],
+    			# dimensions: [dimension], 
+    			date_ranges: [date_range],
+    			order_bys: [order_by],
+    			page_size: 10_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+		messageHash = {}
+		
+		# handling error 
+		if !response.reports.first.data.rows then
+			return
+		end
+
+		set_ga_click_array = Array.new
+
+		data_from_google = response.reports.first.data.rows
+
+		data_from_google.each do |r|
+
+			# click table column
+			# [article_id, date_hour, click_x, click_y, button_url, button_text, created_at, updated_at]
+
+			# dimensions
+			# ['ga:pagePath', 'ga:dateHour', 'ga:eventCategory', 'ga:eventAction', 'ga:eventLabel']
+
+			datahash = {}
+
+			article = Article.select(:id).find_by(article_url: r.dimensions[0])
+			
+			next if !article
+			
+			datahash['article_id'] = article.id
+			
+			date_hour = r.dimensions[1]
+			datahash['date_hour'] = date_hour
+
+			
+			coordinates = r.dimensions[3].split(",")
+
+			datahash['click_x'] = coordinates[0]
+			datahash['click_y'] = coordinates[1]
+
+			if r.dimensions[2] == 'Click_img'
+				button_url = r.dimensions[4]
+				datahash['button_url'] = button_url
+				datahash['button_text'] = nil
+			elsif r.dimensions[2] == 'Click_text'
+				button_text = r.dimensions[4]
+				datahash['button_url'] = nil
+				datahash['button_text'] = button_text
+			end
+			
+			datahash['created_at'] = Time.zone.now
+			datahash['updated_at'] = Time.zone.now
+
+			set_ga_click_array.push(datahash)
+			
+		end
+		
+		return set_ga_click_array
+	end
+
+	def get_scroll_data(yesterday, view_id)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = [
+			@analytics::OrderBy.new(
+				field_name: 'ga:pagePath', 
+				sort_order: 'ASCENDING'),
+			@analytics::OrderBy.new(
+				field_name: 'ga:eventLabel', 
+				sort_order: 'ASCENDING')
+
+		]
+
+		metric = @analytics::Metric.new(expression: 'ga:eventValue')
+
+		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+
+		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
+		# '/2020/04/27/43987/'
+		dimension_filters = @analytics::DimensionFilterClause.new(
+	      filters: [
+	      	@analytics::DimensionFilter.new(
+	          dimension_name: 'ga:eventLabel',
+	          not: true,
+	          operator: "IN_LIST",
+	          expressions: ['(not set)']
+	        )
+	      ],
+	      filters2: [
+	        @analytics::DimensionFilter.new(
+	          dimension_name: 'ga:eventCategory',
+	          operator: "IN_LIST",
+	          expressions: ['Scroll']
+	        )
+	      ]
+	    )
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id,
+    			dimensions: dimension_type,
+    			metrics: [metric], 
+    			dimension_filter_clauses: [dimension_filters],
+    			# dimensions: [dimension], 
+    			date_ranges: [date_range],
+    			order_bys: order_by,
+    			# order_bys: order_by,
+    			page_size: 10_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+		messageHash = {}
+
+		# handling error 
+		if !response.reports.first.data.rows then
+			return
+		end
+
+		set_ga_scroll_array = Array.new
+
+		data_from_google = response.reports.first.data.rows
+		
+		data_from_google.each do |r|
+
+			# article table column
+			# [article_id, scroll_position, scroll_duration, created_at, updated_at]
+
+			# dimensions & metrics
+			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel']
+			# metric = 'ga:eventValue'
+
+			datahash = {}
+
+			article = Article.select(:id).find_by(article_url: r.dimensions[0])
+			
+			next if !article
+			
+			datahash['article_id'] = article.id
+
+			scroll_position = r.dimensions[2]
+			datahash['scroll_position'] = scroll_position
+
+			scroll_duration = r.metrics.first.values.first
+			datahash['scroll_duration'] = scroll_duration
+
+			datahash['created_at'] = Time.zone.now
+			datahash['updated_at'] = Time.zone.now
+
+			set_ga_scroll_array.push(datahash)
+			
+		end
+		
+		return set_ga_scroll_array	
+
+	end
 
 
 	private

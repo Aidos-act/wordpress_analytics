@@ -15,7 +15,7 @@
         />
 
         <h3 class="display-2 font-weight-light text--primary">
-          {{ value }}
+          {{ title=='MCVR' || title=='MCV/ユーザー'? value +'%' : value }}
         </h3>
       </div>
     </template>

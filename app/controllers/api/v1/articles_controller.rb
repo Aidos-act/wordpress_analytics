@@ -12,6 +12,7 @@ class Api::V1::ArticlesController < ApplicationController
 	# GET /articles/1
 	# GET /articles/1.json 
 	def show
+		
 		# @article = Article.find_by(url: params[:path])
 	end
 

@@ -12,5 +12,7 @@ class CreateGaApis < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
+
+    add_index :ga_apis, [:article_id, :date_hour], unique: true
   end
 end

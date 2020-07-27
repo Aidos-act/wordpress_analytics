@@ -8,7 +8,7 @@
               </div>
             </div>
          </div>
-         <div class="heat-map" v-bind:style="{ height: article.maxpos + 'px' }">
+         <div class="heat-map" v-bind:style="{ height: article.max_position + 'px' }">
            <div v-for="e in scrolld">
               <div v-if="e.sum_dur >= totald/100">  
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
@@ -31,13 +31,13 @@
               </div>
            </div>
          </div>
-         <iframe :src="article.url" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.maxpos "></iframe>
+         <iframe :src="getDomain()" SameSite="None" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.max_position"></iframe>
       </div>
-
+      
 
       <div class="values-set">
-        <h3> <strong> {{ article.title }} </strong> </h3> 
-        <a :href="article.url"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.title }}></small> </p></a>
+        <h3> <strong> {{ article.article_title }} </strong> </h3> 
+        <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
         
         <v-simple-table>
           <template v-slot:default>
@@ -48,17 +48,10 @@
                 
               </tr>
               <tr>
-                <td>生成時間</td>
-                <td>{{ article.created_at.split('T')[0] }}</td>
-              </tr>
-              <tr>
                 <td>MCV(クリック数)</td>
                 <td>{{ countclick.count_click }}</td>
               </tr>
-              <tr>
-                <td>ビュー(IP)</td>
-                <td>{{ ipcount.length }}</td>
-              </tr>
+
             </tbody>
           </template>
         </v-simple-table>
@@ -105,7 +98,7 @@
            </template>
            <v-data-table
               :headers="headers"
-              :items="gainfos"
+              :items="articleData"
               :search="search"
               :sort-desc="[false, true]"
               multi-sort
@@ -120,12 +113,12 @@
                   <tr v-for="data in items">
                     <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
                     <td class="page-title-wrapper" @click="updateArticle(data.id)">  
-                      <p class="page-title">{{ data.pageTitle | truncate(20, '...') }}</p>
-                      <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
+                      <p class="page-title">{{ data.article_title | truncate(20, '...') }}</p>
+                      <small class="page-path">{{ data.article_url | truncate(20, '...') }}</small>
                     </td>
-                    <td>{{ data.clickCount }}</td>
-                    <td>{{ data.pageviews }}</td>
-                    <td>{{ data.users }}</td>
+                    <td>{{ data.mcv }}</td>
+                    <td>{{ data.page_view }}</td>
+                    <td>{{ data.user }}</td>
                   </tr>
                 </tbody>
               </template>
@@ -168,13 +161,13 @@
             text: 'Title',
             align: 'start',
             sortable: false,
-            value: 'pageTitle',
+            value: 'url_title',
             width: '45%',
           },
-          { text: 'MCV', value: 'clickCount' },
-          { text: 'PV', value: 'pageviews' },
-          { text: 'ユーザー', value: 'users' },
-          { value: 'pagePath' }
+          { text: 'MCV', value: 'mcv' },
+          { text: 'PV', value: 'page_view' },
+          { text: 'ユーザー', value: 'user' },
+          { value: 'article_url' }
         ], 
         clicks: [],
         scrolls: [],
@@ -191,9 +184,12 @@
       }
     },
     computed: {
-      gainfos() {
-        return this.$store.state.gainfos
+      articleData() {
+        return this.$store.state.articleData
       },
+      domainName() {
+        return this.$store.state.domainName
+      }
     },
     mounted () {
       // this.updateClicks ();
@@ -206,10 +202,13 @@
       this.getScrollp();
       this.getScrolld();
       this.getTotald();
-      this.getIp();
-      this.$store.commit('getGaInfo',{
+      this.$store.commit('getArticleData',{
           startdate: this.dates[0],
-          enddate: this.dates[1]
+          enddate: this.dates[1],
+          hostname: 'total'
+      });
+      this.$store.commit('getDomainName',{
+          article_id: this.$route.params.id
       });
       },
     methods: {
@@ -258,25 +257,30 @@
           .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json')
           .then(response => (this.totald = response.data)) 
       },
-      getIp: function(){
-        axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/ipcount.json')
-          .then(response => (this.ipcount = response.data)) 
-      },
       updateArticle(newid){
         this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
         this.$router.go();
       },
       getArticleData(){
-        var gainfos = this.$store.state.gainfos;
-        var articleData = {};
-        for(var key in gainfos){
-          if(this.$route.params.id == gainfos[key].id ){
-            articleData['pageviews'] = gainfos[key].pageviews;
-            articleData['users'] = gainfos[key].users;
+        var articleData = this.articleData;
+        var article = {};
+        for(var key in articleData){
+          if(this.$route.params.id == articleData[key].id ){
+            article['pageviews'] = articleData[key].page_view;
+            article['users'] = articleData[key].user;
           }
         }
-        return articleData;
+        return article;
+      },
+      getDomain(){
+        var domain = this.domainName;
+        var result = '';
+        
+        var article_url = this.article.article_url;
+        var domain_name = domain['domain_name'][0]
+        result = '//' + domain_name + article_url
+        console.log(this.article)
+        return result
       }
     },
     filters: {

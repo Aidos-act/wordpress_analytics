@@ -43,14 +43,30 @@ class Api::V1::CounterController < ApplicationController
 
   scrolls = []
   tablename = "scrollpercent"
-  maxscroll = @article.maxpos/744
-  loopcount = 100/maxscroll
+
+  begin
+    maxscroll = @article.max_position/744 
+  rescue StandardError
+    maxscroll = 1000/744
+  end
+
+  begin
+    loopcount = 100/maxscroll
+  rescue StandardError
+    loopcount = 10
+  end
+  
   total = @article.scrolls.count
 
-    for i in 0..maxscroll do
+  for i in 0..maxscroll do
+    begin
       percent = ((@article.scrolls.where('scroll_position >='+(i*loopcount).to_s+'').count)*100)/total
-      scrolls[i] = percent
+    rescue StandardError
+      percent = 10
     end
+    
+    scrolls[i] = percent
+  end
 
   render json:scrolls
 
@@ -58,8 +74,8 @@ class Api::V1::CounterController < ApplicationController
 
   def durationcalculate
 
-  maxdur = @article.scrolls.maximum(:scroll_duration)
-  halfmax = maxdur/2
+  # maxdur = @article.scrolls.maximum(:scroll_duration)
+  # halfmax = maxdur/2
   getdur = @article.scrolls.where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
 
   render json:getdur

@@ -52,7 +52,7 @@
             v-model="selectedHost.item"
             item-text="key"
             item-value="item"
-            :items="dropdownHost"
+            :items="domainInfo"
             label="ページグループ"
             @input="getTotalByHost(selectedHost.item)"
             dense
@@ -66,7 +66,6 @@
         <line-chart :data="setLineChartData()"></line-chart>
       </v-container>
       <!-- line chart end -->
-      <!-- {{totalgainfos}} -->
 
       <!-- stats card 1 start - pageview -->
       <v-col
@@ -79,8 +78,8 @@
           color="info"
           icon="mdi-book-open-page-variant"
           title="PV(ページビュー)"
-          :value="setCurrentTotal('pageviews')"
-          :sub-data="setCompareTotal('pageviews')"
+          :value="setCurrentTotal('page_view')"
+          :sub-data="setCompareTotal('page_view')"
         />
       </v-col>
       <!-- stats card 1 end -->
@@ -95,8 +94,8 @@
           color="#fcba03"
           icon="mdi-baby-face-outline"
           title="ユーザー"
-          :value="setCurrentTotal('users')"
-          :sub-data="setCompareTotal('users')"
+          :value="setCurrentTotal('user')"
+          :sub-data="setCompareTotal('user')"
         />
       </v-col>
       <!-- stats card 2 end -->
@@ -127,8 +126,8 @@
           color="orange"
           icon="mdi-clock-outline"
           title="平均滞在時間"
-          :value="setCurrentTotal('avgTimeOnPage')"
-          :sub-data="setCompareTotal('avgTimeOnPage')"
+          :value="setCurrentTotal('avg_time_on_page')"
+          :sub-data="setCompareTotal('avg_time_on_page')"
         />
       </v-col>
       <!-- stats card 4 end -->        
@@ -191,8 +190,8 @@
           color="orange"
           icon="mdi-exit-run"
           title="直帰率"
-          :value="setCurrentTotal('bounces')"
-          :sub-data="setCompareTotal('bounces')"
+          :value="setCurrentTotal('bounce')"
+          :sub-data="setCompareTotal('bounce')"
         />
       </v-col>
       <!-- stats card 8 end -->  
@@ -270,13 +269,12 @@
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
             新規 : {{ setPieChartData()[0][1].toLocaleString() }} 
-            (ユーザー比 {{ Math.floor((setPieChartData()[0][1]/totalgainfos[0].users)*100) }}%)
+            (ユーザー比 {{ setUserCompareData()[0] }}%)
             <br>
             再訪問 : {{ setPieChartData()[1][1].toLocaleString() }} 
-            (ユーザー比 {{ Math.floor((setPieChartData()[1][1]/totalgainfos[0].users)*100) }}%)
+            (ユーザー比 {{ setUserCompareData()[1] }}%)
 
           </p>
-
         </material-chart-card>
       </v-col>
       <!-- pie chart data end-->
@@ -309,20 +307,15 @@
         menu: false,
         dateCheckBool: true,
         piechartData: [],
-        selectedItem: { key: "PV(ページビュー)", item: "pageviews"},
+        selectedItem: { key: "PV(ページビュー)", item: "page_view"},
         dropdownitems: [
-          { key: "PV(ページビュー)", item: "pageviews"},
-          { key: "ユーザー", item: "users"},
-          { key: "直帰率", item: "bounces"},
-          { key: "平均滞在時間", item: "avgTimeOnPage"},
+          { key: "PV(ページビュー)", item: "page_view"},
+          { key: "ユーザー", item: "user"},
+          { key: "直帰率", item: "bounce"},
+          { key: "平均滞在時間", item: "avg_time_on_page"},
           
         ],
-        selectedHost: { key: "トータル", item: "total"},
-        dropdownHost: [
-          { key: "トータル", item: "total"},
-          { key: "navivi.site", item: "navivi.site"},
-          { key: "testtest", item: "reportv3.ptengine.jp"},
-        ]
+        selectedHost: { key: "total", item: "total"}
       }
     },
     created() {
@@ -361,31 +354,105 @@
 
         return compareDates.join(' ~ ');
       },
-      totalgainfos(){
-        return this.$store.state.totalgainfos
+      currentTotal(){
+        return this.$store.state.currentTotal
       },
-      getGoalData(){
+      compareTotal(){
+        return this.$store.state.compareTotal
+      },
+      currentLineChart(){
+        return this.$store.state.currentLineChart
+      },
+      compareLineChart(){
+        return this.$store.state.compareLineChart
+      },
+      goalData(){
         return this.$store.state.goalData;
       },
+      domainInfo(){
+        return this.$store.state.domainInfo;
+      }
     },
     mounted() {
-      // bring whole total data from lib/get_analytics.rb by selected period
-      this.$store.commit('getTotalGaInfo',{
+      this.$store.commit('getCurrentTotal',{
         startdate: this.dates[0],
         enddate: this.dates[1],
         hostname: 'total'
       });
+      this.$store.commit('getCompareTotal',{
+        startdate: this.dates[0],
+        enddate: this.dates[1],
+        hostname: 'total'
+      });
+      this.$store.commit('getCurrentLineChart',{
+        startdate: this.dates[0],
+        enddate: this.dates[1],
+        hostname: 'total'
+      });
+      this.$store.commit('getcompareLineChart',{
+        startdate: this.dates[0],
+        enddate: this.dates[1],
+        hostname: 'total'
+      });
+      this.$store.commit('getGoalData',{
+        startdate: this.dates[0],
+        enddate: this.dates[1],
+        hostname: 'total'
+      });
+      this.$store.commit('getDomainInfo',{
+        hostname: 'total'
+      });      
     },
     methods: {
       getTotalByDate(dates) {
-        this.$store.commit('getTotalGaInfo',{
+        this.$store.commit('getCurrentTotal',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getCompareTotal',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getCurrentLineChart',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getcompareLineChart',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getGoalData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
           hostname: 'total'
         });
       },
       getTotalByHost(value){
-        this.$store.commit('getTotalGaInfo',{
+        this.$store.commit('getCurrentTotal',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: value
+        });
+        this.$store.commit('getCompareTotal',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: value
+        });
+        this.$store.commit('getCurrentLineChart',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: value
+        });
+        this.$store.commit('getcompareLineChart',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: value
+        });
+        this.$store.commit('getGoalData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
           hostname: value
@@ -394,8 +461,9 @@
       // setup data by each metrics such as pageviews, user, and so on.
       setCurrentTotal(value){
         // get total data from lib/get_analytics.rb by selected time period 
-        var currentTotal = this.$store.state.totalgainfos[0];
-
+        // var currentTotal = this.$store.state.currentTotal;
+        var currentTotal = this.currentTotal
+        
         // it is regex and check if value has 'mcv' in the text. for example, mcvr, mcvPerUv.
         var check = /mcv/;
 
@@ -406,19 +474,20 @@
 
         // return data according to value. data is modified by methods if needed.
         for(var key in currentTotal){
+          
           if(value == key){
-            if(value == 'avgTimeOnPage'){
+            if(value == 'avg_time_on_page'){
               return this.setMinute(currentTotal[key])
-            }else if(value == 'bounces'){
-              return this.getBounceRate(currentTotal[key], currentTotal['sessions'])
+            }else if(value == 'bounce'){
+              return this.getBounceRate(currentTotal[key], currentTotal['session'])
             }else {
               data = currentTotal[key];
               var formattedData = parseInt(data, 10).toLocaleString();
               return formattedData;
             }
           }else if(value == 'pvPerUv'){
-            pv = parseInt(currentTotal['pageviews'], 10);
-            uv = parseInt(currentTotal['users'], 10);
+            pv = parseInt(currentTotal['page_view'], 10);
+            uv = parseInt(currentTotal['user'], 10);
             
             return (pv/uv).toFixed(2);
           }
@@ -462,14 +531,14 @@
           arr["calculatedData"] = calculatedData;
           arr["text"] = '-'
           arr["subIcon"] = 'mdi-emoticon-dead-outline';
-          
+
           return arr
         }
       },
       // basically similar with setCurrentTotal method but it has 2 values which are current and compare. 
       setValue(value){
-        var currentTotal = this.$store.state.totalgainfos[0];
-        var compareTotal = this.$store.state.totalgainfos[1];
+        var currentTotal = this.currentTotal;
+        var compareTotal = this.compareTotal;
         var arr = [];
         var current;
         var compare;
@@ -479,8 +548,8 @@
 
         for(var key in currentTotal){
           if(value == 'pvPerUv'){
-            pv = parseInt(currentTotal['pageviews'], 10);
-            uv = parseInt(currentTotal['users'], 10);
+            pv = parseInt(currentTotal['page_view'], 10);
+            uv = parseInt(currentTotal['user'], 10);
             current = ((pv/uv)*100).toFixed(2)
           }else if(check.test(value)){
             current = this.setMcv(currentTotal, value);
@@ -491,8 +560,8 @@
 
         for(var key in compareTotal){
           if(value == 'pvPerUv'){
-            pv = parseInt(compareTotal['pageviews'], 10);
-            uv = parseInt(compareTotal['users'], 10);
+            pv = parseInt(compareTotal['page_view'], 10);
+            uv = parseInt(compareTotal['user'], 10);
             compare = ((pv/uv)*100).toFixed(2)
           }else if(check.test(value)){
             compare = this.setMcv(compareTotal, value);
@@ -510,39 +579,43 @@
         var totalValue = data;
         var pv;
         var uv;
-
+        
         for(var key in totalValue){
-          if(value == 'mcvr'){
-            pv = parseInt(totalValue['pageviews'], 10);
-            return ((totalValue['mcv']/pv)*100).toFixed(2) + '%';
+          if(value == 'mcv'){
+            return parseInt(totalValue['mcv'], 10);
+          }else if(value == 'mcvr'){
+            pv = parseInt(totalValue['page_view'], 10);
+            return ((totalValue['mcv']/pv)*100).toFixed(2);
           }else if(value == 'mcvPerUv'){
-            uv = parseInt(totalValue['users'], 10);
-            return ((totalValue['mcv']/uv)*100).toFixed(2) + '%';
+            uv = parseInt(totalValue['user'], 10);
+            return ((totalValue['mcv']/uv)*100).toFixed(2);
           }
         }
       },
       // it is for progress bar showing goal acheivement
       setProgressData(){
-        var totalValue = this.$store.state.totalgainfos[0];
+        var goalData = this.goalData;
+        
         var cvr;
         var comp;
-
-        for(var key in totalValue){
+        for(var key in goalData){
           if(key == 'goal1ConversionRate'){
-            cvr = totalValue[key];
+            cvr = goalData[key];
           }
           if(key == 'goal1Completions'){
-            comp = totalValue[key];
+            comp = goalData[key];
           }
         }
 
-        var arr = [parseFloat(cvr, 10).toFixed(2), comp];
+        var formattedCvr = parseFloat(cvr, 10).toFixed(2);
+
+        var arr = [formattedCvr, comp];
 
         return arr;
       },
       // set the new, returning user data for pie chart. refer to pie chart in the https://chartkick.com/vue
       setPieChartData(){
-        var totalValue = this.$store.state.totalgainfos[0];
+        var totalValue = this.currentTotal;
         var arr = [];
         var newUsersArr = [];
         var returningUsersArr = [];
@@ -551,10 +624,10 @@
         var returningUsers;
         
         for(var key in totalValue){
-          if(key == 'users') {
+          if(key == 'user') {
             users = parseInt(totalValue[key], 10);
           }
-          if(key == 'newUsers') {
+          if(key == 'new_user') {
             newUsers = parseInt(totalValue[key], 10);
           }
         };
@@ -571,6 +644,24 @@
 
         return this.piechartData;
       },
+      setUserCompareData(){
+        var new_user = this.setPieChartData()[0][1]
+        var return_user = this.setPieChartData()[1][1]
+        var totalValue = this.currentTotal;
+        var user = totalValue.user;
+        
+        if(user != 0){
+          var new_compare_user = Math.floor((new_user/user)*100);
+          var return_compare_user = Math.floor((return_user/user)*100);  
+        }else if(user == 0){
+          var new_compare_user = 0;
+          var return_compare_user = 0;
+        }
+        
+        var compare_arr = [new_compare_user, return_compare_user]
+
+        return compare_arr
+      },
       setLineChartData() {
         // set value by selected item which is from dropdown
         var selectedDrop = this.selectedItem.item
@@ -580,7 +671,8 @@
         
 
         // get total data by daily or hourly from lib/get_analytics/rb. which is the data for current period that user setup with datepicker.
-        var dropdwnarr = this.$store.state.totalgainfos[2];
+        var dropdwnarr = this.currentLineChart;
+
         var dropdwn = {}
         
         // data format is like below
@@ -596,7 +688,8 @@
         }
 
         // get total data by daily or hourly from lib/get_analytics/rb. which is the data for compare period.
-        var comparedropdwnarr = this.$store.state.totalgainfos[3];
+        var comparedropdwnarr = this.compareLineChart;
+
         var comparedata = {}
         // setup hash with selected item in dropdown menu. key -> hour or date
         for(var key in comparedropdwnarr){
@@ -653,7 +746,7 @@
       setColumnChartData(){
         var columnchartArr=[];
 
-        var currentTotal = this.$store.state.totalgainfos[0];
+        var currentTotal = this.currentTotal;
         var current;
         for(var key in currentTotal){
           if(key == 'mcv') {
@@ -661,7 +754,7 @@
           }
         }
 
-        var compareTotal = this.$store.state.totalgainfos[1];
+        var compareTotal = this.compareTotal;
         var compare;
         for(var key in compareTotal){
           if(key == 'mcv') {
@@ -682,6 +775,7 @@
       },
       // set avgTimeonPage as HMS time format
       setMinute(avgTimeOnPage){
+        
         var m = Math.floor(avgTimeOnPage/60);
         var h = Math.floor(avgTimeOnPage/3600);
 

@@ -10,25 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_07_124723) do
+ActiveRecord::Schema.define(version: 2020_07_21_025342) do
 
   create_table "articles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "domain_id"
     t.string "article_title"
-    t.string "article_url"
-    t.integer "maxpos"
+    t.text "article_url"
+    t.integer "max_position"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["article_url"], name: "index_articles_on_article_url", unique: true
   end
 
   create_table "clicks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "article_id"
+    t.datetime "date_hour"
     t.integer "click_x"
     t.integer "click_y"
     t.text "button_url"
     t.text "button_text"
-    t.string "view_ip"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -51,6 +50,7 @@ ActiveRecord::Schema.define(version: 2020_07_07_124723) do
     t.integer "avg_time_on_page", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["article_id", "date_hour"], name: "index_ga_apis_on_article_id_and_date_hour", unique: true
   end
 
   create_table "goal_achievements", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -77,6 +77,7 @@ ActiveRecord::Schema.define(version: 2020_07_07_124723) do
     t.float "scroll_duration"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["article_id", "scroll_position"], name: "index_scrolls_on_article_id_and_scroll_position", unique: true
   end
 
 end
