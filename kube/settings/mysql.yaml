@@ -52,9 +52,9 @@ spec:
         - containerPort: 3306
           name: mysql
         volumeMounts:
-        - name: mysql-pv
+        - name: stg-pv
           mountPath: /var/lib/mysql  
       volumes:
-      - name: mysql-pv
+      - name: stg-pv
         persistentVolumeClaim:
-          claimName: mysql-pvc          
+          claimName: stg-pvc          

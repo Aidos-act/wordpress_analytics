@@ -25,6 +25,13 @@ def local(time)
         TZInfo::Timezone.get('Asia/Tokyo').local_to_utc(Time.parse(time))
 end
 
-# every :day, at: local('08:00 am') do
-#   rake "do_cache:get_ga_data", :environment => "development"
-# end
+set :output, error: 'log/crontab_error.log', standard: 'log/crontab.log'
+
+every :day, at: local('08:00 am') do
+	begin
+		rake "db_cron:save_ga_api", :environment => "development"
+	rescue => e
+		puts "error occurred"
+		p e
+	end
+end

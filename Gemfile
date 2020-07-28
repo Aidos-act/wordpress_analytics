@@ -34,9 +34,6 @@ gem 'dotenv-rails', groups: [:development, :test]
 # cancancan
 gem 'cancancan', '~> 3.1'
 
-# kaminari
-gem 'kaminari', '~> 1.2'
-
 # Process manager for applications with multiple components
 gem 'foreman', '~> 0.87.1'
 
