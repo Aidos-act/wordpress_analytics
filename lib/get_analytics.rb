@@ -688,15 +688,31 @@ class GetAnalytics < ApplicationController
 			end
 
 			# maxpos
+			# if max_position_array != nil
+			# 	max_position_array.each do |max_position|
+			# 		if max_position['article_url'] == r.dimensions[1]
+			# 			datahash[article_key[i]] = max_position['max_position']
+			# 		end
+			# 	end
+			# else
+			# 	datahash[article_key[i]] = 25000
+			# end
+			max_position = 1
 			if max_position_array != nil
-				max_position_array.each do |max_position|
-					if max_position['article_url'] == r.dimensions[1]
-						datahash[article_key[i]] = max_position['max_position']
+				max_arr = max_position_array.select{|max| max['article_url'] == r.dimensions[1]}
+				if !max_arr.empty?
+					max_arr.each do |a|
+						if a['max_position'].to_i > max_position
+							max_position = a['max_position']
+						end
 					end
 				end
-			else
-				datahash[article_key[i]] = 10000
+
+				datahash[article_key[i]] = max_position
+			else 
+				datahash[article_key[i]] = 25000
 			end
+
 			set_ga_data_array.push(datahash)
 		end
 		
@@ -770,8 +786,10 @@ class GetAnalytics < ApplicationController
 			max_position = r.dimensions[2]
 			datahash['max_position'] = max_position.to_i
 
-			set_max_position_array.push(datahash)
+			set_max_position_array.push(datahash)			
 		end
+
+
 
 		return set_max_position_array
 	end

@@ -26,6 +26,9 @@ class Api::V1::CounterController < ApplicationController
   def groupbytext
 
     gettext = @article.clicks.select('button_text, COUNT(ID) AS text_count').group(:button_text)
+    puts 'hoonnnnnnnn'
+    p gettext
+    puts 'hoonnnnnnnn'
     render json:gettext
 
   end
@@ -56,7 +59,7 @@ class Api::V1::CounterController < ApplicationController
     loopcount = 10
   end
   
-  total = @article.scrolls.count
+  total = @article.scrolls.count # add date
 
   for i in 0..maxscroll do
     begin

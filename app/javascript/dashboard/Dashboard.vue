@@ -325,12 +325,29 @@
     computed: {
       // check if date select is correct
       dateError () {
-        // it needs to be today so set current data as today
-        var currentdate =  new Date().toISOString().substr(0, 10);
-        if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
-          
+        var date = new Date();
+        date.setDate(date.getDate() - 1);
+
+        var yesterday = date.toISOString().substr(0, 10)
+
+        if(yesterday < this.dates[0] || yesterday < this.dates[1]) {
+          alert('昨日のデータからご覧いただけます。')
+          this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates[0] < '2020-08-06' || this.dates[1] < '2020-08-06'){
+          alert('2020-08-06 以前のデータは収集されませんでした');
+            this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates.length < 2){
           return this.dateCheckBool;
         }
+
       },
       dateRangeText () {
         if(this.dates[0]>this.dates[1]){
@@ -514,26 +531,51 @@
         var currentValue = setValueArr[0];
         var compareValue = setValueArr[1];
 
-        // comparing and setup arr data and send it to dashboard/components/base/MaterialStatsCard.vue as subdata
-        if(currentValue > compareValue){
-          calculatedData = (((currentValue - compareValue)/compareValue)*100).toFixed(2);
-          arr["color"] = 'green';
-          arr["icon"] = 'mdi-arrow-up-thick';
-          arr["calculatedData"] = calculatedData;
-          arr["text"] = '+';
-          arr["subIcon"] = 'mdi-emoticon-cool-outline';
-          
-          return arr
-        }else{
-          calculatedData = (((compareValue - currentValue)/compareValue)*100).toFixed(2);
-          arr["color"] = 'red';
-          arr["icon"] = 'mdi-arrow-down-thick';
-          arr["calculatedData"] = calculatedData;
-          arr["text"] = '-'
-          arr["subIcon"] = 'mdi-emoticon-dead-outline';
+        if (value == 'bounce'){
+          // comparing and setup arr data and send it to dashboard/components/base/MaterialStatsCard.vue as subdata
+          if(currentValue > compareValue){
+            calculatedData = (((currentValue - compareValue)/compareValue)*100).toFixed(2);
+            arr["color"] = 'red';
+            arr["icon"] = 'mdi-arrow-up-thick';
+            arr["calculatedData"] = calculatedData;
+            arr["text"] = '+';
+            arr["subIcon"] = 'mdi-emoticon-dead-outline';
 
-          return arr
+            return arr;
+          }else{
+            calculatedData = (((compareValue - currentValue)/compareValue)*100).toFixed(2);
+            arr["color"] = 'green';
+            arr["icon"] = 'mdi-arrow-down-thick';
+            arr["calculatedData"] = calculatedData;
+            arr["text"] = '-';
+            arr["subIcon"] = 'mdi-emoticon-cool-outline';
+
+            return arr;
+          }
+        }else{
+          // comparing and setup arr data and send it to dashboard/components/base/MaterialStatsCard.vue as subdata
+          if(currentValue > compareValue){
+            calculatedData = (((currentValue - compareValue)/compareValue)*100).toFixed(2);
+            arr["color"] = 'green';
+            arr["icon"] = 'mdi-arrow-up-thick';
+            arr["calculatedData"] = calculatedData;
+            arr["text"] = '+';
+            arr["subIcon"] = 'mdi-emoticon-cool-outline';
+
+            return arr;
+          }else{
+            calculatedData = (((compareValue - currentValue)/compareValue)*100).toFixed(2);
+            arr["color"] = 'red';
+            arr["icon"] = 'mdi-arrow-down-thick';
+            arr["calculatedData"] = calculatedData;
+            arr["text"] = '-'
+            arr["subIcon"] = 'mdi-emoticon-dead-outline';
+
+            return arr;
+          }
         }
+
+        
       },
       // basically similar with setCurrentTotal method but it has 2 values which are current and compare. 
       setValue(value){

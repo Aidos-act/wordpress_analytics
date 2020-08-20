@@ -5,9 +5,11 @@ namespace :db_cron do
   	require "#{Rails.root}/lib/get_analytics.rb"
   	require 'date'
 
+    puts 'whenever start'
+
   	ga = GetAnalytics.new
   	yesterday = Date.yesterday.strftime("%Y-%m-%d")
-
+    
   	article_key = Article.column_names
   	# remove id in array
   	article_key.shift
@@ -17,6 +19,40 @@ namespace :db_cron do
   	ga_key.shift
 
 	  domains = Domain.all
+
+
+# #dddddddddddddddddddddddddddd
+    
+
+#     domains.each do |d|
+#       view_id = (d.view_id).to_s
+#       max_position_array = ga.get_max_position(yesterday, view_id)
+#       article_data = ga.get_article_data(yesterday, view_id, d.id, article_key)
+#       article_data.each do |article|
+#           max_position = 5000
+#           if max_position_array != nil
+#             max_arr = max_position_array.select{|max| max['article_url'] == article['article_url']}
+#             if !max_arr.empty?
+#               max_arr.each do |a|
+#                 if a['max_position'] > max_position
+#                   max_position = a['max_position']
+#                 end
+#               end
+#               a = Article.find_by(article_url: article['article_url'])
+#               if a 
+#                 a.update(max_position: max_position)
+#               end
+              
+#             end
+            
+#           else 
+
+#           end
+#       end
+#     end
+
+# #dddddddddddddddddddddddddddd    
+    
 
 #ddddddddddddddddd  	
 	  # article table
@@ -111,7 +147,7 @@ namespace :db_cron do
 
 #ddddddddddddddddd
 
-    
+    puts 'whenever end'
 
 
     # .where(clicks: {date_hour: Date.yesterday.beginning_of_day..Date.yesterday.end_of_day})

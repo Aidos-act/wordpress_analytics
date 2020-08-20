@@ -260,9 +260,9 @@
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
             トップ10平均直帰率 比
-            {{ Math.floor((getDefault('bounce')[1][1]/getDefault('bounce')[0][1])*100) }}%
+            {{ Math.floor((getSelected('bounce')[1][1]/getSelected('bounce')[0][1])*100) }}%
             ,
-            {{ getDefault('bounce')[1][1]>getDefault('bounce')[0][1]? "頑張れ!" : "すごい!" }}
+            {{ getSelected('bounce')[1][1]>getSelected('bounce')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
 
         </material-chart-card>
@@ -289,7 +289,7 @@
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1 red--text">
-            25% 正確度, 参照用にのみ使用
+            30% 正確度, 参照用にのみ使用
           </p>
         </material-chart-card>
       </v-col>
@@ -424,11 +424,30 @@
     }),
     computed: {
       dateError () {
-        var currentdate =  new Date().toISOString().substr(0, 10);
-        if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
+        var date = new Date();
+        date.setDate(date.getDate() - 1);
+
+        var yesterday = date.toISOString().substr(0, 10)
+
+        if(yesterday < this.dates[0] || yesterday < this.dates[1]) {
+          alert('昨日のデータからご覧いただけます。')
+          this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates[0] < '2020-08-06' || this.dates[1] < '2020-08-06'){
+          alert('2020-08-06 以前のデータは収集されませんでした');
+            this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates.length < 2){
           return this.dateCheckBool;
         }
-      },        
+
+      },       
       dateRangeText () {
         if(this.dates[0]>this.dates[1]){
           this.dates.reverse();
@@ -499,6 +518,7 @@
               var b = parseInt(defaultGAinfo[key], 10);
               var pv = parseInt(defaultGAinfo['page_view'], 10);
               defaultData = ((b/pv)*100).toFixed(2);
+              console.log(defaultData);
             }else if(value == 'article_title'){
               defaultData = defaultGAinfo[key]
               return defaultData
@@ -518,7 +538,7 @@
           var avg = ga_avg['ga_avg_time_avg']
           var a = this.setMinute(avg);
           var b = this.setMinute(defaultData);
-
+          console.log(a);
           avg = this.$moment(a, "HH:mm:ss").format("mm:ss");
           defaultData = this.$moment(b, "HH:mm:ss").format("mm:ss");
         }else if(value == 'bounce'){

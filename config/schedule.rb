@@ -19,15 +19,11 @@
 
 # Learn more: http://github.com/javan/whenever
 
-require "tzinfo"
-  
-def local(time)
-        TZInfo::Timezone.get('Asia/Tokyo').local_to_utc(Time.parse(time))
-end
-
 set :output, error: 'log/crontab_error.log', standard: 'log/crontab.log'
 
-every :day, at: local('08:00 am') do
+ENV.each { |k, v| env(k, v) }
+
+every :day, at: '08:00 am' do
 	begin
 		rake "db_cron:save_ga_api", :environment => "development"
 	rescue => e

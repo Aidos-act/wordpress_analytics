@@ -25,7 +25,7 @@
                   <div v-if="e.sum_dur > totald/400">  
                     <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                       <h3 class="heat-green"></h3>
-                    </div>  
+                    </div>
                   </div>
                 </div>
               </div>
@@ -36,17 +36,13 @@
       
 
       <div class="values-set">
-        <h3> <strong> {{ article.article_title }} </strong> </h3> 
+        <h3> <strong> {{ article.article_title }} </strong> </h3>
         <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
         
         <v-simple-table>
           <template v-slot:default>
             <tbody>
-              <tr v-for="(value, key) in getArticleData()">
-                <td>{{ key }}</td>
-                <td>{{ value }}</td>
-                
-              </tr>
+              
               <tr>
                 <td>MCV(クリック数)</td>
                 <td>{{ countclick.count_click }}</td>
@@ -63,12 +59,34 @@
         <h3> <strong> クリック </strong> </h3>
         <table>
           <tbody class="btns">
-            <div class="click-item" v-for="e in countbtnurl" >
+            <ul v-for="e in countbtnurl">
+              <li v-if="e.button_url != null" class="clicks-list">
+                <img class="btn-img" :src="e.button_url" style="width: 100px;"> 
+                <span class="btn-dis">{{ e.url_count }}</span>
+              </li>
+            </ul>
+
+            <!-- <ul v-for="ec in countbtntext">
+              <li v-if="ec.size != 0" class="clicks-list">
+                hoon
+                <span class="btn-info">{{ ec.button_text }}</span>
+                <span class="btn-dis">{{ec.text_count}}</span>
+              </li>
+            </ul> -->
+            <ul v-for="ec in countbtntext">
+              <li v-if="ec.button_text != null" class="clicks-list">
+                <span class="btn-info">{{ ec.button_text }}</span>
+                <span class="btn-dis-txt">{{ec.text_count}}</span>
+              </li>
+            </ul>
+
+            
+            <!-- <div class="click-item" v-for="e in countbtnurl" >
                 <td v-if="e.button_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.button_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
-            </div>
-            <div class="click-item" v-for="e in countbtntext">
-                <td v-if="e.button_text != 'undefined'" class="clicks-list" v> <p class="btn-info" >{{ e.button_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
-            </div>
+            </div> -->
+            <!-- <div class="click-item" v-for="e in countbtntext">
+                <td v-if="e.button_text != 'undefined'" class="clicks-list"> <p class="btn-info" >{{ e.button_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
+            </div> -->
           </tbody>
         </table>
 
@@ -113,12 +131,9 @@
                   <tr v-for="data in items">
                     <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
                     <td class="page-title-wrapper" @click="updateArticle(data.id)">  
-                      <p class="page-title">{{ data.article_title | truncate(20, '...') }}</p>
-                      <small class="page-path">{{ data.article_url | truncate(20, '...') }}</small>
+                      <p class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
+                      <small class="page-path">{{ data.article_url | truncate(50, '...') }}</small>
                     </td>
-                    <td>{{ data.mcv }}</td>
-                    <td>{{ data.page_view }}</td>
-                    <td>{{ data.user }}</td>
                   </tr>
                 </tbody>
               </template>
@@ -162,11 +177,8 @@
             align: 'start',
             sortable: false,
             value: 'url_title',
-            width: '45%',
+            width: '100%',
           },
-          { text: 'MCV', value: 'mcv' },
-          { text: 'PV', value: 'page_view' },
-          { text: 'ユーザー', value: 'user' },
           { value: 'article_url' }
         ], 
         clicks: [],
@@ -180,7 +192,8 @@
         totald: [],
         ipcount: [],
         isActive: true,
-        errors: ''
+        errors: '',
+        maxheight: ''
       }
     },
     computed: {
@@ -210,7 +223,7 @@
       this.$store.commit('getDomainName',{
           article_id: this.$route.params.id
       });
-      },
+    },
     methods: {
       // updateClicks: function () {
       //   axios
@@ -227,32 +240,32 @@
           .get('api/v1/articles/' + this.$route.params.id + '.json')
           .then(response => (this.article = response.data)) 
       },
-      updateCbtnurl: function (){
+      updateCbtnurl: function (){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbyurl.json')
           .then(response => (this.countbtnurl = response.data)) 
       },
-      updateCbtntext: function (){
+      updateCbtntext: function (){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbytext.json')
           .then(response => (this.countbtntext = response.data)) 
       },      
-      updateClickcount: function(){
+      updateClickcount: function(){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/countclick.json')
           .then(response => (this.countclick = response.data)) 
       },
-      getScrollp: function(){
+      getScrollp: function(){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollcalculate.json')
           .then(response => (this.scrollp = response.data)) 
       },
-      getScrolld: function(){
+      getScrolld: function(){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/durationcalculate.json')
           .then(response => (this.scrolld = response.data)) 
       },
-      getTotald: function(){
+      getTotald: function(){ // add date
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json')
           .then(response => (this.totald = response.data)) 
@@ -279,7 +292,7 @@
         var article_url = this.article.article_url;
         var domain_name = domain['domain_name'][0]
         result = '//' + domain_name + article_url
-        console.log(this.article)
+        
         return result
       }
     },
@@ -432,11 +445,25 @@
   .btn-dis:hover {
     transition: 2s;
   }
+  .btn-dis-txt {
+    display: block;
+    box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.5);
+    border-radius: 5px;
+    width: 100%;
+    background-color: white;
+    text-align: end;
+    padding: 5px;
+    font-size: 10px;
+    margin-left: 40px;
+    margin-top: -22px;
+    z-index: -1;
+    transition: 2s;
+  }
   .btn-info {
     display: block;
     box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.5);
     border-radius: 5px;
-    width: 100px;
+    width: 100%;
     background-color: gray;
     text-align: center;
     padding:  5px;
@@ -447,17 +474,7 @@
     height: 30px;
     transition: 2s;
   }
-  .btn-info:hover {
-    box-shadow: 0px 5px 20px 0px rgba(0,0,0,0.5);
-    background-color: black;
-    text-align: center;
-    margin-bottom: 0;
-    overflow: visible;
-    transition: 2s;
-    height: max-content;
-    position: absolute;
-    z-index: 1;
-  }
+
   .btn-img {
     display: block;
     box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.5);

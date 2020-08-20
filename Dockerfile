@@ -8,11 +8,25 @@ RUN apt-get update -qq && \
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
   	&& apt-get install -y --no-install-recommends nodejs
 
+
+
 RUN apt-get update && apt-get install -y --no-install-recommends curl apt-transport-https wget cron  && \
   	curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
   	echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-  	apt-get update && apt-get install -y --no-install-recommends yarn && \
-  	gem install bundler
+  	apt-get update && apt-get install -y --no-install-recommends yarn
+
+ENV BUNDLER_VERSION=2.1.4    
+
+RUN gem update --system && \
+    gem install bundler:2.1.4
+
+RUN apt-get install -y locales && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo "ja_JP.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen ja_JP.UTF-8
+
+ENV LC_ALL ja_JP.UTF-8
+ENV TZ Asia/Tokyo
 
 
 ENV WORKSPACE=/app
@@ -32,6 +46,9 @@ RUN yarn install --check-files && \
 	bundle exec whenever --update-crontab
 
 CMD ["cron", "-f"] 
+
+Run service cron start
+
 
 # RUN yarn upgrade && \
 #	gem install foreman

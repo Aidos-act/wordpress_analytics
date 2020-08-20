@@ -354,7 +354,7 @@ class Api::V1::GaApisController < ApplicationController
                                .where(domain_id: domain_id)
                                .where.not(ga_apis: {avg_time_on_page: 0})
                                .group(:id)
-                               .order("SUM(avg_time_on_page) desc")
+                               .order("SUM(ga_apis.page_view) desc")
                                .limit(10)
                                .pluck("COUNT(avg_time_on_page)", "SUM(avg_time_on_page)")
       ga_avg_time = []
