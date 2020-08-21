@@ -57,7 +57,7 @@ export default new Vuex.Store({
             params: {
               startdate: payload.startdate,
               enddate: payload.enddate,
-              hostname: payload.hostname
+              hostname: payload.hostnam
             }
         })
         .then(response => (state.currentTotal = response.data), (error) => {console.log(error);})

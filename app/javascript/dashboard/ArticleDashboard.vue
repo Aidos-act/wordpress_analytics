@@ -436,7 +436,7 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-06' || this.dates[1] < '2020-08-06'){
+        }else if(this.dates[0] < '2020-08-20' || this.dates[1] < '2020-08-20'){
           alert('2020-08-06 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),

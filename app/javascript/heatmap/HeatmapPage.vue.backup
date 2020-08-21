@@ -33,34 +33,9 @@
          </div>
          <iframe :src="getDomain()" SameSite="None" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.max_position"></iframe>
       </div>
+      
 
       <div class="values-set">
-        <!-- datepicker start -->
-        <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers  -->
-        <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
-        <v-col cols="12" sm="6">
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="dates"
-            transition="scale-transition"
-            offset-y
-            min-width="200px" 
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field v-model="dateRangeText" label="期間" readonly v-on="on"></v-text-field>
-            </template>
-            <v-date-picker v-model="dates" range no-title scrollable>
-              <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="getTotalByDate(dates)" :disabled="dateError">
-                <span @click="$refs.menu.save(dates)">選擇</span>
-              </v-btn> 
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-        <!-- datepicker end -->
-
         <h3> <strong> {{ article.article_title }} </strong> </h3>
         <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
         
@@ -70,7 +45,7 @@
               
               <tr>
                 <td>MCV(クリック数)</td>
-                <td>{{ countclick }}</td>
+                <td>{{ countclick.count_click }}</td>
               </tr>
 
             </tbody>
@@ -195,8 +170,6 @@
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
         ],
-        menu: false,
-        dateCheckBool: true,
         search: '',
         headers: [
           {
@@ -213,7 +186,7 @@
         article: [],
         countbtnurl: [],
         countbtntext: [],        
-        countclick: '',
+        countclick: [],
         scrollp: [],
         scrolld: [],
         totald: [],
@@ -229,37 +202,6 @@
       },
       domainName() {
         return this.$store.state.domainName
-      },
-      dateError () {
-        var date = new Date();
-        date.setDate(date.getDate() - 1);
-
-        var yesterday = date.toISOString().substr(0, 10)
-
-        if(yesterday < this.dates[0] || yesterday < this.dates[1]) {
-          alert('昨日のデータからご覧いただけます。')
-          this.dates = [
-              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
-              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
-            ]
-          return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-18' || this.dates[1] < '2020-08-18'){
-          alert('2020-08-20 以前のデータは収集されませんでした');
-            this.dates = [
-              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
-              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
-            ]
-          return this.dateCheckBool;
-        }else if(this.dates.length < 2){
-          return this.dateCheckBool;
-        }
-
-      },
-      dateRangeText () {
-        if(this.dates[0]>this.dates[1]){
-          this.dates.reverse();
-        }
-        return this.dates.join(' ~ ')
       }
     },
     mounted () {
@@ -283,20 +225,11 @@
       });
     },
     methods: {
-
       // updateClicks: function () {
       //   axios
       //     .get('api/v1/articles/' + this.$route.params.id + '/clicks.json')
       //     .then(response => (this.clicks = response.data)) 
       // },
-      getTotalByDate: function() {
-        this.updateCbtnurl();
-        this.updateCbtntext();
-        this.updateClickcount();
-        this.getScrollp();
-        this.getScrolld();
-        this.getTotald();
-      },
       updateScrolls: function() {
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/scrolls.json')
@@ -309,62 +242,32 @@
       },
       updateCbtnurl: function (){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbyurl.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbyurl.json')
           .then(response => (this.countbtnurl = response.data)) 
       },
       updateCbtntext: function (){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbytext.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbytext.json')
           .then(response => (this.countbtntext = response.data)) 
       },      
       updateClickcount: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/countclick.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/countclick.json')
           .then(response => (this.countclick = response.data)) 
       },
       getScrollp: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollcalculate.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollcalculate.json')
           .then(response => (this.scrollp = response.data)) 
       },
       getScrolld: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationcalculate.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationcalculate.json')
           .then(response => (this.scrolld = response.data)) 
       },
       getTotald: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json', {
-            params: {
-              startdate: this.dates[0],
-              enddate: this.dates[1]
-            }
-          })
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json')
           .then(response => (this.totald = response.data)) 
       },
       updateArticle(newid){

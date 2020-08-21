@@ -1,4 +1,7 @@
+require 'date'
+
 class Api::V1::CounterController < ApplicationController
+
   before_action :find_ad, except: :avgdurall
 
   def groupbyhour
@@ -8,37 +11,44 @@ class Api::V1::CounterController < ApplicationController
     end
   end
 
-  def groupbyurl
-    
-    geturl = @article.clicks.select('button_url, COUNT(ID) AS url_count').group(:button_url)
-    render json:geturl
-
-  end
-
   def groupbydate
     
     dates = @article.clicks.select('date(created_at), COUNT(ID) AS click_count').group('date(created_at)')
     result = dates.select('(SELECT url FROM articles where id = '+params[:article_id]+') AS url')
     render json:result
 
+  end  
+
+  def groupbyurl
+    startdate =  params[:startdate].to_date.beginning_of_day
+    enddate = params[:enddate].to_date.end_of_day
+
+    geturl = @article.clicks.where(date_hour: startdate..enddate).select('button_url, COUNT(ID) AS url_count').group(:button_url)
+    render json:geturl
+
   end
 
   def groupbytext
+    startdate =  params[:startdate].to_date.beginning_of_day
+    enddate = params[:enddate].to_date.end_of_day
 
-    gettext = @article.clicks.select('button_text, COUNT(ID) AS text_count').group(:button_text)
-    puts 'hoonnnnnnnn'
-    p gettext
-    puts 'hoonnnnnnnn'
+    gettext = @article.clicks.where(date_hour: startdate..enddate).select('button_text, COUNT(ID) AS text_count').group(:button_text)
+    
     render json:gettext
 
   end
 
   def countclick
 
-  articles = Article.find_by_sql('SELECT count(ID) AS count_click FROM clicks where click_x != 0 and clicks.article_id = '+params[:article_id])
-  @article = articles[0]
+  # articles = Article.find_by_sql('SELECT count(ID) AS count_click FROM clicks where click_x != 0 and clicks.article_id = '+params[:article_id])
+  # @article = articles[0]
 
-  render json:@article
+  startdate =  params[:startdate].to_date.beginning_of_day
+  enddate = params[:enddate].to_date.end_of_day
+
+  count_click = @article.clicks.where(date_hour: startdate..enddate).count
+
+  render json:count_click
   
   end
 
@@ -46,6 +56,9 @@ class Api::V1::CounterController < ApplicationController
 
   scrolls = []
   tablename = "scrollpercent"
+
+  startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
+  enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
 
   begin
     maxscroll = @article.max_position/744 
@@ -59,12 +72,15 @@ class Api::V1::CounterController < ApplicationController
     loopcount = 10
   end
   
-  total = @article.scrolls.count # add date
-
+  total = @article.scrolls.where(created_at: startdate..enddate).count # add date
+  puts 'hhhhhh'
+  p total
+  puts 'oooooo'
   for i in 0..maxscroll do
     begin
       percent = ((@article.scrolls.where('scroll_position >='+(i*loopcount).to_s+'').count)*100)/total
-    rescue StandardError
+    rescue StandardError => e
+      puts e
       percent = 10
     end
     
@@ -79,7 +95,10 @@ class Api::V1::CounterController < ApplicationController
 
   # maxdur = @article.scrolls.maximum(:scroll_duration)
   # halfmax = maxdur/2
-  getdur = @article.scrolls.where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
+  startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
+  enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+
+  getdur = @article.scrolls.where(created_at: startdate..enddate).where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
 
   render json:getdur
 
@@ -102,7 +121,10 @@ class Api::V1::CounterController < ApplicationController
 
   def totalduration
 
-    totaldur = @article.scrolls.sum(:scroll_duration)
+    startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
+    enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+
+    totaldur = @article.scrolls.where(created_at: startdate..enddate).sum(:scroll_duration)
     render json:totaldur
 
   end

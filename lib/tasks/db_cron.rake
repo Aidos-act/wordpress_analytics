@@ -98,12 +98,12 @@ namespace :db_cron do
 
   	end
 
-    domains.each do |d|
-      articles = Article.where(max_position: [0, 1, nil])
-      articles.each do |a|
-        a.update(max_position: 10000)
-      end
-    end
+    # domains.each do |d|
+    #   articles = Article.where(max_position: [0, 1, nil])
+    #   articles.each do |a|
+    #     a.update(max_position: 10000)
+    #   end
+    # end
 
 
   	# ga_api table
