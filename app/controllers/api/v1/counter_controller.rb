@@ -71,6 +71,9 @@ class Api::V1::CounterController < ApplicationController
   rescue StandardError
     loopcount = 10
   end
+  # id 28
+  p maxscroll # 14
+  p loopcount # 7
   
   total = @article.scrolls.where(created_at: startdate..enddate).count # add date
   puts 'hhhhhh'

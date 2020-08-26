@@ -2,6 +2,8 @@ class Api::V1::DomainsController < ApplicationController
 
   def show
     article_id = params[:article_id]
+    hoony = params[:maxheight]
+    p hoony
     @domain_name = Article.joins(:domain).where(id: article_id).pluck("domains.domain_name")
   end
 

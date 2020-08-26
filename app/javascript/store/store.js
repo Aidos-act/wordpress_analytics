@@ -57,7 +57,7 @@ export default new Vuex.Store({
             params: {
               startdate: payload.startdate,
               enddate: payload.enddate,
-              hostname: payload.hostnam
+              hostname: payload.hostname
             }
         })
         .then(response => (state.currentTotal = response.data), (error) => {console.log(error);})
@@ -121,7 +121,8 @@ export default new Vuex.Store({
       axios
         .get('/api/v1/domains/'+payload.article_id+'.json', {
           params: {
-            article_id: payload.article_id
+            article_id: payload.article_id,
+            maxheight: payload.maxheight
           }
         })
         .then(response => (state.domainName = response.data), (error) => {console.log(error);})

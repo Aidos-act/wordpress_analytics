@@ -21,40 +21,8 @@ namespace :db_cron do
 	  domains = Domain.all
 
 
-# #dddddddddddddddddddddddddddd
+#ddddddddddddddddd    
     
-
-#     domains.each do |d|
-#       view_id = (d.view_id).to_s
-#       max_position_array = ga.get_max_position(yesterday, view_id)
-#       article_data = ga.get_article_data(yesterday, view_id, d.id, article_key)
-#       article_data.each do |article|
-#           max_position = 5000
-#           if max_position_array != nil
-#             max_arr = max_position_array.select{|max| max['article_url'] == article['article_url']}
-#             if !max_arr.empty?
-#               max_arr.each do |a|
-#                 if a['max_position'] > max_position
-#                   max_position = a['max_position']
-#                 end
-#               end
-#               a = Article.find_by(article_url: article['article_url'])
-#               if a 
-#                 a.update(max_position: max_position)
-#               end
-              
-#             end
-            
-#           else 
-
-#           end
-#       end
-#     end
-
-# #dddddddddddddddddddddddddddd    
-    
-
-#ddddddddddddddddd  	
 	  # article table
   	domains.each do |d|
 
@@ -82,29 +50,50 @@ namespace :db_cron do
 
       end
 
-      ## update max_position if max_position is not the highest one
+      # # update max_position if max_position is not the highest one
       # max_position_array = ga.get_max_position(yesterday, view_id)
 
-      # if max_position_array
-        
-      #   max_position_array.each do |max_position|
-      #     a = Article.find_by(article_url: max_position['article_url'])
-      #     if a.max_position < max_position['max_position']
-      #       a.update(max_position: max_position['max_position'])
+      # articles = Article.select(:article_url, :max_position)
+
+      # articles.each do |article|
+      #   total_events = 0
+      #   max_position = 1
+      #   mobile_device_info = ''
+      #   if max_position_array != nil
+      #     max_arr = max_position_array.select{|max| max['article_url'] == article.article_url}
+      #     if !max_arr.empty?
+      #       max_arr.each do |a|
+      #         if a['total_events'] > total_events
+
+      #           total_events = a['total_events']
+      #           mobile_device_info = a['mobileDeviceInfo']
+      #           max_position = a['max_position']
+
+      #         elsif  a['total_events'] == total_events && a['mobileDeviceInfo'] == 'Apple iPhone'
+
+      #           if mobile_device_info == 'Apple iPhone' && a['max_position'] > max_position
+      #             max_position = a['max_position']
+      #           elsif mobile_device_info != 'Apple iPhone'
+      #             mobile_device_info = a['mobileDeviceInfo']
+      #             max_position = a['max_position']
+      #           end
+
+      #         end
+              
+      #       end
+      #     end
+
+      #     if article.max_position != max_position
+      #       p article.article_url
+      #       p article.max_position
+      #       p max_position
+      #       puts '*****************'
+      #       # a.update(max_position: max_position)
       #     end
       #   end
-
       # end
 
   	end
-
-    # domains.each do |d|
-    #   articles = Article.where(max_position: [0, 1, nil])
-    #   articles.each do |a|
-    #     a.update(max_position: 10000)
-    #   end
-    # end
-
 
   	# ga_api table
   	domains.each do |d|
@@ -130,8 +119,6 @@ namespace :db_cron do
       end
 
     end
-
-
 
     # scroll table
     domains.each do |d|

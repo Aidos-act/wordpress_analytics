@@ -11,6 +11,7 @@ class Api::V1::GaApisController < ApplicationController
 
     @currentTotal = get_total_data_from_db(domain_id, startdate, enddate, key_array)
     
+
     render :formats => :json, :handlers => :jbuilder
 
   end
@@ -159,6 +160,7 @@ class Api::V1::GaApisController < ApplicationController
                                   "SUM(ga_apis.bounce) as bounce",
                                   "SUM(ga_apis.session) as session",
                                  )
+                          
       # avg_time_on_page
       ga_total_avg_time = Article.joins(:ga_apis)
                                 .where(ga_apis: {date_hour: startdate..enddate})

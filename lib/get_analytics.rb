@@ -565,7 +565,8 @@ class GetAnalytics < ApplicationController
     			dimensions: dimension_type,
     			# dimension_filter_clauses: [dimension_filters],
     			date_ranges: [date_range],
-    			order_bys: [order_by]
+    			order_bys: [order_by],
+    			page_size: 100_000
   			)]
 		)
 		response = @client.batch_get_reports(request)
@@ -697,14 +698,31 @@ class GetAnalytics < ApplicationController
 			# else
 			# 	datahash[article_key[i]] = 25000
 			# end
+			total_events = 0
 			max_position = 1
+			mobile_device_info = ''
+
 			if max_position_array != nil
 				max_arr = max_position_array.select{|max| max['article_url'] == r.dimensions[1]}
 				if !max_arr.empty?
 					max_arr.each do |a|
-						if a['max_position'].to_i > max_position
+						if a['total_events'] > total_events
+
+							total_events = a['total_events']
+							mobile_device_info = a['mobileDeviceInfo']
 							max_position = a['max_position']
+
+						elsif  a['total_events'] == total_events && a['mobileDeviceInfo'] == 'Apple iPhone'
+
+							if mobile_device_info == 'Apple iPhone' && a['max_position'] > max_position
+								max_position = a['max_position']
+							elsif mobile_device_info != 'Apple iPhone'
+								mobile_device_info = a['mobileDeviceInfo']
+								max_position = a['max_position']
+							end
+
 						end
+							
 					end
 				end
 
@@ -727,13 +745,13 @@ class GetAnalytics < ApplicationController
 				field_name: 'ga:pagePath',
 				sort_order: 'ASCENDING'),
 			@analytics::OrderBy.new(
-				field_name: 'ga:eventAction',
-				sort_order: 'ASCENDING')
+				field_name: 'ga:totalEvents',
+				sort_order: 'DESCENDING')
 
 		]
 		metric = @analytics::Metric.new(expression: 'ga:totalEvents')
 
-		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction']
+		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction', 'ga:deviceCategory', 'ga:mobileDeviceInfo']
 		dimension_type = Array.new
 		dimensions.each do |d|
 			dimension  = @analytics::Dimension.new
@@ -744,11 +762,21 @@ class GetAnalytics < ApplicationController
 
 
 		dimension_filters = @analytics::DimensionFilterClause.new(
-	      filters: [
+				filters: [
 	        @analytics::DimensionFilter.new(
 	          dimension_name: 'ga:eventCategory',
 	          operator: "IN_LIST",
 	          expressions: ['Article_max_position']
+	        )
+	      ]
+	    )
+
+		dimension_filters_mobile = @analytics::DimensionFilterClause.new(
+				filters: [
+	        @analytics::DimensionFilter.new(
+	          dimension_name: 'ga:deviceCategory',
+	          operator: "EXACT",
+	          expressions: ['mobile']
 	        )
 	      ]
 	    )
@@ -758,7 +786,7 @@ class GetAnalytics < ApplicationController
     			view_id: view_id,
     			dimensions: dimension_type,
     			metrics: [metric], 
-    			dimension_filter_clauses: [dimension_filters],
+    			dimension_filter_clauses: [dimension_filters, dimension_filters_mobile],
     			date_ranges: [date_range],
     			order_bys: order_by,
     			page_size: 100_000
@@ -778,15 +806,18 @@ class GetAnalytics < ApplicationController
 
 		data_from_google.each_with_index do |r, index|
 
-			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction']
+			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventAction', 'ga:deviceCategory', 'ga:mobileDeviceInfo']
 
 			datahash = {}
 			
 			datahash['article_url'] = r.dimensions[0]
 			max_position = r.dimensions[2]
 			datahash['max_position'] = max_position.to_i
+			datahash['mobileDeviceInfo'] = r.dimensions[4]
 
-			set_max_position_array.push(datahash)			
+			datahash['total_events'] = r.metrics.first.values.first.to_i
+
+			set_max_position_array.push(datahash)
 		end
 
 
@@ -828,7 +859,7 @@ class GetAnalytics < ApplicationController
     			# dimensions: [dimension], 
     			date_ranges: [date_range],
     			order_bys: [order_by],
-    			page_size: 10_000
+    			page_size: 100_000
   			)]
 		)
 		response = @client.batch_get_reports(request)
@@ -942,7 +973,7 @@ class GetAnalytics < ApplicationController
     			date_ranges: [date_range],
     			order_bys: order_by,
     			# order_bys: order_by,
-    			page_size: 10_000
+    			page_size: 100_000
   			)]
 		)
 		response = @client.batch_get_reports(request)

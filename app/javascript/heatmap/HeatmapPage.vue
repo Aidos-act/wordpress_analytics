@@ -31,7 +31,7 @@
               </div>
            </div>
          </div>
-         <iframe :src="getDomain()" SameSite="None" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.max_position"></iframe>
+         <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="article.max_position"></iframe>
       </div>
 
       <div class="values-set">
@@ -63,7 +63,7 @@
 
         <h3> <strong> {{ article.article_title }} </strong> </h3>
         <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
-        
+        {{scrollp}}
         <v-simple-table>
           <template v-slot:default>
             <tbody>
@@ -71,6 +71,8 @@
               <tr>
                 <td>MCV(クリック数)</td>
                 <td>{{ countclick }}</td>
+                <td>{{ maxheight }}</td>
+                <td>hooon</td>
               </tr>
 
             </tbody>
@@ -220,7 +222,8 @@
         ipcount: [],
         isActive: true,
         errors: '',
-        maxheight: ''
+        maxheight: '',
+        maxscroll: 0
       }
     },
     computed: {
@@ -243,8 +246,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-18' || this.dates[1] < '2020-08-18'){
-          alert('2020-08-20 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-08-22' || this.dates[1] < '2020-08-22'){
+          alert('2020-08-22 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -262,12 +265,22 @@
         return this.dates.join(' ~ ')
       }
     },
+    created () {
+      var self = this;
+      window.addEventListener('message',function(e){
+        if(typeof e.data == 'number'){
+          self.maxheight = e.data;
+        }else{
+          console.log('no work')
+        }
+      });
+    },
     mounted () {
       // this.updateClicks ();
       this.updateScrolls ();
       this.updateAd ();
       this.updateCbtnurl ();
-      this.updateCbtntext ();      
+      this.updateCbtntext ();
       this.updateClickcount ();
       // this.getIframe();
       this.getScrollp();
@@ -281,6 +294,7 @@
       this.$store.commit('getDomainName',{
           article_id: this.$route.params.id
       });
+      
     },
     methods: {
 
@@ -391,7 +405,20 @@
         result = '//' + domain_name + article_url
         
         return result
+      },
+      receiveMsg(e) {
+        var height = parseInt(e.data);
+        console.log(height);
+      },
+      getScrollCalculate(){
+        var maxheight = this.maxheight;
+        var maxscroll = maxheight/744
+
+        
       }
+    },
+    beforeDestroy() {
+        window.removeEventListener('message',this.receiveMsg);
     },
     filters: {
       truncate: function (text, length, suffix) {
