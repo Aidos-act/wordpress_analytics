@@ -71,14 +71,9 @@ class Api::V1::CounterController < ApplicationController
   rescue StandardError
     loopcount = 10
   end
-  # id 28
-  p maxscroll # 14
-  p loopcount # 7
   
   total = @article.scrolls.where(created_at: startdate..enddate).count # add date
-  puts 'hhhhhh'
-  p total
-  puts 'oooooo'
+  
   for i in 0..maxscroll do
     begin
       percent = ((@article.scrolls.where('scroll_position >='+(i*loopcount).to_s+'').count)*100)/total
@@ -138,6 +133,38 @@ class Api::V1::CounterController < ApplicationController
     render json:getip
     
   end
+
+  def scrollpcalculate
+    
+    startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
+    enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+    total_access = 0
+    scrolls = []
+    access_counts = @article.scrolls.where(created_at: startdate..enddate).order('scroll_position asc').select(:scroll_position, :access_count)
+    # access_counts = @article.scrolls.where(created_at: startdate..enddate).order('scroll_position asc').pluck(:scroll_position, :access_count)  
+    
+    if access_counts.first.scroll_position == 5
+      total_access = access_counts.first.access_count
+    end
+
+    scroll_positions = [5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100]
+
+    scroll_positions.each_with_index do |position, i|
+      count = access_counts.select{|pos| pos.scroll_position == position}
+
+      if !count.empty?
+        float_count = count.first.access_count.to_f
+        percent = ((float_count/total_access).round(2))*100
+        scrolls.push(percent.to_i)
+      elsif count.empty?
+        scrolls.push(0)
+      end
+
+    end 
+
+    render json:scrolls
+  end  
+
 
   private
     def find_ad

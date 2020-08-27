@@ -1,14 +1,14 @@
 <template>
   <div class="heat-body-set">
       <div class="iframe-set">
-         <div class="scroll-percent" >
-            <div v-for="e in scrollp.length">
-              <div class="lines"> 
-                  <p class="lines-p"> {{ scrollp[e-1] }}% </p>
+         <div class="scroll-percent" ref="readLine">
+            <div v-if="!loading" class="read-line" v-for="e in scrolltemp.length" :style="{top: getHeight(e) + 'px'}">
+              <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
+                  <p class="lines-p"> {{ scrolltemp[e-1] }}% </p>
               </div>
             </div>
          </div>
-         <div class="heat-map" v-bind:style="{ height: article.max_position + 'px' }">
+         <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
            <div v-for="e in scrolld">
               <div v-if="e.sum_dur >= totald/100">  
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
@@ -31,13 +31,24 @@
               </div>
            </div>
          </div>
-         <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="article.max_position"></iframe>
+         
+        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe>
+        <v-progress-circular
+          v-if="loading"
+          class="spinner"
+          indeterminate
+          color="green"
+          :size="300"
+          :width="25"
+        ></v-progress-circular>
+
       </div>
 
       <div class="values-set">
         <!-- datepicker start -->
         <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers  -->
         <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
+
         <v-col cols="12" sm="6">
           <v-menu
             ref="menu"
@@ -63,7 +74,7 @@
 
         <h3> <strong> {{ article.article_title }} </strong> </h3>
         <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
-        {{scrollp}}
+        
         <v-simple-table>
           <template v-slot:default>
             <tbody>
@@ -71,8 +82,10 @@
               <tr>
                 <td>MCV(クリック数)</td>
                 <td>{{ countclick }}</td>
-                <td>{{ maxheight }}</td>
-                <td>hooon</td>
+              </tr>
+              <tr v-for="(data, key) in getArticleData()">
+                <td>{{ key }}</td>
+                <td>{{data}}</td>
               </tr>
 
             </tbody>
@@ -223,7 +236,8 @@
         isActive: true,
         errors: '',
         maxheight: '',
-        maxscroll: 0
+        scrolltemp: [],
+        loading: true
       }
     },
     computed: {
@@ -270,8 +284,7 @@
       window.addEventListener('message',function(e){
         if(typeof e.data == 'number'){
           self.maxheight = e.data;
-        }else{
-          console.log('no work')
+          self.loading = !self.loading;
         }
       });
     },
@@ -286,6 +299,7 @@
       this.getScrollp();
       this.getScrolld();
       this.getTotald();
+      this.getScrollCalculate();
       this.$store.commit('getArticleData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
@@ -411,14 +425,40 @@
         console.log(height);
       },
       getScrollCalculate(){
-        var maxheight = this.maxheight;
-        var maxscroll = maxheight/744
-
+        axios
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollpcalculate.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
+          .then(response => (this.scrolltemp = response.data)) 
+      },
+      getHeight(index){
         
+        var maxheight = parseInt(this.maxheight, 10);
+
+        index = index -1;
+        var percent = (index * 5)/100;
+        var divHeight = (maxheight*percent);
+        // var ceiledHeight = Math.ceil(divHeight);
+        
+        return divHeight
+      },
+      getMarginTop(){
+        var maxheight = parseInt(this.maxheight, 10);
+
+        var marginTop = maxheight*0.05
+
+        return marginTop
+      },
+      load(){
+        console.log(this.loading)
+        this.loading = !this.loading;
       }
     },
     beforeDestroy() {
-        window.removeEventListener('message',this.receiveMsg);
+        window.removeEventListener('message');
     },
     filters: {
       truncate: function (text, length, suffix) {
@@ -481,7 +521,7 @@
   .lines {
     color:white;
     text-shadow: 0px 0px 5px black;
-    margin-top: 600px;
+    
     margin-bottom: 0px;
     border-right-width: 0px;
     border-left-width: 0px;
@@ -639,4 +679,13 @@
     color: #42b883;
     cursor: pointer;
   }
+  .read-line {
+    position: absolute;
+    width: 100%;
+  }
+  .spinner {
+    top: 40%;
+    left: 35%;
+  }
+
 </style>

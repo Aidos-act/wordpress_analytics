@@ -932,6 +932,16 @@ class GetAnalytics < ApplicationController
 
 		]
 
+		metrics = ['ga:eventValue', 'ga:totalEvents']
+
+
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
 		metric = @analytics::Metric.new(expression: 'ga:eventValue')
 
 		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel']
@@ -942,33 +952,33 @@ class GetAnalytics < ApplicationController
 			dimension_type.push(dimension)
 		end
 
-
-		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
-		# '/2020/04/27/43987/'
 		dimension_filters = @analytics::DimensionFilterClause.new(
-	      filters: [
-	      	@analytics::DimensionFilter.new(
-	          dimension_name: 'ga:eventLabel',
-	          not: true,
-	          operator: "IN_LIST",
-	          expressions: ['(not set)']
-	        )
-	      ],
-	      filters2: [
-	        @analytics::DimensionFilter.new(
-	          dimension_name: 'ga:eventCategory',
-	          operator: "IN_LIST",
-	          expressions: ['Scroll']
-	        )
-	      ]
-	    )
+			filters: [
+				@analytics::DimensionFilter.new(
+          dimension_name: 'ga:eventLabel',
+          not: true,
+          operator: "IN_LIST",
+          expressions: ['(not set)']
+        )
+			]
+		)
+
+		dimension_filters_scroll = @analytics::DimensionFilterClause.new(
+			filters: [
+				@analytics::DimensionFilter.new(
+          dimension_name: 'ga:eventCategory',
+          operator: "IN_LIST",
+          expressions: ['Scroll']
+        )
+			]
+		)
 
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: view_id,
     			dimensions: dimension_type,
-    			metrics: [metric], 
-    			dimension_filter_clauses: [dimension_filters],
+    			metrics: metric_type, 
+    			dimension_filter_clauses: [dimension_filters, dimension_filters_scroll],
     			# dimensions: [dimension], 
     			date_ranges: [date_range],
     			order_bys: order_by,
@@ -1010,6 +1020,9 @@ class GetAnalytics < ApplicationController
 
 			scroll_duration = r.metrics.first.values.first
 			datahash['scroll_duration'] = scroll_duration
+
+			access_count = r.metrics.first.values.second
+			datahash['access_count'] = access_count
 
 			datahash['created_at'] = Time.zone.now
 			datahash['updated_at'] = Time.zone.now

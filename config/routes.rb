@@ -22,6 +22,7 @@ Rails.application.routes.draw do
         get 'counter/totalduration'
         get 'counter/avgdurarticle'
         get 'counter/ipcount'
+        get 'counter/scrollpcalculate'
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]

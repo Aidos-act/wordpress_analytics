@@ -20,7 +20,6 @@ namespace :db_cron do
 
 	  domains = Domain.all
 
-
 #ddddddddddddddddd    
     
 	  # article table
