@@ -2,9 +2,9 @@
   <div class="heat-body-set">
       <div class="iframe-set">
          <div class="scroll-percent" ref="readLine">
-            <div v-if="!loading" class="read-line" v-for="e in scrolltemp.length" :style="{top: getHeight(e) + 'px'}">
+            <div v-if="!loading" class="read-line" v-for="e in scrollpercent.length" :style="{top: getHeight(e) + 'px'}">
               <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
-                  <p class="lines-p"> {{ scrolltemp[e-1] }}% </p>
+                  <p class="lines-p"> {{ scrollpercent[e-1] }}% </p>
               </div>
             </div>
          </div>
@@ -234,9 +234,8 @@
         totald: [],
         ipcount: [],
         isActive: true,
-        errors: '',
         maxheight: '',
-        scrolltemp: [],
+        scrollpercent: [],
         loading: true
       }
     },
@@ -260,8 +259,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-22' || this.dates[1] < '2020-08-22'){
-          alert('2020-08-22 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-08-27' || this.dates[1] < '2020-08-27'){
+          alert('2020-08-27 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -287,10 +286,13 @@
           self.loading = !self.loading;
         }
       });
+      window.addEventListener('error', function(e){
+        console.log(e.message);
+      })
     },
     mounted () {
       // this.updateClicks ();
-      this.updateScrolls ();
+      // this.updateScrolls ();
       this.updateAd ();
       this.updateCbtnurl ();
       this.updateCbtntext ();
@@ -324,11 +326,7 @@
         this.getScrollp();
         this.getScrolld();
         this.getTotald();
-      },
-      updateScrolls: function() {
-        axios
-          .get('api/v1/articles/' + this.$route.params.id + '/scrolls.json')
-          .then(response => (this.scrolls = response.data))   
+        this.getScrollCalculate();
       },
       updateAd: function () {
         axios
@@ -420,10 +418,6 @@
         
         return result
       },
-      receiveMsg(e) {
-        var height = parseInt(e.data);
-        console.log(height);
-      },
       getScrollCalculate(){
         axios
           .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollpcalculate.json', {
@@ -432,7 +426,7 @@
               enddate: this.dates[1]
             }
           })
-          .then(response => (this.scrolltemp = response.data)) 
+          .then(response => (this.scrollpercent = response.data)) 
       },
       getHeight(index){
         
