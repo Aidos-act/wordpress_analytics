@@ -436,8 +436,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-27' || this.dates[1] < '2020-08-27'){
-          alert('2020-08-27 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
+          alert('2020-09-05 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -518,7 +518,6 @@
               var b = parseInt(defaultGAinfo[key], 10);
               var pv = parseInt(defaultGAinfo['page_view'], 10);
               defaultData = ((b/pv)*100).toFixed(2);
-              console.log(defaultData);
             }else if(value == 'article_title'){
               defaultData = defaultGAinfo[key]
               return defaultData
@@ -538,7 +537,6 @@
           var avg = ga_avg['ga_avg_time_avg']
           var a = this.setMinute(avg);
           var b = this.setMinute(defaultData);
-          console.log(a);
           avg = this.$moment(a, "HH:mm:ss").format("mm:ss");
           defaultData = this.$moment(b, "HH:mm:ss").format("mm:ss");
         }else if(value == 'bounce'){

@@ -10,6 +10,7 @@ namespace :db_cron do
   	ga = GetAnalytics.new
   	yesterday = Date.yesterday.strftime("%Y-%m-%d")
     
+    
   	article_key = Article.column_names
   	# remove id in array
   	article_key.shift
@@ -124,9 +125,8 @@ namespace :db_cron do
       view_id = (d.view_id).to_s
       scroll_data = ga.get_scroll_data(yesterday, view_id)
 
-      # if article_id and scroll_position is already exist, update the data(index added in schema). if not, insert data.
       if scroll_data
-        Scroll.upsert_all(scroll_data)
+        Scroll.insert_all(scroll_data)
       end
 
     end

@@ -45,19 +45,14 @@ COPY . $WORKSPACE
 RUN yarn install --check-files && \
 	bundle exec whenever --update-crontab
 
-CMD ["cron", "-f"] 
 
-Run service cron start
+COPY ./docker-entrypoint.sh /
+
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 
-# RUN yarn upgrade && \
-#	gem install foreman
 
-# RUN mkdir -p tmp/pid
-# EXPOSE 3000
-
-# ENTRYPOINT ["docker-entrypoint.sh"]
-
-# Start the main process.
-# CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
-# CMD foreman start -f Procfile ??
+# CMD bash -c "service cron start && cron -f"
+# Run service cron start

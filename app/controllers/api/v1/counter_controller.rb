@@ -57,8 +57,8 @@ class Api::V1::CounterController < ApplicationController
   scrolls = []
   tablename = "scrollpercent"
 
-  startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
-  enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+  startdate =  params[:startdate].to_date.beginning_of_day
+  enddate = params[:enddate].to_date.end_of_day
 
   begin
     maxscroll = @article.max_position/744 
@@ -72,7 +72,7 @@ class Api::V1::CounterController < ApplicationController
     loopcount = 10
   end
   
-  total = @article.scrolls.where(created_at: startdate..enddate).count # add date
+  total = @article.scrolls.where(date: startdate..enddate).count # add date
   
   for i in 0..maxscroll do
     begin
@@ -93,10 +93,10 @@ class Api::V1::CounterController < ApplicationController
 
   # maxdur = @article.scrolls.maximum(:scroll_duration)
   # halfmax = maxdur/2
-  startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
-  enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
-
-  getdur = @article.scrolls.where(created_at: startdate..enddate).where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
+  startdate =  params[:startdate].to_date.beginning_of_day
+  enddate = params[:enddate].to_date.end_of_day
+  
+  getdur = @article.scrolls.where(date: startdate..enddate).where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
 
   render json:getdur
 
@@ -119,10 +119,10 @@ class Api::V1::CounterController < ApplicationController
 
   def totalduration
 
-    startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
-    enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+    startdate =  params[:startdate].to_date.beginning_of_day
+  enddate = params[:enddate].to_date.end_of_day
 
-    totaldur = @article.scrolls.where(created_at: startdate..enddate).sum(:scroll_duration)
+    totaldur = @article.scrolls.where(date: startdate..enddate).sum(:scroll_duration)
     render json:totaldur
 
   end
@@ -136,13 +136,17 @@ class Api::V1::CounterController < ApplicationController
 
   def scrollpcalculate
     
-    startdate = (DateTime.parse(params[:startdate]) + 1.day).to_date.beginning_of_day
-    enddate = (DateTime.parse(params[:enddate]) + 1.day).to_date.end_of_day
+    startdate =  params[:startdate].to_date.beginning_of_day
+    enddate = params[:enddate].to_date.end_of_day
     total_access = 0
     scrolls = []
-    access_counts = @article.scrolls.where(created_at: startdate..enddate).order('scroll_position asc').select(:scroll_position, :access_count)
-    # access_counts = @article.scrolls.where(created_at: startdate..enddate).order('scroll_position asc').pluck(:scroll_position, :access_count)  
+    # access_counts = @article.scrolls.where(date: startdate..enddate).order('scroll_position asc').select(:scroll_position, :access_count)
     
+    access_counts = @article.scrolls.where(date: startdate..enddate)
+                                    .order('scroll_position asc')
+                                    .group(:scroll_position)
+                                    .select(:scroll_position, "SUM(access_count) as access_count")
+
     if access_counts.first.scroll_position == 5
       total_access = access_counts.first.access_count
     end

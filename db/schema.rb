@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_26_053622) do
+ActiveRecord::Schema.define(version: 2020_09_07_045924) do
 
   create_table "articles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "domain_id"
@@ -73,12 +73,12 @@ ActiveRecord::Schema.define(version: 2020_08_26_053622) do
 
   create_table "scrolls", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "article_id"
+    t.datetime "date"
     t.integer "scroll_position"
     t.float "scroll_duration"
     t.integer "access_count"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["article_id", "scroll_position"], name: "index_scrolls_on_article_id_and_scroll_position", unique: true
   end
 
 end

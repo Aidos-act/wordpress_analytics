@@ -87,7 +87,6 @@
                 <td>{{ key }}</td>
                 <td>{{data}}</td>
               </tr>
-
             </tbody>
           </template>
         </v-simple-table>
@@ -259,8 +258,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-08-27' || this.dates[1] < '2020-08-27'){
-          alert('2020-08-27 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
+          alert('2020-09-05 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -323,10 +322,15 @@
         this.updateCbtnurl();
         this.updateCbtntext();
         this.updateClickcount();
-        this.getScrollp();
+        // this.getScrollp();
         this.getScrolld();
         this.getTotald();
         this.getScrollCalculate();
+        this.$store.commit('getArticleData',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
       },
       updateAd: function () {
         axios
@@ -445,10 +449,6 @@
         var marginTop = maxheight*0.05
 
         return marginTop
-      },
-      load(){
-        console.log(this.loading)
-        this.loading = !this.loading;
       }
     },
     beforeDestroy() {

@@ -942,9 +942,7 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
-		metric = @analytics::Metric.new(expression: 'ga:eventValue')
-
-		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel']
+		dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
 		dimension_type = Array.new
 		dimensions.each do |d|
 			dimension  = @analytics::Dimension.new
@@ -1004,7 +1002,7 @@ class GetAnalytics < ApplicationController
 			# [article_id, scroll_position, scroll_duration, created_at, updated_at]
 
 			# dimensions & metrics
-			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel']
+			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
 			# metric = 'ga:eventValue'
 
 			datahash = {}
@@ -1015,6 +1013,9 @@ class GetAnalytics < ApplicationController
 			
 			datahash['article_id'] = article.id
 
+			date = r.dimensions[3]
+			datahash['date'] = date
+
 			scroll_position = r.dimensions[2]
 			datahash['scroll_position'] = scroll_position
 
@@ -1023,6 +1024,7 @@ class GetAnalytics < ApplicationController
 
 			access_count = r.metrics.first.values.second
 			datahash['access_count'] = access_count
+
 
 			datahash['created_at'] = Time.zone.now
 			datahash['updated_at'] = Time.zone.now
