@@ -35,6 +35,7 @@
       <v-col cols="12" sm="6">
         <v-text-field readonly v-model="checkIfDefault? getDefault('article_title') : title" label="記事タイトル"></v-text-field>
       </v-col>
+      
       <!-- article title part end -->
       
       <!-- button part start - it is for routing heatmap page by article id -->
@@ -580,14 +581,14 @@
         var articleData = this.articleData;
         var selectedArticleData;
         var selectedData;
-
+        
         // setup data by selected path
         for(var key in articleData){
           if(this.selectedPath == articleData[key].article_url){
             selectedArticleData = articleData[key];
           }
         }
-
+        
         for(var key in selectedArticleData){
           if(key == value){
             if(value == 'bounce'){
@@ -647,15 +648,14 @@
         
         for(var key in articleGoalData){
           if(articleGoalData[key].article_url == selectedArticleData.article_url){
-
             var cvr = parseFloat(articleGoalData[key].goal1ConversionRate, 10).toFixed(2);
             var comp = articleGoalData[key].goal1Completions;
 
             var goalArr = [cvr, comp];
-
-            return goalArr;
           }
         }
+        
+        return goalArr;
       },
       setMinute(avg_time_on_page){
         var m = Math.floor(avg_time_on_page/60);
@@ -675,7 +675,6 @@
       },
       // it setup path, selected title and change boolean When user click on the title of the list user want to see
       setPathTitle(path, title){
-
         this.selectedPath = path;
         this.title = title;
         this.checkIfDefault = false;

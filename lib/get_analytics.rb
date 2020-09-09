@@ -417,7 +417,7 @@ class GetAnalytics < ApplicationController
 		return set_demo_array
 	end
 
-	def get_goal_data(startdate, enddate)
+	def get_goal_data(startdate, enddate, view_id)
 
 		# setup date range
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
@@ -433,29 +433,48 @@ class GetAnalytics < ApplicationController
 			metric_type.push(metric)
 		end
 
+		total_data = Array.new
+		cvr = 0
+		comp = 0
 
-		# setup request with the data i set up above to google analytics server
-		request = @analytics::GetReportsRequest.new(
-  			report_requests: [@analytics::ReportRequest.new(
-    			view_id: @view_id,
-    			metrics: metric_type,
-    			date_ranges: [date_range]
-  			)]
-		)
+		view_id.each do |vid|
+			# setup request with the data i set up above to google analytics server
+			request = @analytics::GetReportsRequest.new(
+	  			report_requests: [@analytics::ReportRequest.new(
+	    			view_id: vid.to_s,
+	    			metrics: metric_type,
+	    			date_ranges: [date_range]
+	  			)]
+			)
 
-		# send request and get the result in the response
-		response = @client.batch_get_reports(request)
+			# send request and get the result in the response
+			response = @client.batch_get_reports(request)
 
+			# getting total data part start
+			
+			cvr += response.reports.first.data.totals.first.values[0].to_f
+			comp += response.reports.first.data.totals.first.values[1].to_i
 
+			total_data.push(response.reports.first.data.totals.first.values)
+		end
+		
+		# goal conversion rate
+		begin
+			total_data[0] = cvr/view_id.length.to_f
+		rescue StandardError => e
+			puts e
+			total_data[0] = 0
+		end
 
-		# getting total data part start
+		# goal completion
+		total_data[1] = comp
+		
 
-		total_data = response.reports.first.data.totals.first.values
 
 		return total_data
 	end
 
-	def get_goal_data_by_article(startdate, enddate)
+	def get_goal_data_by_article(startdate, enddate, view_id)
 
 		# setup date range
 		date_range = @analytics::DateRange.new(start_date: startdate, end_date: enddate)
@@ -473,47 +492,49 @@ class GetAnalytics < ApplicationController
 
 		dimension = @analytics::Dimension.new(name: 'ga:pagePath')
 
-		# setup request with the data i set up above to google analytics server
-		request = @analytics::GetReportsRequest.new(
-  			report_requests: [@analytics::ReportRequest.new(
-    			view_id: @view_id,
-    			metrics: metric_type,
-    			date_ranges: [date_range],
-    			dimensions: [dimension],
-    			page_size: 100_000
-  			)]
-		)
-
-		# send request and get the result in the response
-		response = @client.batch_get_reports(request)
-
 		goal_arr = Array.new
-
-		data_from_google = response.reports.first.data.rows
 
 		key_array = ['article_url', 'goal1ConversionRate', 'goal1Completions']
 
-		data_from_google.each_with_index do |r, index|
+		view_id.each do |vid|
 
-			datahash = {}
-			i = 0;
+			# setup request with the data i set up above to google analytics server
+			request = @analytics::GetReportsRequest.new(
+	  			report_requests: [@analytics::ReportRequest.new(
+	    			view_id: vid.to_s,
+	    			metrics: metric_type,
+	    			date_ranges: [date_range],
+	    			dimensions: [dimension],
+	    			page_size: 100_000
+	  			)]
+			)
 
-			# setup dimension part
-			r.dimensions.each do |d|
-				datahash[key_array[i]] = d
-				i += 1
+			# send request and get the result in the response
+			response = @client.batch_get_reports(request)
+
+			data_from_google = response.reports.first.data.rows
+
+			data_from_google.each_with_index do |r, index|
+
+				datahash = {}
+				i = 0;
+
+				# setup dimension part
+				r.dimensions.each do |d|
+					datahash[key_array[i]] = d
+					i += 1
+				end
+
+				# setup metrics part
+				r.metrics.first.values.each do |m|
+					datahash[key_array[i]] = m
+					i += 1
+				end
+
+				goal_arr.push(datahash)
+
 			end
-
-			# setup metrics part
-			r.metrics.first.values.each do |m|
-				datahash[key_array[i]] = m
-				i += 1
-			end
-
-			goal_arr.push(datahash)
-
 		end
-
 
 		return goal_arr
 	end

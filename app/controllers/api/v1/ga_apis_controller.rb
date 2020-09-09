@@ -81,28 +81,40 @@ class Api::V1::GaApisController < ApplicationController
   end
 
   def goalData
-    domain_id = set_domain(params[:hostname])
+    hostname = params[:hostname]
+
+    if hostname == 'total'
+      view_id = Domain.pluck(:view_id)
+    else
+      view_id = Domain.where(domain_name: hostname).pluck(:view_id)
+    end
 
     startdate =  params[:startdate]
     enddate = params[:enddate]
 
     get_analytics_data = GetAnalytics.new
 
-    @goalData = get_analytics_data.get_goal_data(startdate, enddate)
+    @goalData = get_analytics_data.get_goal_data(startdate, enddate, view_id)
 
     render :formats => :json, :handlers => :jbuilder
 
   end
 
   def goalDataByArticle
-    domain_id = set_domain(params[:hostname])
+    hostname = params[:hostname]
+
+    if hostname == 'total'
+      view_id = Domain.pluck(:view_id)
+    else
+      view_id = Domain.where(domain_name: hostname).pluck(:view_id)
+    end
 
     startdate =  params[:startdate]
     enddate = params[:enddate]
 
     get_analytics_data = GetAnalytics.new
 
-    @goalDataByArticle = get_analytics_data.get_goal_data_by_article(startdate, enddate)
+    @goalDataByArticle = get_analytics_data.get_goal_data_by_article(startdate, enddate, view_id)
 
     render :formats => :json, :handlers => :jbuilder
     
