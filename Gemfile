@@ -34,14 +34,14 @@ gem 'dotenv-rails', groups: [:development, :test]
 # cancancan
 gem 'cancancan', '~> 3.1'
 
-# kaminari
-gem 'kaminari', '~> 1.2'
-
 # Process manager for applications with multiple components
 gem 'foreman', '~> 0.87.1'
 
 # for ga api
 gem 'google-api-client', '~> 0.37.2'
+
+# cron job
+gem 'whenever', '~> 1.0'
 
 # Action caching for Action Pack (removed from core in Rails 4.0)
 gem 'actionpack-action_caching', '~> 1.2', '>= 1.2.1'
@@ -72,4 +72,4 @@ group :test do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data'

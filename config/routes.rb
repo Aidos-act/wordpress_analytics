@@ -22,14 +22,36 @@ Rails.application.routes.draw do
         get 'counter/totalduration'
         get 'counter/avgdurarticle'
         get 'counter/ipcount'
+        get 'counter/scrollpcalculate'
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
+      resources :domains do
+        collection do 
+          get 'domainInfo'
+        end
+      end
+      resources :goals
+      resources :goal_achievements
 
       post 'articles/new' => 'articles#new'
 
       get 'counter/avgdurall'
-      # get '/health' => 'healths#health'
+      
+      resources :ga_apis do
+        collection do
+          get 'currentTotal'
+          get 'compareTotal'
+          get 'currentLineChart'
+          get 'compareLineChart'
+          get 'articleData'
+          get 'articleAvg'
+          get 'goalData'
+          get 'goalDataByArticle'
+        end
+      end
+
+      
       # google analytics api data
       resources :ga_api_info do
         collection do

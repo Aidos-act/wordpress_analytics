@@ -1,3 +1,3 @@
 json.array!@scrolls do |scroll|
-  json.extract! scroll, :article_id, :scroll_pos, :scroll_dur, :created_at
+  json.extract! scroll, :article_id, :scroll_position, :scroll_duration, :created_at
 end

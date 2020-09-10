@@ -1,63 +1,91 @@
 <template>
   <div class="heat-body-set">
       <div class="iframe-set">
-         <div class="scroll-percent" >
-            <div v-for="e in scrollp.length">
-              <div class="lines"> 
-                  <p class="lines-p"> {{ scrollp[e-1] }}% </p>
+         <div class="scroll-percent" ref="readLine">
+            <div v-if="!loading" class="read-line" v-for="e in scrollpercent.length" :style="{top: getHeight(e) + 'px'}">
+              <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
+                  <p class="lines-p"> {{ scrollpercent[e-1] }}% </p>
               </div>
             </div>
          </div>
-         <div class="heat-map" v-bind:style="{ height: article.maxpos + 'px' }">
+         <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
            <div v-for="e in scrolld">
               <div v-if="e.sum_dur >= totald/100">  
-                <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                   <h1 class="heat-red"></h1>
                 </div>  
               </div>
               <div v-if="e.sum_dur <= totald/100"> 
                 <div v-if="e.sum_dur >= totald/200">  
-                  <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                  <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                     <h2 class="heat-yellow"></h2>
                   </div>  
                 </div>
                 <div v-if="e.sum_dur < totald/200">
                   <div v-if="e.sum_dur > totald/400">  
-                    <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                    <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                       <h3 class="heat-green"></h3>
-                    </div>  
+                    </div>
                   </div>
                 </div>
               </div>
            </div>
          </div>
-         <iframe :src="article.url" frameborder="0" allowfullscreen sandbox marginheight="0" marginwidth="0" width="100%" :height="article.maxpos "></iframe>
+         
+        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe>
+        <v-progress-circular
+          v-if="loading"
+          class="spinner"
+          indeterminate
+          color="green"
+          :size="300"
+          :width="25"
+        ></v-progress-circular>
+
       </div>
 
-
       <div class="values-set">
-        <h3> <strong> {{ article.title }} </strong> </h3> 
-        <a :href="article.url"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.title }}></small> </p></a>
+        <!-- datepicker start -->
+        <!-- please refer to date picker in vuetify. https://vuetifyjs.com/en/components/date-pickers/#date-month-pickers  -->
+        <!-- especially Date pickers - In dialog and menu and Date pickers - Range parts -->
+
+        <v-col cols="12" sm="6">
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            :return-value.sync="dates"
+            transition="scale-transition"
+            offset-y
+            min-width="200px" 
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field v-model="dateRangeText" label="期間" readonly v-on="on"></v-text-field>
+            </template>
+            <v-date-picker v-model="dates" range no-title scrollable>
+              <v-btn text color="primary" @click="menu = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="getTotalByDate(dates)" :disabled="dateError">
+                <span @click="$refs.menu.save(dates)">選擇</span>
+              </v-btn> 
+            </v-date-picker>
+          </v-menu>
+        </v-col>
+        <!-- datepicker end -->
+
+        <h3> <strong> {{ article.article_title }} </strong> </h3>
+        <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
         
         <v-simple-table>
           <template v-slot:default>
             <tbody>
-              <tr v-for="(value, key) in getArticleData()">
-                <td>{{ key }}</td>
-                <td>{{ value }}</td>
-                
-              </tr>
-              <tr>
-                <td>生成時間</td>
-                <td>{{ article.created_at.split('T')[0] }}</td>
-              </tr>
+              
               <tr>
                 <td>MCV(クリック数)</td>
-                <td>{{ countclick.count_click }}</td>
+                <td>{{ countclick }}</td>
               </tr>
-              <tr>
-                <td>ビュー(IP)</td>
-                <td>{{ ipcount.length }}</td>
+              <tr v-for="(data, key) in getArticleData()">
+                <td>{{ key }}</td>
+                <td>{{data}}</td>
               </tr>
             </tbody>
           </template>
@@ -70,12 +98,34 @@
         <h3> <strong> クリック </strong> </h3>
         <table>
           <tbody class="btns">
-            <div class="click-item" v-for="e in countbtnurl" >
-                <td v-if="e.btn_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.btn_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
-            </div>
-            <div class="click-item" v-for="e in countbtntext">
-                <td v-if="e.btn_text != 'undefined'" class="clicks-list" v> <p class="btn-info" >{{ e.btn_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
-            </div>
+            <ul v-for="e in countbtnurl">
+              <li v-if="e.button_url != null" class="clicks-list">
+                <img class="btn-img" :src="e.button_url" style="width: 100px;"> 
+                <span class="btn-dis">{{ e.url_count }}</span>
+              </li>
+            </ul>
+
+            <!-- <ul v-for="ec in countbtntext">
+              <li v-if="ec.size != 0" class="clicks-list">
+                hoon
+                <span class="btn-info">{{ ec.button_text }}</span>
+                <span class="btn-dis">{{ec.text_count}}</span>
+              </li>
+            </ul> -->
+            <ul v-for="ec in countbtntext">
+              <li v-if="ec.button_text != null" class="clicks-list">
+                <span class="btn-info">{{ ec.button_text }}</span>
+                <span class="btn-dis-txt">{{ec.text_count}}</span>
+              </li>
+            </ul>
+
+            
+            <!-- <div class="click-item" v-for="e in countbtnurl" >
+                <td v-if="e.button_url != 'undefined'" class="clicks-list"> <img class="btn-img" :src="e.button_url" style="width: 100px;"> <p class="btn-dis">{{ e.url_count }}</p></td>
+            </div> -->
+            <!-- <div class="click-item" v-for="e in countbtntext">
+                <td v-if="e.button_text != 'undefined'" class="clicks-list"> <p class="btn-info" >{{ e.button_text }}</p>  <p class="btn-dis"> {{e.text_count}}</p> </td> 
+            </div> -->
           </tbody>
         </table>
 
@@ -105,7 +155,7 @@
            </template>
            <v-data-table
               :headers="headers"
-              :items="gainfos"
+              :items="articleData"
               :search="search"
               :sort-desc="[false, true]"
               multi-sort
@@ -120,12 +170,9 @@
                   <tr v-for="data in items">
                     <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
                     <td class="page-title-wrapper" @click="updateArticle(data.id)">  
-                      <p class="page-title">{{ data.pageTitle | truncate(20, '...') }}</p>
-                      <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
+                      <p class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
+                      <small class="page-path">{{ data.article_url | truncate(50, '...') }}</small>
                     </td>
-                    <td>{{ data.clickCount }}</td>
-                    <td>{{ data.pageviews }}</td>
-                    <td>{{ data.users }}</td>
                   </tr>
                 </tbody>
               </template>
@@ -162,122 +209,250 @@
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
           new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
         ],
+        menu: false,
+        dateCheckBool: true,
         search: '',
         headers: [
           {
             text: 'Title',
             align: 'start',
             sortable: false,
-            value: 'pageTitle',
-            width: '45%',
+            value: 'url_title',
+            width: '100%',
           },
-          { text: 'MCV', value: 'clickCount' },
-          { text: 'PV', value: 'pageviews' },
-          { text: 'ユーザー', value: 'users' },
-          { value: 'pagePath' }
+          { value: 'article_url' }
         ], 
         clicks: [],
         scrolls: [],
         article: [],
         countbtnurl: [],
         countbtntext: [],        
-        countclick: [],
+        countclick: '',
         scrollp: [],
         scrolld: [],
         totald: [],
         ipcount: [],
         isActive: true,
-        errors: ''
+        maxheight: '',
+        scrollpercent: [],
+        loading: true
       }
     },
     computed: {
-      gainfos() {
-        return this.$store.state.gainfos
+      articleData() {
+        return this.$store.state.articleData
       },
+      domainName() {
+        return this.$store.state.domainName
+      },
+      dateError () {
+        var date = new Date();
+        date.setDate(date.getDate() - 1);
+
+        var yesterday = date.toISOString().substr(0, 10)
+
+        if(yesterday < this.dates[0] || yesterday < this.dates[1]) {
+          alert('昨日のデータからご覧いただけます。')
+          this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
+          alert('2020-09-05 以前のデータは収集されませんでした');
+            this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates.length < 2){
+          return this.dateCheckBool;
+        }
+
+      },
+      dateRangeText () {
+        if(this.dates[0]>this.dates[1]){
+          this.dates.reverse();
+        }
+        return this.dates.join(' ~ ')
+      }
+    },
+    created () {
+      var self = this;
+      window.addEventListener('message',function(e){
+        if(typeof e.data == 'number'){
+          self.maxheight = e.data;
+          self.loading = !self.loading;
+        }
+      });
+      window.addEventListener('error', function(e){
+        console.log(e.message);
+      })
     },
     mounted () {
       // this.updateClicks ();
-      this.updateScrolls ();
+      // this.updateScrolls ();
       this.updateAd ();
       this.updateCbtnurl ();
-      this.updateCbtntext ();      
+      this.updateCbtntext ();
       this.updateClickcount ();
       // this.getIframe();
       this.getScrollp();
       this.getScrolld();
       this.getTotald();
-      this.getIp();
-      this.$store.commit('getGaInfo',{
+      this.getScrollCalculate();
+      this.$store.commit('getArticleData',{
           startdate: this.dates[0],
-          enddate: this.dates[1]
+          enddate: this.dates[1],
+          hostname: 'total'
       });
-      },
+      this.$store.commit('getDomainName',{
+          article_id: this.$route.params.id
+      });
+      
+    },
     methods: {
+
       // updateClicks: function () {
       //   axios
       //     .get('api/v1/articles/' + this.$route.params.id + '/clicks.json')
       //     .then(response => (this.clicks = response.data)) 
       // },
-      updateScrolls: function() {
-        axios
-          .get('api/v1/articles/' + this.$route.params.id + '/scrolls.json')
-          .then(response => (this.scrolls = response.data))   
+      getTotalByDate: function() {
+        this.updateCbtnurl();
+        this.updateCbtntext();
+        this.updateClickcount();
+        // this.getScrollp();
+        this.getScrolld();
+        this.getTotald();
+        this.getScrollCalculate();
+        this.$store.commit('getArticleData',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
       },
       updateAd: function () {
         axios
           .get('api/v1/articles/' + this.$route.params.id + '.json')
           .then(response => (this.article = response.data)) 
       },
-      updateCbtnurl: function (){
+      updateCbtnurl: function (){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbyurl.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbyurl.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.countbtnurl = response.data)) 
       },
-      updateCbtntext: function (){
+      updateCbtntext: function (){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbytext.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/groupbytext.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.countbtntext = response.data)) 
       },      
-      updateClickcount: function(){
+      updateClickcount: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/countclick.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/countclick.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.countclick = response.data)) 
       },
-      getScrollp: function(){
+      getScrollp: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollcalculate.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollcalculate.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.scrollp = response.data)) 
       },
-      getScrolld: function(){
+      getScrolld: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationcalculate.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationcalculate.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.scrolld = response.data)) 
       },
-      getTotald: function(){
+      getTotald: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json')
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
           .then(response => (this.totald = response.data)) 
-      },
-      getIp: function(){
-        axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/ipcount.json')
-          .then(response => (this.ipcount = response.data)) 
       },
       updateArticle(newid){
         this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
         this.$router.go();
       },
       getArticleData(){
-        var gainfos = this.$store.state.gainfos;
-        var articleData = {};
-        for(var key in gainfos){
-          if(this.$route.params.id == gainfos[key].id ){
-            articleData['pageviews'] = gainfos[key].pageviews;
-            articleData['users'] = gainfos[key].users;
+        var articleData = this.articleData;
+        var article = {};
+        for(var key in articleData){
+          if(this.$route.params.id == articleData[key].id ){
+            article['pageviews'] = articleData[key].page_view;
+            article['users'] = articleData[key].user;
           }
         }
-        return articleData;
+        return article;
+      },
+      getDomain(){
+        var domain = this.domainName;
+        var result = '';
+        
+        var article_url = this.article.article_url;
+        var domain_name = domain['domain_name'][0]
+        result = '//' + domain_name + article_url
+        
+        return result
+      },
+      getScrollCalculate(){
+        axios
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/scrollpcalculate.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
+          .then(response => (this.scrollpercent = response.data)) 
+      },
+      getHeight(index){
+        
+        var maxheight = parseInt(this.maxheight, 10);
+
+        index = index -1;
+        var percent = (index * 5)/100;
+        var divHeight = (maxheight*percent);
+        // var ceiledHeight = Math.ceil(divHeight);
+        
+        return divHeight
+      },
+      getMarginTop(){
+        var maxheight = parseInt(this.maxheight, 10);
+
+        var marginTop = maxheight*0.05
+
+        return marginTop
       }
+    },
+    beforeDestroy() {
+        window.removeEventListener('message');
     },
     filters: {
       truncate: function (text, length, suffix) {
@@ -340,7 +515,7 @@
   .lines {
     color:white;
     text-shadow: 0px 0px 5px black;
-    margin-top: 600px;
+    
     margin-bottom: 0px;
     border-right-width: 0px;
     border-left-width: 0px;
@@ -428,11 +603,25 @@
   .btn-dis:hover {
     transition: 2s;
   }
+  .btn-dis-txt {
+    display: block;
+    box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.5);
+    border-radius: 5px;
+    width: 100%;
+    background-color: white;
+    text-align: end;
+    padding: 5px;
+    font-size: 10px;
+    margin-left: 40px;
+    margin-top: -22px;
+    z-index: -1;
+    transition: 2s;
+  }
   .btn-info {
     display: block;
     box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.5);
     border-radius: 5px;
-    width: 100px;
+    width: 100%;
     background-color: gray;
     text-align: center;
     padding:  5px;
@@ -443,17 +632,7 @@
     height: 30px;
     transition: 2s;
   }
-  .btn-info:hover {
-    box-shadow: 0px 5px 20px 0px rgba(0,0,0,0.5);
-    background-color: black;
-    text-align: center;
-    margin-bottom: 0;
-    overflow: visible;
-    transition: 2s;
-    height: max-content;
-    position: absolute;
-    z-index: 1;
-  }
+
   .btn-img {
     display: block;
     box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.5);
@@ -494,4 +673,13 @@
     color: #42b883;
     cursor: pointer;
   }
+  .read-line {
+    position: absolute;
+    width: 100%;
+  }
+  .spinner {
+    top: 40%;
+    left: 35%;
+  }
+
 </style>
