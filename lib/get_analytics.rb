@@ -709,48 +709,40 @@ class GetAnalytics < ApplicationController
 				i += 1
 			end
 
-			# maxpos
-			# if max_position_array != nil
-			# 	max_position_array.each do |max_position|
-			# 		if max_position['article_url'] == r.dimensions[1]
-			# 			datahash[article_key[i]] = max_position['max_position']
-			# 		end
-			# 	end
-			# else
-			# 	datahash[article_key[i]] = 25000
-			# end
 			total_events = 0
 			max_position = 1
 			mobile_device_info = ''
 
-			if max_position_array != nil
-				max_arr = max_position_array.select{|max| max['article_url'] == r.dimensions[1]}
-				if !max_arr.empty?
-					max_arr.each do |a|
-						if a['total_events'] > total_events
+			# if max_position_array != nil
+			# 	max_arr = max_position_array.select{|max| max['article_url'] == r.dimensions[1]}
+			# 	if !max_arr.empty?
+			# 		max_arr.each do |a|
+			# 			if a['total_events'] > total_events
 
-							total_events = a['total_events']
-							mobile_device_info = a['mobileDeviceInfo']
-							max_position = a['max_position']
+			# 				total_events = a['total_events']
+			# 				mobile_device_info = a['mobileDeviceInfo']
+			# 				max_position = a['max_position']
 
-						elsif  a['total_events'] == total_events && a['mobileDeviceInfo'] == 'Apple iPhone'
+			# 			elsif  a['total_events'] == total_events && a['mobileDeviceInfo'] == 'Apple iPhone'
 
-							if mobile_device_info == 'Apple iPhone' && a['max_position'] > max_position
-								max_position = a['max_position']
-							elsif mobile_device_info != 'Apple iPhone'
-								mobile_device_info = a['mobileDeviceInfo']
-								max_position = a['max_position']
-							end
+			# 				if mobile_device_info == 'Apple iPhone' && a['max_position'] > max_position
+			# 					max_position = a['max_position']
+			# 				elsif mobile_device_info != 'Apple iPhone'
+			# 					mobile_device_info = a['mobileDeviceInfo']
+			# 					max_position = a['max_position']
+			# 				end
 
-						end
+			# 			end
 							
-					end
-				end
+			# 		end
+			# 	end
 
-				datahash[article_key[i]] = max_position
-			else 
-				datahash[article_key[i]] = 25000
-			end
+			# 	datahash[article_key[i]] = max_position
+			# else 
+			# 	datahash[article_key[i]] = 25000
+			# end
+
+			datahash[article_key[i]] = max_position
 
 			set_ga_data_array.push(datahash)
 		end
