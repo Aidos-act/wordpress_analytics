@@ -484,7 +484,6 @@
           enddate: this.dates[1],
           hostname: 'total'
       });
-      
       this.$store.commit('getDemographic',{
           startdate: this.dates[0],
           enddate: this.dates[1]
@@ -502,6 +501,15 @@
             startdate: this.dates[0],
             enddate: this.dates[1],
             hostname: 'total'
+        });
+        this.$store.commit('getGoalDataByArticle',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getDemographic',{
+            startdate: this.dates[0],
+            enddate: this.dates[1]
         });
       },
       // default data when user visit the page
@@ -666,7 +674,10 @@
         h = (h < 10) ? "0" + h : h;
         m = (m < 10) ? "0" + m : m;
         s = (s < 10) ? "0" + s : s;
-
+        console.log(avg_time_on_page);
+        console.log(h);
+        console.log(m);
+        console.log(s)
         return h + ":" + m + ":" + s;
       },
       getBounceRate(bounce, page_view) {

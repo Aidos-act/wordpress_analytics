@@ -21,7 +21,6 @@ namespace :db_cron do
 
 	  domains = Domain.all
 
-
 #ddddddddddddddddd    
     
 	  # article table
@@ -50,7 +49,6 @@ namespace :db_cron do
         end
 
       end
-
       # # update max_position if max_position is not the highest one
       # max_position_array = ga.get_max_position(yesterday, view_id)
 

@@ -546,8 +546,7 @@ class GetAnalytics < ApplicationController
 		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
 		order_by = @analytics::OrderBy.new(field_name: 'ga:pageviews', sort_order: 'DESCENDING')
 		
-		metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:avgTimeOnPage']
-
+		metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:timeOnPage']
 
 		metric_type = Array.new
 		metrics.each do |m|
@@ -564,25 +563,10 @@ class GetAnalytics < ApplicationController
 			dimension_type.push(dimension)
 		end
 
-
-		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
-
-		# dimension_filters = @analytics::DimensionFilterClause.new(
-	 #      filters: [
-	 #        @analytics::DimensionFilter.new(
-	 #          dimension_name: 'ga:pagePath',
-	 #          operator: "IN_LIST",
-	 #          expressions: ['/archives/77566', '/archives/67186', '/archives/69839', '/archives/65171', '/archives/76562', 
-	 #          				'/archives/79297', '/archives/68169', '/archives/78550', '/archives/58437', '/archives/68416'
-	 #          			   ]		   
-	 #        )
-	 #      ]
-	 #    )
-
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
     			view_id: view_id, 
-    			metrics: metric_type, 
+    			metrics: metric_type,
     			dimensions: dimension_type,
     			# dimension_filter_clauses: [dimension_filters],
     			date_ranges: [date_range],
@@ -606,32 +590,93 @@ class GetAnalytics < ApplicationController
 
 		data_from_google.each_with_index do |r, index|
 
+			# dimensions = ['ga:dateHour', 'ga:pagePath']
+			# metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:avgTimeOnPage']
 			datahash = {}
-			i = 0
 
-			article = Article.select(:id).find_by(article_url: r.dimensions.second)
+			urls_rm_params = r.dimensions[1].split(/\?/)[0]
+
+			article = Article.select(:id).find_by(article_url: urls_rm_params)
 			next if !article
-			
-			datahash[ga_key[i]] = article.id
-			i += 1
 
-			datahash[ga_key[i]] = r.dimensions.first
-			i += 1
+			article_arr = set_ga_data_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date_hour'] == r.dimensions[0]}
 
-			# setup metrics part
-			r.metrics.first.values.each do |m|
-				datahash[ga_key[i]] = m
-				i += 1
+			if !article_arr.empty?
+				article_index = article_arr.first[1]
+				set_ga_data_array[article_index]
+				
+				page_view = set_ga_data_array[article_index]['page_view'].to_i
+				page_view_temp = r.metrics.first.values[0].to_i
+				set_ga_data_array[article_index]['page_view'] = page_view + page_view_temp
+
+				user = set_ga_data_array[article_index]['user'].to_i
+				user_temp = r.metrics.first.values[1].to_i
+				set_ga_data_array[article_index]['user'] = user + user_temp				
+
+				new_user = set_ga_data_array[article_index]['new_user'].to_i
+				new_user_temp = r.metrics.first.values[2].to_i
+				set_ga_data_array[article_index]['new_user'] = new_user + new_user_temp
+
+				bounce = set_ga_data_array[article_index]['bounce'].to_i
+				bounce_temp = r.metrics.first.values[3].to_i
+				set_ga_data_array[article_index]['bounce'] = bounce + bounce_temp
+
+				session = set_ga_data_array[article_index]['session'].to_i
+				session_temp = r.metrics.first.values[4].to_i
+				set_ga_data_array[article_index]['session'] = session + session_temp
+
+				avg_time_on_page = set_ga_data_array[article_index]['avg_time_on_page'].to_i
+				avg_time_on_page_temp = r.metrics.first.values[5].to_i
+				set_ga_data_array[article_index]['avg_time_on_page'] = avg_time_on_page + avg_time_on_page_temp
+
+			else
+
+				datahash['article_id'] = article.id
+
+				datahash['date_hour'] = r.dimensions[0]
+
+				page_view = r.metrics.first.values[0]
+				datahash['page_view'] = page_view
+
+				user = r.metrics.first.values[1]
+				datahash['user'] = user
+
+				new_user = r.metrics.first.values[2]
+				datahash['new_user'] = new_user
+
+				bounce = r.metrics.first.values[3]
+				datahash['bounce'] = bounce
+
+				session = r.metrics.first.values[4]
+				datahash['session'] = session
+
+				avg_time_on_page = r.metrics.first.values[5]
+				datahash['avg_time_on_page'] = avg_time_on_page
+
+				datahash['created_at'] = Time.zone.now
+				datahash['updated_at'] = Time.zone.now
+
+
+				set_ga_data_array.push(datahash)
 			end
-
-			datahash[ga_key[i]] = Time.zone.now
-			i += 1
-			datahash[ga_key[i]] = Time.zone.now
-
-			set_ga_data_array.push(datahash)
-
 		end
-		
+
+		# avg time on page setting
+		# avg.time on page = time on page / pageviews
+		set_ga_data_array.each do |ga|
+			time_on_page = ga['avg_time_on_page'].to_i
+			pv = ga['page_view'].to_i
+
+			if time_on_page != 0 && pv != 0
+				begin
+					ga['avg_time_on_page'] = time_on_page/pv
+				rescue StandardError => e
+					puts e
+					ga['avg_time_on_page'] = 0
+				end
+			end
+		end
+	
 		return set_ga_data_array
 	end
 
@@ -649,22 +694,6 @@ class GetAnalytics < ApplicationController
 			dimension.name = d
 			dimension_type.push(dimension)
 		end
-
-
-		# dimension = @analytics::Dimension.new(name: 'ga:pagePath')
-		# '/2020/04/27/43987/'
-		# dimension_filters = @analytics::DimensionFilterClause.new(
-	 #      filters: [
-	 #        @analytics::DimensionFilter.new(
-	 #          dimension_name: 'ga:pagePath',
-	 #          operator: "IN_LIST",
-	 #          expressions: ['/archives/77566', '/archives/67186', '/archives/69839', '/archives/65171', '/archives/76562', 
-	 #          				'/archives/79297', '/archives/68169', '/archives/78550', '/archives/58437', '/archives/68416',
-	 #          				'/2020/06/23/tiktok/', '/2020/04/27/43987/'
-	 #          			   ]			   
-	 #        )
-	 #      ]
-	 #    )
 
 		request = @analytics::GetReportsRequest.new(
   			report_requests: [@analytics::ReportRequest.new(
@@ -689,7 +718,7 @@ class GetAnalytics < ApplicationController
 
 		data_from_google = response.reports.first.data.rows
 
-		max_position_array = get_max_position(yesterday, view_id)
+		# max_position_array = get_max_position(yesterday, view_id)
 		
 		set_ga_data_array = Array.new
 
@@ -697,22 +726,21 @@ class GetAnalytics < ApplicationController
 		data_from_google.each_with_index do |r, index|
 
 			datahash = {}
-			i = 0
+			
 			# domain_id
-			datahash[article_key[i]] = domain_id
-			i += 1
+			datahash['domain_id'] = domain_id
 
-			# setup dimension part
-			# article_title, article_url
-			r.dimensions.each do |d|
-				datahash[article_key[i]] = d
-				i += 1
-			end
+			# dimensions = ['ga:pageTitle', 'ga:pagePath']
 
-			total_events = 0
-			max_position = 1
-			mobile_device_info = ''
+			datahash['article_title'] = r.dimensions[0]
 
+			urls_rm_params = r.dimensions[1].split(/\?/)[0]
+
+			datahash['article_url'] = urls_rm_params
+
+			# total_events = 0
+			# max_position = 1
+			# mobile_device_info = ''
 			# if max_position_array != nil
 			# 	max_arr = max_position_array.select{|max| max['article_url'] == r.dimensions[1]}
 			# 	if !max_arr.empty?
@@ -742,7 +770,7 @@ class GetAnalytics < ApplicationController
 			# 	datahash[article_key[i]] = 25000
 			# end
 
-			datahash[article_key[i]] = max_position
+			datahash['max_position'] = 0
 
 			set_ga_data_array.push(datahash)
 		end
@@ -833,8 +861,6 @@ class GetAnalytics < ApplicationController
 			set_max_position_array.push(datahash)
 		end
 
-
-
 		return set_max_position_array
 	end
 
@@ -876,7 +902,6 @@ class GetAnalytics < ApplicationController
   			)]
 		)
 		response = @client.batch_get_reports(request)
-		messageHash = {}
 		
 		# handling error 
 		if !response.reports.first.data.rows then
@@ -897,7 +922,9 @@ class GetAnalytics < ApplicationController
 
 			datahash = {}
 
-			article = Article.select(:id).find_by(article_url: r.dimensions[0])
+			urls_rm_params = r.dimensions[0].split(/\?/)[0]
+
+			article = Article.select(:id).find_by(article_url: urls_rm_params)
 			
 			next if !article
 			
@@ -942,7 +969,6 @@ class GetAnalytics < ApplicationController
 			@analytics::OrderBy.new(
 				field_name: 'ga:eventLabel', 
 				sort_order: 'ASCENDING')
-
 		]
 
 		metrics = ['ga:eventValue', 'ga:totalEvents']
@@ -998,7 +1024,6 @@ class GetAnalytics < ApplicationController
   			)]
 		)
 		response = @client.batch_get_reports(request)
-		messageHash = {}
 
 		# handling error 
 		if !response.reports.first.data.rows then
@@ -1020,30 +1045,45 @@ class GetAnalytics < ApplicationController
 
 			datahash = {}
 
-			article = Article.select(:id).find_by(article_url: r.dimensions[0])
-			
+			urls_rm_params = r.dimensions[0].split(/\?/)[0]
+
+			article = Article.select(:id).find_by(article_url: urls_rm_params)
 			next if !article
-			
-			datahash['article_id'] = article.id
 
-			date = r.dimensions[3]
-			datahash['date'] = date
+			scroll_arr = set_ga_scroll_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date'] == r.dimensions[3] && a['scroll_position'] == r.dimensions[2]}
 
-			scroll_position = r.dimensions[2]
-			datahash['scroll_position'] = scroll_position
+			if !scroll_arr.empty? 
+				scroll_index = scroll_arr.first[1]
+				set_ga_scroll_array[scroll_index]
+				
+				scroll_duration = set_ga_scroll_array[scroll_index]['scroll_duration'].to_i
+				scroll_duration_temp = r.metrics.first.values[0].to_i
+				set_ga_scroll_array[scroll_index]['scroll_duration'] = scroll_duration + scroll_duration_temp
 
-			scroll_duration = r.metrics.first.values.first
-			datahash['scroll_duration'] = scroll_duration
+				access_count = set_ga_scroll_array[scroll_index]['access_count'].to_i
+				access_count_temp = r.metrics.first.values[1].to_i
+				set_ga_scroll_array[scroll_index]['access_count'] = access_count + access_count_temp	
+			else
+				datahash['article_id'] = article.id
 
-			access_count = r.metrics.first.values.second
-			datahash['access_count'] = access_count
+				date = r.dimensions[3]
+				datahash['date'] = date
+
+				scroll_position = r.dimensions[2]
+				datahash['scroll_position'] = scroll_position
+
+				scroll_duration = r.metrics.first.values[0]
+				datahash['scroll_duration'] = scroll_duration
+
+				access_count = r.metrics.first.values[1]
+				datahash['access_count'] = access_count
 
 
-			datahash['created_at'] = Time.zone.now
-			datahash['updated_at'] = Time.zone.now
+				datahash['created_at'] = Time.zone.now
+				datahash['updated_at'] = Time.zone.now
 
-			set_ga_scroll_array.push(datahash)
-			
+				set_ga_scroll_array.push(datahash)
+			end
 		end
 		
 		return set_ga_scroll_array	
