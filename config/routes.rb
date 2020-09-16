@@ -19,7 +19,7 @@ Rails.application.routes.draw do
         get 'counter/maxheight'
         get 'counter/scrollcalculate'
         get 'counter/durationcalculate'
-        get 'counter/totalduration'
+        get 'counter/maxduration'
         get 'counter/avgdurarticle'
         get 'counter/ipcount'
         get 'counter/scrollpcalculate'
