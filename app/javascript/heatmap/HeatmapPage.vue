@@ -10,24 +10,8 @@
          </div>
          <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
            <div v-for="e in scrolld">
-              <div v-if="e.sum_dur >= totald/100">  
-                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                  <h1 class="heat-red"></h1>
-                </div>  
-              </div>
-              <div v-if="e.sum_dur <= totald/100"> 
-                <div v-if="e.sum_dur >= totald/200">  
-                  <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                    <h2 class="heat-yellow"></h2>
-                  </div>  
-                </div>
-                <div v-if="e.sum_dur < totald/200">
-                  <div v-if="e.sum_dur > totald/400">  
-                    <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                      <h3 class="heat-green"></h3>
-                    </div>
-                  </div>
-                </div>
+              <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
+                <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1>
               </div>
            </div>
          </div>
@@ -231,7 +215,7 @@
         countclick: '',
         scrollp: [],
         scrolld: [],
-        totald: [],
+        max_dur: [],
         ipcount: [],
         isActive: true,
         maxheight: '',
@@ -316,7 +300,7 @@
       // this.getIframe();
       this.getScrollp();
       this.getScrolld();
-      this.getTotald();
+      this.getMaxd();
       this.getScrollCalculate();
       this.$store.commit('getArticleData',{
           startdate: this.dates[0],
@@ -341,7 +325,7 @@
         this.updateClickcount();
         // this.getScrollp();
         this.getScrolld();
-        this.getTotald();
+        this.getMaximumd();
         this.getScrollCalculate();
         this.$store.commit('getArticleData',{
           startdate: this.dates[0],
@@ -404,15 +388,15 @@
           })
           .then(response => (this.scrolld = response.data)) 
       },
-      getTotald: function(){ // add date
+      getMaxd: function(){ // add date
         axios
-          .get('api/v1/articles/' + this.$route.params.id + '/counter/totalduration.json', {
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/maxduration.json', {
             params: {
               startdate: this.dates[0],
               enddate: this.dates[1]
             }
           })
-          .then(response => (this.totald = response.data)) 
+          .then(response => (this.max_dur = response.data)) 
       },
       updateArticle(newid){
         this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
@@ -505,24 +489,9 @@
   div:empty {
     display: none;
   }
-  .heat-red {
-    background: linear-gradient(transparent, yellow, red, yellow, transparent);
+  .heat-color {
     width: 100%;
-    height: 1500px;
-    bottom: 30%;
-    position: absolute;
-  }
-  .heat-yellow {
-    background: linear-gradient(transparent, yellow, transparent);
-    width: 100%;
-    height: 1500px;
-    bottom: 30%;
-    position: absolute;
-  }
-  .heat-green {
-    background: linear-gradient(transparent, green, transparent);
-    width: 100%;
-    height: 1500px;
+    height: 2000px;
     bottom: 30%;
     position: absolute;
   }
