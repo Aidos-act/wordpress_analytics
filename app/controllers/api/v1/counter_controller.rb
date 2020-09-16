@@ -117,12 +117,12 @@ class Api::V1::CounterController < ApplicationController
 
   end
 
-  def totalduration
+  def maxduration
 
     startdate =  params[:startdate].to_date.beginning_of_day
   enddate = params[:enddate].to_date.end_of_day
 
-    totaldur = @article.scrolls.where(date: startdate..enddate).sum(:scroll_duration)
+    totaldur = @article.scrolls.where(date: startdate..enddate).maximum(:scroll_duration)
     render json:totaldur
 
   end
