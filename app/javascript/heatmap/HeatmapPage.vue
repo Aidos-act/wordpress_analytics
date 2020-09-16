@@ -32,7 +32,8 @@
            </div>
          </div>
          
-        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe>
+        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe> 
+
         <v-progress-circular
           v-if="loading"
           class="spinner"
@@ -235,7 +236,23 @@
         isActive: true,
         maxheight: '',
         scrollpercent: [],
-        loading: true
+        loading: true,
+        options:{
+          width: '100%',
+          height: '100%',
+          size: '10px',
+          color: '#ffcc00',
+          alwaysVisible: true,
+          distance: '20px',
+          // start: top,
+          railVisible: true,
+          railColor: '#222',
+          railOpacity: 0.3,
+          wheelStep: 10,
+          touchScrollStep: 100,
+          allowPageScroll: false,
+          disableFadeOut: false
+        }
       }
     },
     computed: {
@@ -680,6 +697,16 @@
   .spinner {
     top: 40%;
     left: 35%;
+  }
+
+  .fore {
+    position: absolute; 
+    z-index: 2;
+  }
+
+  .back {
+    position: relative; 
+    z-index: 1;
   }
 
 </style>
