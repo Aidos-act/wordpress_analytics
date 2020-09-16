@@ -32,7 +32,7 @@
            </div>
          </div>
          
-        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe>
+        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe>
         <v-progress-circular
           v-if="loading"
           class="spinner"
@@ -530,8 +530,8 @@
     height: 370%; 
     overflow: scroll;
     min-width: 1200px;
-    margin-left: 100px;
-    transform: scale(0.2,0.2);
+    margin-left: 50px;
+    transform: scale(0.3,0.3);
     transform-origin: top left;
   }
   .values-set {
