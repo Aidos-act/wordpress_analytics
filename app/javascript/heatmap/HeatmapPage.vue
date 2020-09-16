@@ -1,32 +1,34 @@
 <template>
   <div class="heat-body-set">
       <div class="iframe-set">
-         <div class="scroll-percent" ref="readLine">
-            <div v-if="!loading" class="read-line" v-for="e in scrollpercent.length" :style="{top: getHeight(e) + 'px'}">
-              <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
-                  <p class="lines-p"> {{ scrollpercent[e-1] }}% </p>
+        <div v-slimscroll="options">
+          <div class="iframe-parent">
+            <div class="scroll-percent" ref="readLine">
+              <div v-if="!loading" class="read-line" v-for="e in scrollpercent.length" :style="{top: getHeight(e) + 'px'}">
+                <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
+                    <p class="lines-p"> {{ scrollpercent[e-1] }}% </p>
+                </div>
               </div>
             </div>
-         </div>
-         <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
-           <div v-for="e in scrolld">
-              <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1>
+            <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
+              <div v-for="e in scrolld">
+                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
+                  <!-- <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1> -->
+                  <h1 class="heat-color" :style="'background: linear-gradient(transparent, hsl('+gethsl(e.sum_dur, max_dur)+',100%,60%,1), transparent)'"></h1>
+                </div>
               </div>
-           </div>
-         </div>
-         
-        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe> 
-
-        <v-progress-circular
-          v-if="loading"
-          class="spinner"
-          indeterminate
-          color="green"
-          :size="300"
-          :width="25"
-        ></v-progress-circular>
-
+            </div>
+            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe> 
+            <v-progress-circular
+              v-if="loading"
+              class="spinner"
+              indeterminate
+              color="green"
+              :size="300"
+              :width="25"
+            ></v-progress-circular>
+          </div>
+        </div> 
       </div>
 
       <div class="values-set">
@@ -224,12 +226,12 @@
         options:{
           width: '100%',
           height: '100%',
-          size: '10px',
-          color: '#ffcc00',
+          size: '20px',
+          color: '#000000',
           alwaysVisible: true,
           distance: '20px',
           // start: top,
-          railVisible: true,
+          // railVisible: true,
           railColor: '#222',
           railOpacity: 0.3,
           wheelStep: 10,
@@ -450,6 +452,10 @@
         var marginTop = maxheight*0.05
 
         return marginTop
+      },
+      gethsl(sum, max){
+        var hsl = 100 - (sum/max)*100
+        return hsl;
       }
     },
     beforeDestroy() {
@@ -513,7 +519,7 @@
   .iframe-set {
     display: inline-block;
     position: fixed;
-    height: 370%; 
+    height: 280%; 
     overflow: scroll;
     min-width: 1200px;
     margin-left: 50px;
@@ -561,7 +567,7 @@
   }
   .heat-map-line {
     position: absolute;
-    width: 100%
+    width: 100%;
   }
   .clicks-list {
     margin: 10px;
@@ -664,16 +670,11 @@
     width: 100%;
   }
   .spinner {
-    top: 40%;
+    top: 800px;
     left: 35%;
   }
 
-  .fore {
-    position: absolute; 
-    z-index: 2;
-  }
-
-  .back {
+  .iframe-parent {
     position: relative; 
     z-index: 1;
   }
