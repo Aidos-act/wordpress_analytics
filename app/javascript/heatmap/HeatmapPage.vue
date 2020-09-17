@@ -18,7 +18,7 @@
                 </div>
               </div>
             </div>
-            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight+600"></iframe> 
+            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe> 
             <v-progress-circular
               v-if="loading"
               class="spinner"
