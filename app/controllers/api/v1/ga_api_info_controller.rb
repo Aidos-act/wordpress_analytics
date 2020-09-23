@@ -5,13 +5,28 @@ class Api::V1::GaApiInfoController < ApplicationController
 
   def index
   	get_analytics_data = GetAnalytics.new
-    @data = get_analytics_data.get_data(params[:startdate], params[:enddate])
+
+    articleDates = params[:startdate] + '~' + params[:enddate] + 'article'
+
+    # caching 
+    @data = Rails.cache.fetch(articleDates, expires_in: 10.hour) do
+      @data = get_analytics_data.get_data(params[:startdate], params[:enddate])
+    end
+
+
+
   end
 
   def getTotalGaInfo
     get_total = GetAnalytics.new
-    @totaldata = get_total.get_total_ga_info(params[:startdate], params[:enddate])
-    puts 'im in total ga info'
+
+    totalDates = params[:startdate] + '~' + params[:enddate] + params[:hostname] + 'total'
+
+    # caching 
+    @totaldata = Rails.cache.fetch(totalDates, expires_in: 10.hour) do
+      @totaldata = get_total.get_total_ga_info(params[:startdate], params[:enddate], params[:hostname])
+    end
+    
   end
 
   def getDemographic

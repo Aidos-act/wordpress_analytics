@@ -29,7 +29,7 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: mysql-pv
+        - name: stg-pv
           mountPath: /var/lib/mysql 
         - name: empty-dir
           mountPath: /app/tmp/sockets
@@ -48,19 +48,24 @@ spec:
           initialDelaySeconds: 300
           periodSeconds: 30          
       - name: rails
-        image: destiny1616/rails:v19
+        image: destiny161618/rails:v23
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
         - configMapRef:
             name: rails-config
+        env:
+        - name: TZ
+          value: Asia/Tokyo    
         ports:
         - containerPort: 3000
         volumeMounts:
-        - name: mysql-pv
+        - name: stg-pv
           mountPath: /var/lib/mysql
         - name: empty-dir
           mountPath: /app/tmp/sockets
+        - name: tz-config
+          mountPath: /etc/localtime          
         readinessProbe:
           httpGet:
             path: /health
@@ -76,8 +81,11 @@ spec:
           initialDelaySeconds: 300
           periodSeconds: 30                     
       volumes:
-      - name: mysql-pv
+      - name: stg-pv
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: stg-pvc
+      - name: tz-config
+        hostPath: 
+          path: /usr/share/zoneinfo/Asia/Tokyo
       - name: empty-dir
-        emptyDir: {}                  
+        emptyDir: {}             

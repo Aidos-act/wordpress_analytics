@@ -12,8 +12,8 @@ class Api::V1::ClicksController < ApplicationController
     @click = Click.new
     @click.click_x = params[:click_x]
     @click.click_y = params[:click_y]
-    @click.btn_url = params[:btn_url]
-    @click.btn_text = params[:btn_text]
+    @click.button_url = params[:button_url]
+    @click.button_text = params[:button_text]
     @click.view_ip = params[:view_ip]
     @click.article_id = params[:article_id]
     @click.save

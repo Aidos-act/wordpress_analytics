@@ -30,11 +30,12 @@
         </v-menu>
       </v-col>
       <!-- datepicker end -->
-
+      
       <!-- article title part start -->
       <v-col cols="12" sm="6">
-        <v-text-field readonly v-model="checkIfDefault? getDefault('pageTitle') : title" label="記事タイトル"></v-text-field>
+        <v-text-field readonly v-model="checkIfDefault? getDefault('article_title') : title" label="記事タイトル"></v-text-field>
       </v-col>
+      
       <!-- article title part end -->
       
       <!-- button part start - it is for routing heatmap page by article id -->
@@ -63,9 +64,9 @@
       </v-col>
       <!-- button part end - it is for routing heatmap page by article id -->
     </v-row>
-
+    
     <!-- graph part start -->
-
+    
     <v-row>
       <!-- graph data 1 start -pageviews -->
       <v-col
@@ -75,7 +76,7 @@
         <!-- please refer to dashboard/components/base/MaterialChartCard.vue -->
         <material-chart-card
           color="success"
-          :columndata="checkIfDefault? getDefault('pageviews') : getSelected('pageviews')"
+          :columndata="checkIfDefault? getDefault('page_view') : getSelected('page_view')"
           :sheetHeight="200"
           chartheight="150px"
           graphType="column"
@@ -90,24 +91,24 @@
             </v-icon>
             <!-- getDefault('pageviews')[1][1] or getSelected('pageviews')[1][1] is the PV data for default or selected aticle -->
             <span>
-              {{ checkIfDefault? getDefault('pageviews')[1][1].toLocaleString() : getSelected('pageviews')[1][1].toLocaleString() }}
+              {{ checkIfDefault? getDefault('page_view')[1][1].toLocaleString() : getSelected('page_view')[1][1].toLocaleString() }}
             </span>
           </h4>
           <!-- check if it is default -->
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均PV 比
+            トップ10平均PV 比
             <!-- calculate the percentage of 'pv of this article'/'pv of top 20 articles order by pv' -->
-            {{ Math.floor((getDefault('pageviews')[1][1]/getDefault('pageviews')[0][1])*100) }}%
+            {{ Math.floor((getDefault('page_view')[1][1]/getDefault('page_view')[0][1])*100) }}%
             , 
-            {{ getDefault('pageviews')[1][1]>getDefault('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
+            {{ getDefault('page_view')[1][1]>getDefault('page_view')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均PV 比
+            トップ10平均PV 比
             <!-- calculate the percentage of 'pv of this article'/' avg.pv of top 20 articles order by pv' -->
-            {{ Math.floor((getSelected('pageviews')[1][1]/getSelected('pageviews')[0][1])*100) }}%
+            {{ Math.floor((getSelected('page_view')[1][1]/getSelected('page_view')[0][1])*100) }}%
             ,
-            {{ getSelected('pageviews')[1][1]>getSelected('pageviews')[0][1]? "すごい!" : "頑張れ!" }}
+            {{ getSelected('page_view')[1][1]>getSelected('page_view')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
         </material-chart-card>
@@ -120,7 +121,7 @@
         lg="4"
       >
         <material-chart-card
-          :columndata="checkIfDefault? getDefault('clickCount') : getSelected('clickCount')"
+          :columndata="checkIfDefault? getDefault('mcv') : getSelected('mcv')"
           color="success"
           :sheetHeight="200"
           chartheight="150px"
@@ -136,24 +137,24 @@
             </v-icon>
             <!-- getDefault('clickCount')[1][1] or getSelected('clickCount')[1][1] is the mcv data for default or selected aticle -->
             <span>
-              {{ checkIfDefault? getDefault('clickCount')[1][1].toLocaleString() : getSelected('clickCount')[1][1].toLocaleString() }}
+              {{ checkIfDefault? getDefault('mcv')[1][1].toLocaleString() : getSelected('mcv')[1][1].toLocaleString() }}
             </span>
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均MCV 比
-            <!-- getDefault('clickCount')[1][1] - clickcounts of this article -->
-            <!-- getDefault('clickCount')[0][1] - avg of clickcounts of top 20 article ordered by pv -->
-            {{ Math.floor((getDefault('clickCount')[1][1]/getDefault('clickCount')[0][1])*100) }}%
+            トップ10平均MCV 比
+            <!-- getDefault('mcv')[1][1] - mcvs of this article -->
+            <!-- getDefault('mcv')[0][1] - avg of mcvs of top 20 article ordered by pv -->
+            {{ Math.floor((getDefault('mcv')[1][1]/getDefault('mcv')[0][1])*100) }}%
             ,
-            {{ getDefault('clickCount')[1][1]>getDefault('clickCount')[0][1]? "すごい!" : "頑張れ!" }}
+            {{ getDefault('mcv')[1][1]>getDefault('mcv')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均MCV 比
-            {{ Math.floor((getSelected('clickCount')[1][1]/getSelected('clickCount')[0][1])*100) }}%
+            トップ10平均MCV 比
+            {{ Math.floor((getSelected('mcv')[1][1]/getSelected('mcv')[0][1])*100) }}%
             ,
-            {{ getSelected('clickCount')[1][1]>getSelected('clickCount')[0][1]? "すごい!" : "頑張れ!" }}
+            {{ getSelected('mcv')[1][1]>getSelected('mcv')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
         </material-chart-card>
@@ -167,7 +168,7 @@
       >
         <material-chart-card
           color="success"
-          :columndata="checkIfDefault? getDefault('avgTimeOnPage') : getSelected('avgTimeOnPage')"
+          :columndata="checkIfDefault? getDefault('avg_time_on_page') : getSelected('avg_time_on_page')"
           :sheetHeight="200"
           chartheight="150px"
           graphType="column"
@@ -180,20 +181,20 @@
             >
               mdi-arrow-right-bold
             </v-icon>
-            <!-- getDefault('avgTimeOnPage')[1][1]/getSelected('avgTimeOnPage')[1][1] is the avgTimeOnPage for default/selected aticle -->
-            {{ checkIfDefault? getDefault('avgTimeOnPage')[1][1] : getSelected('avgTimeOnPage')[1][1] }}
+            <!-- getDefault('avg_time_on_page')[1][1]/getSelected('avg_time_on_page')[1][1] is the avg_time_on_page for default/selected aticle -->
+            {{ checkIfDefault? getDefault('avg_time_on_page')[1][1] : getSelected('avg_time_on_page')[1][1] }}
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
             <!-- getDefault('avgTimeOnPage')[1][1] - avgTimeOnPage of this article -->
             <!-- getDefault('avgTimeOnPage')[0][1] - avg of avgTimeOnPage of top 20 article ordered by pv -->
-            平均 {{ getDefault('avgTimeOnPage')[0][1] }} &nbsp; 記事 {{ getDefault('avgTimeOnPage')[1][1] }} ,
-            {{ getDefault('avgTimeOnPage')[1][1]>getDefault('avgTimeOnPage')[0][1]? "すごい!" : "頑張れ!" }}
+            平均 {{ getDefault('avg_time_on_page')[0][1] }} &nbsp; 記事 {{ getDefault('avg_time_on_page')[1][1] }} ,
+            {{ getDefault('avg_time_on_page')[1][1]>getDefault('avg_time_on_page')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            平均 {{ getSelected('avgTimeOnPage')[0][1] }} &nbsp; 記事 {{ getSelected('avgTimeOnPage')[1][1] }} ,
-            {{ getSelected('avgTimeOnPage')[1][1]>getSelected('avgTimeOnPage')[0][1]? "すごい!" : "頑張れ!" }}
+            平均 {{ getSelected('avg_time_on_page')[0][1] }} &nbsp; 記事 {{ getSelected('avg_time_on_page')[1][1] }} ,
+            {{ getSelected('avg_time_on_page')[1][1]>getSelected('avg_time_on_page')[0][1]? "すごい!" : "頑張れ!" }}
           </p>
         </material-chart-card>
       </v-col>
@@ -206,7 +207,7 @@
       >
         <material-chart-card
           color="success"
-          :progressdata="checkIfDefault? getDefault('goal') : getSelected('goal')"
+          :progressdata="checkIfDefault? getDefaultGoal() : getSelectedGoal()"
           :sheetHeight="200"
           chartheight="150px"
           :chartsize="150"
@@ -217,8 +218,8 @@
           </h4>
           
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            CV率 : {{ checkIfDefault? getDefault('goal')[0] : getSelected('goal')[0] }}% &nbsp; 
-            完了数 : {{ checkIfDefault? getDefault('goal')[1] : getSelected('goal')[1] }}
+            CV率 : {{ checkIfDefault? getDefaultGoal()[0] : getSelectedGoal()[0] }}% &nbsp; 
+            完了数 : {{ checkIfDefault? getDefaultGoal()[1] : getSelectedGoal()[1] }}
           </p>
 
         </material-chart-card>
@@ -232,7 +233,7 @@
       >
         <material-chart-card
           color="success"
-          :columndata="checkIfDefault? getDefault('bounces') : getSelected('bounces')"
+          :columndata="checkIfDefault? getDefault('bounce') : getSelected('bounce')"
           :sheetHeight="200"
           chartheight="150px"
           graphType="column"
@@ -245,24 +246,24 @@
             >
               mdi-arrow-right-bold
             </v-icon>
-            <!-- getDefault('bounces')[1][1] or getSelected('bounces')[1][1] is the bounces data for default or selected aticle -->
-            {{ checkIfDefault? getDefault('bounces')[1][1] : getSelected('bounces')[1][1] }}%
+            <!-- getDefault('bounce')[1][1] or getSelected('bounce')[1][1] is the bounce data for default or selected aticle -->
+            {{ checkIfDefault? getDefault('bounce')[1][1] : getSelected('bounce')[1][1] }}%
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均直帰率 比
+            トップ10平均直帰率 比
             <!-- getDefault('bounces')[1][1] - bounces of this article -->
             <!-- getDefault('bounces')[0][1] - avg of bounces of top 20 article ordered by pv -->
-            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}%
+            {{ Math.floor((getDefault('bounce')[1][1]/getDefault('bounce')[0][1])*100) }}%
             ,
-            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "頑張れ!" : "すごい!" }}
+            {{ getDefault('bounce')[1][1]>getDefault('bounce')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
 
           <p v-else class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ20平均直帰率 比
-            {{ Math.floor((getDefault('bounces')[1][1]/getDefault('bounces')[0][1])*100) }}%
+            トップ10平均直帰率 比
+            {{ Math.floor((getSelected('bounce')[1][1]/getSelected('bounce')[0][1])*100) }}%
             ,
-            {{ getDefault('bounces')[1][1]>getDefault('bounces')[0][1]? "頑張れ!" : "すごい!" }}
+            {{ getSelected('bounce')[1][1]>getSelected('bounce')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
 
         </material-chart-card>
@@ -289,7 +290,7 @@
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1 red--text">
-            25% 正確度, 参照用にのみ使用
+            30% 正確度, 参照用にのみ使用
           </p>
         </material-chart-card>
       </v-col>
@@ -325,7 +326,7 @@
           
           <v-data-table
             :headers="headers"
-            :items="gainfos"
+            :items="articleData"
             :search="search"
             :sort-desc="[false, true]"
             multi-sort
@@ -340,14 +341,18 @@
                 <tr v-for="data in items">
                   <td class="page-title-wrapper">
                     <!-- use filters for making the text short -->
-                    <p class="page-title" @click="setPathTitle(data.pagePath, data.pageTitle)">{{ data.pageTitle | truncate(30, '...') }}</p>
-                    <small class="page-path">{{ data.pagePath | truncate(20, '...') }}</small>
+                    <p class="page-title" @click="setPathTitle(data.article_url, data.article_title)">
+                      {{ data.article_title | truncate(30, '...') }}
+                    </p>
+                    <a :href="'//' + data.domain_name + data.article_url">
+                      <small class="page-path">{{ data.domain_name }}{{ data.article_url | truncate(20, '') }}</small>
+                    </a>
                   </td>
-                  <td>{{ parseInt(data.clickCount, 10).toLocaleString() }}</td>
-                  <td>{{ parseInt(data.pageviews, 10).toLocaleString() }}</td>
-                  <td>{{ parseInt(data.users, 10).toLocaleString() }}</td>
-                  <td>{{ setMinute(data.avgTimeOnPage) }}</td>
-                  <td>{{ getBounceRate(data.bounces, data.sessions) }}</td>
+                  <td>{{ parseInt(data.mcv, 10).toLocaleString() }}</td>
+                  <td>{{ parseInt(data.page_view, 10).toLocaleString() }}</td>
+                  <td>{{ parseInt(data.user, 10).toLocaleString() }}</td>
+                  <td>{{ setMinute(data.avg_time_on_page) }}</td>
+                  <td>{{ getBounceRate(data.bounce, data.page_view) }}</td>
                   <td>
                     <router-link 
                       v-if = "data.id != 0"
@@ -357,7 +362,7 @@
                     </router-link>
                   </td>
                   
-                  <td v-show="false">{{ data.pagePath }}</td>
+                  <td v-show="false">{{ data.article_url }}</td>
                 </tr>
               </tbody>
             </template>
@@ -402,59 +407,109 @@
           text: 'タイトル',
           align: 'start',
           sortable: false,
-          value: 'pageTitle',
+          value: 'article_title',
           width: '45%',
         },
-        { text: 'MCV', value: 'clickCount' },
-        { text: 'PV', value: 'pageviews' },
-        { text: 'ユーザー', value: 'users' },
-        { text: '滞在時間', value: 'avgTimeOnPage' },
-        { text: '直帰率', value: 'bounces' },
+        { text: 'MCV', value: 'mcv' },
+        { text: 'PV', value: 'page_view' },
+        { text: 'ユーザー', value: 'user' },
+        { text: '滞在時間', value: 'avg_time_on_page' },
+        { text: '直帰率', value: 'bounce' },
         { 
           text: 'heatMap', 
           value: 'heatMap',
           sortable: false
         },
-        { value: 'pagePath' }
+        { value: 'article_url' }
       ],  
     }),
     computed: {
       dateError () {
-        var currentdate =  new Date().toISOString().substr(0, 10);
-        if(currentdate < this.dates[0] || currentdate < this.dates[1] || this.dates.length < 2) {
+        var date = new Date();
+        date.setDate(date.getDate() - 1);
+
+        var yesterday = date.toISOString().substr(0, 10)
+
+        if(yesterday < this.dates[0] || yesterday < this.dates[1]) {
+          alert('昨日のデータからご覧いただけます。')
+          this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
+          alert('2020-09-05 以前のデータは収集されませんでした');
+            this.dates = [
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
+              new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
+            ]
+          return this.dateCheckBool;
+        }else if(this.dates.length < 2){
           return this.dateCheckBool;
         }
-      },        
+
+      },       
       dateRangeText () {
         if(this.dates[0]>this.dates[1]){
           this.dates.reverse();
         }
         return this.dates.join(' ~ ')
       },
-      gainfos() {
-        return this.$store.state.gainfos
+      articleData() {
+        return this.$store.state.articleData
+      },
+      articleAvg(){
+        return this.$store.state.articleAvg
+      },
+      goalDataByArticle(){
+        return this.$store.state.goalDataByArticle
       },
       demographicData() {
         return this.$store.state.demographicData
       }
     },
     mounted() {
-      // bring whole each article data from lib/get_analytics.rb by selected period
-      this.$store.commit('getGaInfo',{
+      this.$store.commit('getArticleData',{
           startdate: this.dates[0],
-          enddate: this.dates[1]
+          enddate: this.dates[1],
+          hostname: 'total'
+      });
+      this.$store.commit('getArticleAvg',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+      });
+      this.$store.commit('getGoalDataByArticle',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
       });
       this.$store.commit('getDemographic',{
           startdate: this.dates[0],
           enddate: this.dates[1]
       });
+
     },
     methods: {
       getTotalByDate(dates) {
-        console.log("please")
-        this.$store.commit('getGaInfo',{
+        this.$store.commit('getArticleData',{
           startdate: this.dates[0],
-          enddate: this.dates[1]
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getArticleAvg',{
+            startdate: this.dates[0],
+            enddate: this.dates[1],
+            hostname: 'total'
+        });
+        this.$store.commit('getGoalDataByArticle',{
+          startdate: this.dates[0],
+          enddate: this.dates[1],
+          hostname: 'total'
+        });
+        this.$store.commit('getDemographic',{
+            startdate: this.dates[0],
+            enddate: this.dates[1]
         });
       },
       // default data when user visit the page
@@ -462,42 +517,47 @@
         var columnchartArr=[];
 
         // setup first data of article list and it is ordered by pagevies
-        var defaultGAinfo = this.$store.state.gainfos[0];
+        var defaultGAinfo = this.articleData[0];
         var defaultData;
 
         // setup first data of selected metrics such as pageviews, bounces and so on.
         for(var key in defaultGAinfo){
           if(key == value){
-            if(value == 'bounces'){
+            if(value == 'bounce'){
               var b = parseInt(defaultGAinfo[key], 10);
-              var pv = parseInt(defaultGAinfo['pageviews'], 10);
-              defaultData = Math.floor((b/pv)*100);
-            }else if(value == 'pageTitle'){
+              var pv = parseInt(defaultGAinfo['page_view'], 10);
+              defaultData = ((b/pv)*100).toFixed(2);
+            }else if(value == 'article_title'){
               defaultData = defaultGAinfo[key]
               return defaultData
             }else{
               defaultData = parseInt(defaultGAinfo[key], 10);
             }
-          }else if(value == 'goal'){
-            var cvr = defaultGAinfo['goal1ConversionRate'];
-            var comp = defaultGAinfo['goal1Completions'];
-
-            var goalArr = [parseFloat(cvr, 10).toFixed(2), comp];
-
-            return goalArr;
           }
         }
 
-        // setup average data of top 20 article list ordered by pageviews
-        var avg = this.getAvg(value);
-
-        // make the data as time format if value is avgTimeOnPage
-        if(value == 'avgTimeOnPage'){
+        var ga_avg = this.articleAvg
+        
+        if(value == 'page_view'){
+          var avg = ga_avg['ga_pv_avg']
+        }else if(value == 'mcv'){
+          var avg = ga_avg['ga_mcv_avg']
+        }else if(value == 'avg_time_on_page'){
+          var avg = ga_avg['ga_avg_time_avg']
           var a = this.setMinute(avg);
           var b = this.setMinute(defaultData);
-
           avg = this.$moment(a, "HH:mm:ss").format("mm:ss");
           defaultData = this.$moment(b, "HH:mm:ss").format("mm:ss");
+        }else if(value == 'bounce'){
+          var bounce = ga_avg['ga_bounce_avg']
+          var pv = ga_avg['ga_pv_avg']
+
+          if(pv==0){
+            var avg = 0
+          }else{
+            var avg = ((bounce/pv)*100).toFixed(2)
+          }
+
         }
 
         var first = ['Avg', avg];
@@ -508,47 +568,71 @@
 
         return columnchartArr;
       },
-      getSelected(value) {
-        var columnchartArr=[];
-        var gainfos = this.$store.state.gainfos;
-        var selectedGainfos;
-        var selectedData;
+      getDefaultGoal(){
+        var defaultGAinfo = this.articleData[0];
+        var articleGoalData = this.goalDataByArticle;
+        
+        for(var key in articleGoalData){
+          if(articleGoalData[key].article_url == defaultGAinfo.article_url){
 
-        // setup data by selected path
-        for(var key in gainfos){
-          if(this.selectedPath == gainfos[key].pagePath){
-            selectedGainfos = gainfos[key];
-          }
-        }
+            var cvr = parseFloat(articleGoalData[key].goal1ConversionRate, 10).toFixed(2);
+            var comp = articleGoalData[key].goal1Completions;
 
-        for(var key in selectedGainfos){
-          if(key == value){
-            if(value == 'bounces'){
-              var b = parseInt(selectedGainfos[key], 10);
-              var pv = parseInt(selectedGainfos['pageviews'], 10);
-              selectedData = Math.floor((b/pv)*100);
-            }else{
-              selectedData = parseInt(selectedGainfos[key], 10);
-            }
-          }else if(value == 'goal'){
-            var cvr = selectedGainfos['goal1ConversionRate'];
-            var comp = selectedGainfos['goal1Completions'];
-
-            var goalArr = [parseFloat(cvr, 10).toFixed(2), comp];
+            var goalArr = [cvr, comp];
 
             return goalArr;
           }
         }
-        var avg = this.getAvg(value);
-
-        if(value == 'avgTimeOnPage'){
+      },
+      getSelected(value) {
+        var columnchartArr=[];
+        var articleData = this.articleData;
+        var selectedArticleData;
+        var selectedData;
+        
+        // setup data by selected path
+        for(var key in articleData){
+          if(this.selectedPath == articleData[key].article_url){
+            selectedArticleData = articleData[key];
+          }
+        }
+        
+        for(var key in selectedArticleData){
+          if(key == value){
+            if(value == 'bounce'){
+              var b = parseInt(selectedArticleData[key], 10);
+              var pv = parseInt(selectedArticleData['page_view'], 10);
+              selectedData = Math.floor((b/pv)*100);
+            }else{
+              selectedData = parseInt(selectedArticleData[key], 10);
+            }
+          }
+        }
+        var ga_avg = this.articleAvg
+        
+        if(value == 'page_view'){
+          var avg = ga_avg['ga_pv_avg']
+        }else if(value == 'mcv'){
+          var avg = ga_avg['ga_mcv_avg']
+        }else if(value == 'avg_time_on_page'){
+          var avg = ga_avg['ga_avg_time_avg']
           var a = this.setMinute(avg);
           var b = this.setMinute(selectedData);
 
           avg = this.$moment(a, "HH:mm:ss").format("mm:ss");
           selectedData = this.$moment(b, "HH:mm:ss").format("mm:ss");
-        }
+        }else if(value == 'bounce'){
+          var bounce = ga_avg['ga_bounce_avg']
+          var pv = ga_avg['ga_pv_avg']
 
+          if(pv==0){
+            var avg = 0
+          }else{
+            var avg = ((bounce/pv)*100).toFixed(2)
+          }
+
+        }
+        
         var first = ['Avg', avg];
         var second = ['Article', selectedData];
 
@@ -557,46 +641,47 @@
 
         return columnchartArr;
       },
-      // average data of top 20 articles sorted by pageviews
-      getAvg(value){
-        var a = this.$store.state.gainfos;
-        var arr=[];
-        var length = 20;
-        var i;
-        var average;
+      getSelectedGoal(){
+        var articleData = this.articleData;
+        var articleGoalData = this.goalDataByArticle;
+        var selectedArticleData;
+        
 
-        for(i=0; i<length; i++){
-          if(value == 'pageviews'){
-            arr[i] = parseInt(a[i].pageviews, 10);
-          }else if(value == 'avgTimeOnPage'){
-            arr[i] = parseInt(a[i].avgTimeOnPage, 10);
-          }else if(value == 'bounces'){
-            var b = parseInt(a[i].bounces, 10);
-            var pv = parseInt(a[i].pageviews, 10);
-            arr[i] = (b/pv)*100;
+        // setup data by selected path
+        for(var key in articleData){
+          if(this.selectedPath == articleData[key].article_url){
+            selectedArticleData = articleData[key];
           }
         }
-        // sum up every data in the array
-        var sum = arr.reduce((a, b) => a + b, 0);
+        
+        for(var key in articleGoalData){
+          if(articleGoalData[key].article_url == selectedArticleData.article_url){
+            var cvr = parseFloat(articleGoalData[key].goal1ConversionRate, 10).toFixed(2);
+            var comp = articleGoalData[key].goal1Completions;
 
-        average = Math.floor(sum/length);
-
-        return average;        
+            var goalArr = [cvr, comp];
+          }
+        }
+        
+        return goalArr;
       },
-      setMinute(avgTimeOnPage){
-        var m = Math.floor(avgTimeOnPage/60);
-        var h = Math.floor(avgTimeOnPage/3600);
+      setMinute(avg_time_on_page){
+        var m = Math.floor(avg_time_on_page/60);
+        var h = Math.floor(avg_time_on_page/3600);
 
-        var s = Math.floor(avgTimeOnPage - (m*60));
+        var s = Math.floor(avg_time_on_page - (m*60));
 
         h = (h < 10) ? "0" + h : h;
         m = (m < 10) ? "0" + m : m;
         s = (s < 10) ? "0" + s : s;
-
+        console.log(avg_time_on_page);
+        console.log(h);
+        console.log(m);
+        console.log(s)
         return h + ":" + m + ":" + s;
       },
-      getBounceRate(bounces, sessions) {
-        var bounceRate = ((bounces/sessions)*100).toFixed(2)
+      getBounceRate(bounce, page_view) {
+        var bounceRate = ((bounce/page_view)*100).toFixed(2)
         return bounceRate + "%";
       },
       // it setup path, selected title and change boolean When user click on the title of the list user want to see
