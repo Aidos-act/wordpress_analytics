@@ -14,7 +14,6 @@ export default new Vuex.Store({
     compareTotal: {},
     currentLineChart: {},
     compareLineChart: {},
-    articleData: {},
     articleAvg: {},
     domainName: '',
     goalData: {},

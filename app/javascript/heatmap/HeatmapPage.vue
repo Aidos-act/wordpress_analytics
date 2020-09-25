@@ -4,21 +4,30 @@
         <div v-slimscroll="options">
           <div class="iframe-parent">
             <div class="scroll-percent" ref="readLine">
-              <div v-if="!loading" class="read-line" v-for="e in scrollpercent.length" :style="{top: getHeight(e) + 'px'}">
-                <div class="lines" :style="'margin-top: ' + getMarginTop() + 'px'"> 
-                    <p class="lines-p"> {{ scrollpercent[e-1] }}% </p>
+              <div v-if="!loading" class="read-line" v-for="e in setScrollPercent().length" :style="{top: getHeight(e) + 'px'}">
+                <!-- <div class="arrow" :style="{ top: getTop() + 'px', height: getTop() + 'px' }" ></div> -->
+                <div class="lines"> 
+                  <p class="sub tooltip">
+                    <strong class="substrong">{{ setScrollPercent()[e-1] }}%
+                      <em class="tooltiptext scroll_point">記事{{e}}%地点の到達率 : </em>
+                    </strong>
+                  </p>
                 </div>
               </div>
             </div>
-            <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
+            <div class="heat-map" v-bind:style="{ height: maxheight*3 + 'px' }">
               <div v-for="e in scrolld">
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                   <!-- <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1> -->
                   <h1 class="heat-color" :style="'background: linear-gradient(transparent, hsl('+gethsl(e.sum_dur, max_dur)+',100%,60%,1), transparent)'"></h1>
+                  <!-- <div class="arrow" :style="getArrowHeight(e)"></div>
+                  <p class="time-sub" :style="getAvgTimeTooltip()">
+                    <strong class="timesubstrong">滞留時間 : {{e.sum_dur}}</strong>
+                  </p> -->
                 </div>
               </div>
             </div>
-            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe> 
+            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="400px" :height="maxheight"></iframe> 
             <v-progress-circular
               v-if="loading"
               class="spinner"
@@ -65,14 +74,13 @@
         <v-simple-table>
           <template v-slot:default>
             <tbody>
-              
               <tr>
                 <td>MCV(クリック数)</td>
                 <td>{{ countclick }}</td>
               </tr>
               <tr v-for="(data, key) in getArticleData()">
                 <td>{{ key }}</td>
-                <td>{{data}}</td>
+                <td>{{ key=='直帰率'? data+'%' : data }}</td>
               </tr>
             </tbody>
           </template>
@@ -222,7 +230,9 @@
         isActive: true,
         maxheight: '',
         scrollpercent: [],
+        scrolltemp: [],
         loading: true,
+        arrow_height: '',
         options:{
           width: '100%',
           height: '100%',
@@ -278,7 +288,7 @@
           this.dates.reverse();
         }
         return this.dates.join(' ~ ')
-      }
+      },
     },
     created () {
       var self = this;
@@ -388,7 +398,7 @@
               enddate: this.dates[1]
             }
           })
-          .then(response => (this.scrolld = response.data)) 
+          .then(response => (this.scrolld = response.data))
       },
       getMaxd: function(){ // add date
         axios
@@ -407,13 +417,46 @@
       getArticleData(){
         var articleData = this.articleData;
         var article = {};
+        var bounce_rate = 0;
         for(var key in articleData){
           if(this.$route.params.id == articleData[key].id ){
             article['pageviews'] = articleData[key].page_view;
-            article['users'] = articleData[key].user;
+            article['ユーザー'] = articleData[key].user;
+            article['平均滞在時間'] = this.setMinute(articleData[key].avg_time_on_page);
+
+            bounce_rate = ((articleData[key].bounce/articleData[key].page_view)*100).toFixed(2);
+
+            if (bounce_rate) {
+              article['直帰率'] = bounce_rate;
+            }else {
+              article['直帰率'] = 0;
+            }
+            
           }
         }
         return article;
+      },
+      setMinute(avg_time_on_page){
+        var m = Math.floor(avg_time_on_page/60);
+        var h = Math.floor(avg_time_on_page/3600);
+
+        var s = Math.floor(avg_time_on_page - (m*60));
+
+        h = (h < 10) ? "0" + h : h;
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+        
+        return h + ":" + m + ":" + s;
+      },
+      setDurToMinute(duration){
+        var m = Math.floor(duration/60);
+
+        var s = Math.floor(duration - (m*60));
+
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+        
+        return m + ":" + s;
       },
       getDomain(){
         var domain = this.domainName;
@@ -433,25 +476,75 @@
               enddate: this.dates[1]
             }
           })
-          .then(response => (this.scrollpercent = response.data)) 
+          .then(response => (this.scrolltemp = response.data)) 
+      },
+      setScrollPercent(){
+        var maxheight = parseInt(this.maxheight, 10);
+        var scrollpp = this.scrolltemp;
+        var scrollpercent = [];
+
+        // if (maxheight<10000) {
+        //   scrollpercent = scrollpp.filter(function(v, i) {
+        //        var j = i+1;
+        //        return j % 4 == 0;
+        //   });
+        // }else if (maxheight<20000) {
+        //   scrollpercent = scrollpp.filter(function(v, i) {
+        //        var j = i+1;
+        //        return j % 2 == 0;
+        //   });
+        // }else {
+        //   scrollpercent = this.scrolltemp;
+        // }
+
+        scrollpercent = this.scrolltemp;
+
+        return scrollpercent;
       },
       getHeight(index){
         
         var maxheight = parseInt(this.maxheight, 10);
 
-        index = index -1;
-        var percent = (index * 5)/100;
+        index = index * 3;
+
+        // if (maxheight<10000) {
+        //   var percent = (index * 4)/100;
+        // }else if(maxheight<20000){
+        //   var percent = (index * 2)/100;
+        // } else{
+        //   var percent = (index * 1)/100;  
+        // }
+        
+        var percent = (index * 1)/100;
+
         var divHeight = (maxheight*percent);
         // var ceiledHeight = Math.ceil(divHeight);
         
         return divHeight
       },
-      getMarginTop(){
+      getArrowHeight(index){
         var maxheight = parseInt(this.maxheight, 10);
 
-        var marginTop = maxheight*0.05
+        if (index == 1) {
+          var arrowTop = ((maxheight*0.03)*-1)+100;  
+        }else{
+          var arrowTop = ((maxheight*0.03)*-1)+150;  
+        }
+        
+        var arrowHeight = (maxheight*0.03)-200;
+        
 
-        return marginTop
+        return {
+                top: arrowTop + 'px',
+                height: arrowHeight + 'px'
+              };
+      },
+      getAvgTimeTooltip(){
+        var maxheight = parseInt(this.maxheight, 10);
+
+        var arrowtooltip = ((maxheight*0.03)*-1)/2;
+
+        return {top: arrowtooltip + 'px'};
       },
       gethsl(sum, max){
         var hsl = 100 - (sum/max)*100
@@ -491,10 +584,10 @@
     overflow-y: visible; 
     z-index: -1;
     pointer-events: none;
+    transform: scale(3);
+    transform-origin: top left;
   }
-  div:empty {
-    display: none;
-  }
+  
   .heat-color {
     width: 100%;
     height: 2000px;
@@ -553,7 +646,7 @@
   .scroll-percent {
     width: 100%;
     position: absolute;
-    pointer-events: none;
+    
     text-align: center;
     z-index: 1;
   }
@@ -678,5 +771,121 @@
     position: relative; 
     z-index: 1;
   }
+
+  .sub {
+    width: 200px;
+    height: 80px;
+    background: grey;
+    border-radius: 10px;
+    opacity: 0.6;
+    margin: auto auto;
+    margin-bottom: 20px;
+  }
+
+  .sub:before {
+    border-top: 20px solid grey;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 0 solid transparent;
+    content: "";
+    position: absolute;
+    top: 80px;
+    margin-left: 35px;
+  }
+
+  .substrong {
+    font-size: 50px;
+  }
+
+  .time-sub {
+    width: 400px;
+    height: 100px;
+    background: black;
+    border-radius: 10px;
+    margin: auto auto;
+    position: absolute;
+    left: 400px;
+    z-index: 1;
+  }
+
+  .time-sub:before {
+    content: " ";
+    position: absolute;
+    top: 25%;
+    right: 100%; 
+    border-width: 20px;
+    border-style: solid;
+    border-color: transparent black transparent transparent;
+  }
+
+  .timesubstrong{
+    font-size: 50px;
+    color: white;
+    opacity: 0.6;
+  }
+
+  .scroll_point{
+    font-size: 40px;
+  }
+
+.tooltip {
+  font-size: 50px;
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; 
+}
+
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 450px;
+  background-color: grey;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 10px;
+  position: absolute;
+  height: 80px;
+  right: 95%
+}
+
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.arrow {
+  width: 10px;
+  height: 200px; 
+  background: black;
+  margin: 10px;
+  position: absolute;
+  left: 300px;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.arrow::before,
+.arrow::after {
+  content: '';
+  position: absolute;
+  left: -25px;
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+}
+
+.arrow::before {
+  top: 0;
+  border-bottom: 50px solid black;
+  opacity: 0.6;
+}
+
+.arrow::after {
+  bottom: 0;
+  border-top: 50px solid black;
+  opacity: 0.6;
+}
 
 </style>

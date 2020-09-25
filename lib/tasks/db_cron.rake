@@ -9,6 +9,7 @@ namespace :db_cron do
 
   	ga = GetAnalytics.new
   	yesterday = Date.yesterday.strftime("%Y-%m-%d")
+    # yesterday = Date.yesterday.strftime("2020-09-21")
     
     
   	article_key = Article.column_names

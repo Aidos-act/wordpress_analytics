@@ -147,14 +147,13 @@ class Api::V1::CounterController < ApplicationController
                                     .group(:scroll_position)
                                     .select(:scroll_position, "SUM(access_count) as access_count")
 
-    if access_counts.first.scroll_position == 5
+
+    if access_counts.first.scroll_position == 1
       total_access = access_counts.first.access_count
     end
 
-    scroll_positions = [5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100]
-
-    scroll_positions.each_with_index do |position, i|
-      count = access_counts.select{|pos| pos.scroll_position == position}
+    for i in 1..100 do
+      count = access_counts.select{|pos| pos.scroll_position == i}
 
       if !count.empty?
         float_count = count.first.access_count.to_f
@@ -163,8 +162,7 @@ class Api::V1::CounterController < ApplicationController
       elsif count.empty?
         scrolls.push(0)
       end
-
-    end 
+    end
 
     render json:scrolls
   end  
