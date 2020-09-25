@@ -9,12 +9,29 @@
             </div>
          </div>
          <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
-           <div v-for="e in scrolld">
-              <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1>
+            <div v-for="e in scrolld">
+              <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
+                <div v-if="(e.sum_dur/max_dur*100)>=80">
+                  <h1 class="heat-color color-red"></h1>
+                </div>
+                <div v-else>
+                  <div v-if="(e.sum_dur/max_dur*100)>=60">
+                    <h1 class="heat-color color-orange"></h1>
+                  </div>
+                  <div v-else>
+                    <div v-if="(e.sum_dur/max_dur*100)>=40">
+                      <h1 class="heat-color color-yellow"></h1>
+                    </div>
+                    <div v-else>
+                      <div v-if="(e.sum_dur/max_dur*100)>=20">
+                        <h1 class="heat-color color-green"></h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-           </div>
-         </div>
+            </div>
+          </div>
          
         <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe>
         <v-progress-circular
@@ -26,6 +43,16 @@
           :width="25"
         ></v-progress-circular>
 
+      </div>
+
+      <div class="heat-map-details">
+          <h3 style="padding-bottom: 18px;"> <strong> ヒートマップの色 </strong> </h3>
+          <p class="heat-map-details-line"> スクロール時間の最大値: {{durationPercents[0]}} </p>
+          <p class="heat-map-details-line"> 赤い色は最大継続時間の80％以上: {{durationPercents[1]}}</p>
+          <p class="heat-map-details-line"> オレンジ色は最大継続時間の60％以上: {{durationPercents[2]}}</p>
+          <p class="heat-map-details-line"> 黄色は最大継続時間の40％以上: {{durationPercents[3]}}</p>
+          <p class="heat-map-details-line"> 緑色最大継続時間の20％以上: {{durationPercents[4]}}</p>
+          <p class="heat-map-details-line"> 青は最大継続時間の20％未満</p>
       </div>
 
       <div class="values-set">
@@ -216,6 +243,7 @@
         scrolld: [],
         max_dur: [],
         ipcount: [],
+        durationPercents: [],
         isActive: true,
         maxheight: '',
         scrollpercent: [],
@@ -285,6 +313,7 @@
       this.getScrolld();
       this.getMaxd();
       this.getScrollCalculate();
+      this.getPercent();
       this.$store.commit('getArticleData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
@@ -381,6 +410,16 @@
           })
           .then(response => (this.max_dur = response.data)) 
       },
+      getPercent: function(){
+        axios
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationpercentages.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
+          .then(response => (this.durationPercents = response.data)) 
+      },
       updateArticle(newid){
         this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
         this.$router.go();
@@ -472,11 +511,23 @@
   div:empty {
     display: none;
   }
-  .heat-color {
+  .heat-color{
     width: 100%;
-    height: 2000px;
+    height: 2500px;
     bottom: 30%;
     position: absolute;
+  }
+  .color-red {
+    background: linear-gradient(transparent, red, transparent);
+  }
+  .color-orange {
+    background: linear-gradient(transparent, orange, transparent);
+  }
+  .color-yellow {
+    background: linear-gradient(transparent, yellow, transparent);
+  }
+  .color-green {
+    background: linear-gradient(transparent, green, transparent);
   }
   .lines-p {
     font-size: 70px;
@@ -511,6 +562,7 @@
     width: 60%;
     margin: 10px;
     margin-bottom: 10%;
+    padding-left: 2vw;
   }
   .lists-set {
     display: block;
@@ -533,6 +585,20 @@
     pointer-events: none;
     text-align: center;
     z-index: 1;
+  }
+  .heat-map-details{
+    margin-left: 19vw;
+    margin-top: 2vw;
+    position: absolute;
+    width: 15vw;
+    font-size: 11px;
+    border-radius: 11px;
+    padding: 13px;
+    background-color: white;
+  }
+  .heat-map-details-line{
+    border-bottom: 1px solid #dadada;
+    padding-bottom: 6px;
   }
   .heat-map{
     background-color: blue;
@@ -650,5 +716,6 @@
     top: 40%;
     left: 35%;
   }
+
 
 </style>
