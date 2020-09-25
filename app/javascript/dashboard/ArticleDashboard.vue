@@ -517,7 +517,7 @@
         var columnchartArr=[];
 
         // setup first data of article list and it is ordered by pagevies
-        var defaultGAinfo = this.articleData[0];
+        var defaultGAinfo = this.articleData[0]; 
         var defaultData;
 
         // setup first data of selected metrics such as pageviews, bounces and so on.

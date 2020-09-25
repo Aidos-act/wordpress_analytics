@@ -41,12 +41,16 @@ import moment from "moment";
 import VueMomentJS from "vue-momentjs";
 import Chartkick from 'vue-chartkick'
 import Chart from 'chart.js'
+import VueSlimScroll from 'vue-slimscroll'
 
 // for chartkick
 Vue.use(Chartkick.use(Chart));
 
 // for moment.js
 Vue.use(VueMomentJS, moment);
+
+// for slimscroll for iframe
+Vue.use(VueSlimScroll)
 
 
 document.addEventListener('DOMContentLoaded', () => {
