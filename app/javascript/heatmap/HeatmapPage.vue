@@ -16,14 +16,15 @@
               </div>
             </div>
             <div class="heat-map" v-bind:style="{ height: maxheight*3 + 'px' }">
-              <div v-for="e in scrolld">
+              <div v-if="!loading" v-for="e in scrolld">
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                   <!-- <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1> -->
                   <h1 class="heat-color" :style="'background: linear-gradient(transparent, hsl('+gethsl(e.sum_dur, max_dur)+',100%,60%,1), transparent)'"></h1>
-                  <!-- <div class="arrow" :style="getArrowHeight(e)"></div>
+                  <div class="arrow" :style="getArrowHeight(e)"></div>
                   <p class="time-sub" :style="getAvgTimeTooltip()">
-                    <strong class="timesubstrong">滞留時間 : {{e.sum_dur}}</strong>
-                  </p> -->
+                    <!-- <strong class="timesubstrong">滞留時間 : {{e.sum_dur}} {{e.access_count}}</strong> -->
+                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
+                  </p>
                 </div>
               </div>
             </div>
@@ -73,6 +74,7 @@
         
         <v-simple-table>
           <template v-slot:default>
+
             <tbody>
               <tr>
                 <td>MCV(クリック数)</td>
@@ -337,7 +339,7 @@
         this.updateClickcount();
         // this.getScrollp();
         this.getScrolld();
-        this.getMaximumd();
+        this.getMaxd();
         this.getScrollCalculate();
         this.$store.commit('getArticleData',{
           startdate: this.dates[0],
@@ -448,16 +450,6 @@
         
         return h + ":" + m + ":" + s;
       },
-      setDurToMinute(duration){
-        var m = Math.floor(duration/60);
-
-        var s = Math.floor(duration - (m*60));
-
-        m = (m < 10) ? "0" + m : m;
-        s = (s < 10) ? "0" + s : s;
-        
-        return m + ":" + s;
-      },
       getDomain(){
         var domain = this.domainName;
         var result = '';
@@ -483,20 +475,6 @@
         var scrollpp = this.scrolltemp;
         var scrollpercent = [];
 
-        // if (maxheight<10000) {
-        //   scrollpercent = scrollpp.filter(function(v, i) {
-        //        var j = i+1;
-        //        return j % 4 == 0;
-        //   });
-        // }else if (maxheight<20000) {
-        //   scrollpercent = scrollpp.filter(function(v, i) {
-        //        var j = i+1;
-        //        return j % 2 == 0;
-        //   });
-        // }else {
-        //   scrollpercent = this.scrolltemp;
-        // }
-
         scrollpercent = this.scrolltemp;
 
         return scrollpercent;
@@ -506,14 +484,6 @@
         var maxheight = parseInt(this.maxheight, 10);
 
         index = index * 3;
-
-        // if (maxheight<10000) {
-        //   var percent = (index * 4)/100;
-        // }else if(maxheight<20000){
-        //   var percent = (index * 2)/100;
-        // } else{
-        //   var percent = (index * 1)/100;  
-        // }
         
         var percent = (index * 1)/100;
 
@@ -549,7 +519,19 @@
       gethsl(sum, max){
         var hsl = 100 - (sum/max)*100
         return hsl;
-      }
+      },
+      getAvgTimeonSection(duration, access_count) {
+        var avg_time_on_section = 0;
+        
+        if (duration==0 || access_count==0) {
+          avg_time_on_section = 0;
+          
+        }else {
+          avg_time_on_section = (duration/access_count).toFixed(2);
+        }
+
+        return avg_time_on_section + '秒'
+      },
     },
     beforeDestroy() {
         window.removeEventListener('message');
@@ -640,7 +622,7 @@
     display: block;
     position: absolute;
     width: 100%;
-    height: 80%;  
+    height: 90%;  
     overflow-y: scroll;
   }
   .scroll-percent {
@@ -798,14 +780,14 @@
   }
 
   .time-sub {
-    width: 400px;
-    height: 100px;
+    height: 80px;
     background: black;
     border-radius: 10px;
     margin: auto auto;
     position: absolute;
     left: 400px;
     z-index: 1;
+    padding: 0px 50px;
   }
 
   .time-sub:before {

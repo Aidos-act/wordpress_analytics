@@ -96,7 +96,7 @@ class Api::V1::CounterController < ApplicationController
   startdate =  params[:startdate].to_date.beginning_of_day
   enddate = params[:enddate].to_date.end_of_day
   
-  getdur = @article.scrolls.where(date: startdate..enddate).where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur').group(:scroll_position)
+  getdur = @article.scrolls.where(date: startdate..enddate).where('scroll_position <= 100').select('scroll_position, SUM(scroll_duration) AS sum_dur, SUM(access_count) AS access_count').group(:scroll_position)
 
   render json:getdur
 
@@ -147,7 +147,7 @@ class Api::V1::CounterController < ApplicationController
                                     .group(:scroll_position)
                                     .select(:scroll_position, "SUM(access_count) as access_count")
 
-
+    
     if access_counts.first.scroll_position == 1
       total_access = access_counts.first.access_count
     end
