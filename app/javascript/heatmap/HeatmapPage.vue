@@ -1,5 +1,14 @@
 <template>
   <div class="heat-body-set">
+      <h1 class="heat-map-details">
+      </h1>
+      <tr class="heat-map-row">
+        <td> {{durationPercents[0]}}</td>
+        <td> {{durationPercents[1]}}</td>
+        <td> {{durationPercents[2]}}</td>
+        <td> {{durationPercents[3]}}</td>
+        <td> {{durationPercents[4]}}</td>
+      </tr>
       <div class="iframe-set">
         <div v-slimscroll="options">
           <div class="iframe-parent">
@@ -53,15 +62,6 @@
         
       </div>
 
-      <div class="heat-map-details">
-          <h3 style="padding-bottom: 18px;"> <strong> ヒートマップの色 </strong> </h3>
-          <p class="heat-map-details-line"> スクロール時間の最大値: {{durationPercents[0]}} </p>
-          <p class="heat-map-details-line"> 赤い色は最大継続時間の80％以上: {{durationPercents[1]}}</p>
-          <p class="heat-map-details-line"> オレンジ色は最大継続時間の60％以上: {{durationPercents[2]}}</p>
-          <p class="heat-map-details-line"> 黄色は最大継続時間の40％以上: {{durationPercents[3]}}</p>
-          <p class="heat-map-details-line"> 緑色最大継続時間の20％以上: {{durationPercents[4]}}</p>
-          <p class="heat-map-details-line"> 青は最大継続時間の20％未満</p>
-      </div>
 
       <div class="values-set">
         <!-- datepicker start -->
@@ -701,18 +701,22 @@
     z-index: 1;
   }
   .heat-map-details{
-    margin-left: 19vw;
+    margin-left: 3vw;
     margin-top: 2vw;
-    position: absolute;
-    width: 15vw;
-    font-size: 11px;
+    margin-bottom: 2vw;
+    width: 28vw;
+    height: 1vw;
     border-radius: 11px;
-    padding: 13px;
-    background-color: white;
+    background: linear-gradient(to right, red, orange, yellow, lightgreen);
   }
-  .heat-map-details-line{
-    border-bottom: 1px solid #dadada;
-    padding-bottom: 6px;
+  .heat-map-row{
+    width: 32vw;
+    height: 1vw;
+    margin-left: 3vw;
+    margin-top: -1.7vw;
+    position: absolute;
+    font-size: 11px;
+    display: inline-table;
   }
   .heat-map{
     background-color: blue;
