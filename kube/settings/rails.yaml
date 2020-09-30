@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: destiny1616/nginx:v6
+        image: gcr.io/fullout-core/wp-analytics-nginx:v1
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
@@ -30,7 +30,7 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: stg-pv
-          mountPath: /var/lib/mysql 
+          mountPath: /var/lib/mysql
         - name: empty-dir
           mountPath: /app/tmp/sockets
         readinessProbe:
@@ -46,9 +46,9 @@ spec:
             port: 80
           timeoutSeconds: 5
           initialDelaySeconds: 300
-          periodSeconds: 30          
+          periodSeconds: 30
       - name: rails
-        image: destiny161618/rails:v23
+        image: gcr.io/fullout-core/wp-analytics-rails:v1
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
@@ -56,7 +56,7 @@ spec:
             name: rails-config
         env:
         - name: TZ
-          value: Asia/Tokyo    
+          value: Asia/Tokyo
         ports:
         - containerPort: 3000
         volumeMounts:
@@ -65,21 +65,21 @@ spec:
         - name: empty-dir
           mountPath: /app/tmp/sockets
         - name: tz-config
-          mountPath: /etc/localtime          
+          mountPath: /etc/localtime
         readinessProbe:
           httpGet:
             path: /health
             port: 80
           timeoutSeconds: 5
           initialDelaySeconds: 5
-          periodSeconds: 30    
+          periodSeconds: 30
         livenessProbe:
           httpGet:
             path: /health
             port: 80
           timeoutSeconds: 5
           initialDelaySeconds: 300
-          periodSeconds: 30                     
+          periodSeconds: 30
       volumes:
       - name: stg-pv
         persistentVolumeClaim:
@@ -88,4 +88,4 @@ spec:
         hostPath: 
           path: /usr/share/zoneinfo/Asia/Tokyo
       - name: empty-dir
-        emptyDir: {}             
+        emptyDir: {}

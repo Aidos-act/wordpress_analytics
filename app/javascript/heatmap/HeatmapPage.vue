@@ -1,7 +1,15 @@
 <template>
-  <div class="heat-body-set">
+    <div class="heat-body-set">
       <div class="iframe-set">
-        <div v-slimscroll="options">
+        <h1 class="heat-map-details"></h1>
+        <tr class="heat-map-row">
+          <td> {{durationPercents[0]}}</td>
+          <td> {{durationPercents[1]}}</td>
+          <td> {{durationPercents[2]}}</td>
+          <td> {{durationPercents[3]}}</td>
+          <td> {{durationPercents[4]}}</td>
+        </tr>
+        <div v-slimscroll="options" class="slimscroll">
           <div class="iframe-parent">
             <div class="scroll-percent" ref="readLine">
               <div v-if="!loading" class="read-line" v-for="e in setScrollPercent().length" :style="{top: getHeight(e) + 'px'}">
@@ -15,27 +23,56 @@
                 </div>
               </div>
             </div>
-            <div class="heat-map" v-bind:style="{ height: maxheight*3 + 'px' }">
+            <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
               <div v-if="!loading" v-for="e in scrolld">
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                  <!-- <h1 class="heat-color" v-bind:style="{background: linear-gradient(transparent, hsl((100 - (e.sum_dur/max_dur)*100), 100%, 60%, 1), transparent)}"></h1> -->
-                  <h1 class="heat-color" :style="'background: linear-gradient(transparent, hsl('+gethsl(e.sum_dur, max_dur)+',100%,60%,1), transparent)'"></h1>
-                  <div class="arrow" :style="getArrowHeight(e)"></div>
+                  <div v-if="(e.sum_dur/max_dur*100)>=80">
+                    <h1 class="heat-color color-red"></h1>
+                  </div>
+                  <div v-else>
+                    <div v-if="(e.sum_dur/max_dur*100)>=60">
+                      <h1 class="heat-color color-orange"></h1>
+                    </div>
+                    <div v-else>
+                      <div v-if="(e.sum_dur/max_dur*100)>=40">
+                        <h1 class="heat-color color-yellow"></h1>
+                      </div>
+                      <div v-else>
+                        <div v-if="(e.sum_dur/max_dur*100)>=20">
+                          <h1 class="heat-color color-green"></h1>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- <div v-else-if="(e.sum_dur/max_dur*100)>=60">
+                    <h1 class="heat-color color-orange"></h1>
+                  </div>
+                  <div v-else-if="(e.sum_dur/max_dur*100)>=40">
+                    <h1 class="heat-color color-yellow"></h1>
+                  </div>
+                  <div v-else-if="(e.sum_dur/max_dur*100)>=20">
+                    <h1 class="heat-color color-green"></h1>
+                  </div>
+                  <div v-else>
+                    <h1 class="heat-color color-blue"></h1>
+                  </div> -->
+                  <div class="arrow" :style="getArrowHeight"></div>
                   <p class="time-sub" :style="getAvgTimeTooltip()">
-                    <!-- <strong class="timesubstrong">滞留時間 : {{e.sum_dur}} {{e.access_count}}</strong> -->
                     <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
                   </p>
                 </div>
               </div>
             </div>
-            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="400px" :height="maxheight"></iframe> 
+            
+            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
+            
             <v-progress-circular
               v-if="loading"
               class="spinner"
               indeterminate
               color="green"
-              :size="300"
-              :width="25"
+              :size="80"
+              :width="5"
             ></v-progress-circular>
           </div>
         </div> 
@@ -74,7 +111,6 @@
         
         <v-simple-table>
           <template v-slot:default>
-
             <tbody>
               <tr>
                 <td>MCV(クリック数)</td>
@@ -229,6 +265,7 @@
         scrolld: [],
         max_dur: [],
         ipcount: [],
+        durationPercents: [],
         isActive: true,
         maxheight: '',
         scrollpercent: [],
@@ -236,12 +273,12 @@
         loading: true,
         arrow_height: '',
         options:{
-          width: '100%',
-          height: '100%',
-          size: '20px',
+          width: '30%',
+          height: '30%',
+          size: '5px',
           color: '#000000',
           alwaysVisible: true,
-          distance: '20px',
+          distance: '5px',
           // start: top,
           // railVisible: true,
           railColor: '#222',
@@ -291,6 +328,17 @@
         }
         return this.dates.join(' ~ ')
       },
+      getArrowHeight(){
+        var maxheight = parseInt(this.maxheight, 10);
+
+        var arrowTop = ((maxheight*0.01)*-1)+70;  
+        var arrowHeight = (maxheight*0.01)-100;
+
+        return {
+                top: arrowTop + 'px',
+                height: arrowHeight + 'px'
+              };
+      },
     },
     created () {
       var self = this;
@@ -316,6 +364,7 @@
       this.getScrolld();
       this.getMaxd();
       this.getScrollCalculate();
+      this.getPercent();
       this.$store.commit('getArticleData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
@@ -412,6 +461,16 @@
           })
           .then(response => (this.max_dur = response.data)) 
       },
+      getPercent: function(){
+        axios
+          .get('api/v1/articles/' + this.$route.params.id + '/counter/durationpercentages.json', {
+            params: {
+              startdate: this.dates[0],
+              enddate: this.dates[1]
+            }
+          })
+          .then(response => (this.durationPercents = response.data)) 
+      },
       updateArticle(newid){
         this.$router.replace({ name: "HeatmapPage", params: { id: newid }})
         this.$router.go();
@@ -483,36 +542,17 @@
         
         var maxheight = parseInt(this.maxheight, 10);
 
-        index = index * 3;
-        
-        var percent = (index * 1)/100;
+        var percent = index/100;
 
         var divHeight = (maxheight*percent);
         // var ceiledHeight = Math.ceil(divHeight);
         
         return divHeight
       },
-      getArrowHeight(index){
-        var maxheight = parseInt(this.maxheight, 10);
-
-        if (index == 1) {
-          var arrowTop = ((maxheight*0.03)*-1)+100;  
-        }else{
-          var arrowTop = ((maxheight*0.03)*-1)+150;  
-        }
-        
-        var arrowHeight = (maxheight*0.03)-200;
-        
-
-        return {
-                top: arrowTop + 'px',
-                height: arrowHeight + 'px'
-              };
-      },
       getAvgTimeTooltip(){
         var maxheight = parseInt(this.maxheight, 10);
 
-        var arrowtooltip = ((maxheight*0.03)*-1)/2;
+        var arrowtooltip = ((maxheight*0.01)*-1)/2;
 
         return {top: arrowtooltip + 'px'};
       },
@@ -566,15 +606,30 @@
     overflow-y: visible; 
     z-index: -1;
     pointer-events: none;
-    transform: scale(3);
+    transform: scale(1, 1);
     transform-origin: top left;
   }
-  
-  .heat-color {
+
+  .heat-color{
     width: 100%;
-    height: 2000px;
+    height: 2500px;
     bottom: 30%;
     position: absolute;
+  }
+  .color-red {
+    background: linear-gradient(transparent, red, transparent);
+  }
+  .color-orange {
+    background: linear-gradient(transparent, orange, transparent);
+  }
+  .color-yellow {
+    background: linear-gradient(transparent, yellow, transparent);
+  }
+  .color-green {
+    background: linear-gradient(transparent, green, transparent);
+  }
+  .color-blue {
+    background: linear-gradient(transparent, blue, transparent);
   }
   .lines-p {
     font-size: 70px;
@@ -582,23 +637,20 @@
   .lines {
     color:white;
     text-shadow: 0px 0px 5px black;
-    
     margin-bottom: 0px;
     border-right-width: 0px;
     border-left-width: 0px;
     border-top-width: 0px;
     border-style: dotted;
     border-color: white;
-    border-bottom-width: 10px;
   }
   .iframe-set {
     display: inline-block;
     position: fixed;
-    height: 280%; 
+    height: 240%; 
     overflow: scroll;
     min-width: 1200px;
-    margin-left: 50px;
-    transform: scale(0.3,0.3);
+    margin-left: 4.5vw;
     transform-origin: top left;
   }
   .values-set {
@@ -609,6 +661,7 @@
     width: 60%;
     margin: 10px;
     margin-bottom: 10%;
+    padding-left: 2vw;
   }
   .lists-set {
     display: block;
@@ -631,6 +684,22 @@
     
     text-align: center;
     z-index: 1;
+  }
+  .heat-map-details{
+    margin-top: 2vw;
+    margin-bottom: 2vw;
+    width: 25vw;
+    height: 1vw;
+    border-radius: 11px;
+    background: linear-gradient(to right, red, orange, yellow, lightgreen);
+  }
+  .heat-map-row{
+    width: 28vw;
+    height: 1vw;
+    margin-top: -1.7vw;
+    position: absolute;
+    font-size: 5px;
+    display: inline-table;
   }
   .heat-map{
     background-color: blue;
@@ -745,7 +814,7 @@
     width: 100%;
   }
   .spinner {
-    top: 800px;
+    top: 200px;
     left: 35%;
   }
 
@@ -755,39 +824,38 @@
   }
 
   .sub {
-    width: 200px;
-    height: 80px;
+    width: 60px;
+    height: 25px;
     background: grey;
-    border-radius: 10px;
-    opacity: 0.6;
-    margin: auto auto;
-    margin-bottom: 20px;
+    border-radius: 5px;
+    opacity: 0.8;
+    margin-bottom: 5px;
   }
 
   .sub:before {
-    border-top: 20px solid grey;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
+    border-top: 5px solid grey;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
     border-bottom: 0 solid transparent;
     content: "";
     position: absolute;
-    top: 80px;
-    margin-left: 35px;
+    top: 25px;
+    margin-left: 10px;
   }
 
   .substrong {
-    font-size: 50px;
+    font-size: 15px;
   }
 
   .time-sub {
-    height: 80px;
+    height: 25px;
     background: black;
-    border-radius: 10px;
+    border-radius: 5px;
     margin: auto auto;
     position: absolute;
-    left: 400px;
+    left: 100px;
     z-index: 1;
-    padding: 0px 50px;
+    padding: 0px 10px;
   }
 
   .time-sub:before {
@@ -795,40 +863,38 @@
     position: absolute;
     top: 25%;
     right: 100%; 
-    border-width: 20px;
+    border-width: 5px;
     border-style: solid;
     border-color: transparent black transparent transparent;
   }
 
   .timesubstrong{
-    font-size: 50px;
+    font-size: 15px;
     color: white;
-    opacity: 0.6;
+    opacity: 0.8;
   }
 
   .scroll_point{
-    font-size: 40px;
+    font-size: 10px;
   }
 
 .tooltip {
-  font-size: 50px;
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black; 
 }
 
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 450px;
+  width: 120px;
   background-color: grey;
   color: #fff;
   text-align: center;
-  padding: 10px 0;
-  border-radius: 10px;
+  padding: 5px 0;
+  border-radius: 5px;
   position: absolute;
-  height: 80px;
-  right: 95%
+  height: 25px;
+  right: 85%
 }
 
 
@@ -837,37 +903,45 @@
 }
 
 .arrow {
-  width: 10px;
-  height: 200px; 
+  width: 4px;
   background: black;
   margin: 10px;
   position: absolute;
-  left: 300px;
+  left: 60px;
   z-index: 1;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .arrow::before,
 .arrow::after {
   content: '';
   position: absolute;
-  left: -25px;
+  left: -8px;
   width: 0;
   height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
 }
 
 .arrow::before {
   top: 0;
-  border-bottom: 50px solid black;
-  opacity: 0.6;
+  border-bottom: 15px solid black;
+  opacity: 0.8;
 }
 
 .arrow::after {
   bottom: 0;
-  border-top: 50px solid black;
-  opacity: 0.6;
+  border-top: 15px solid black;
+  opacity: 0.8;
+}
+.slimScrollDiv {
+  width: 30% !important;
+  height: 30% !important;
+}
+
+.slimscroll {
+  width: 100% !important;
+  height: 100% !important; 
 }
 
 </style>

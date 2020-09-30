@@ -23,6 +23,7 @@ Rails.application.routes.draw do
         get 'counter/avgdurarticle'
         get 'counter/ipcount'
         get 'counter/scrollpcalculate'
+        get 'counter/durationpercentages'
   	  end
   	  resources :clicks, only: [:index, :show]
   	  resources :scrolls, only: [:index]
