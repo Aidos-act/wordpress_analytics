@@ -3,11 +3,12 @@
       <div class="iframe-set">
         <h1 class="heat-map-details"></h1>
         <tr class="heat-map-row">
-          <td> {{durationPercents[0]}}</td>
-          <td> {{durationPercents[1]}}</td>
-          <td> {{durationPercents[2]}}</td>
-          <td> {{durationPercents[3]}}</td>
-          <td> {{durationPercents[4]}}</td>
+          <td> {{durationPercents[5]}}</td>
+        <td> {{durationPercents[4]}}</td>
+        <td> {{durationPercents[3]}}</td>
+        <td> {{durationPercents[2]}}</td>
+        <td> {{durationPercents[1]}}</td>
+        <td> {{durationPercents[0]}}</td>
         </tr>
         <div v-slimscroll="options" class="slimscroll">
           <div class="iframe-parent">
@@ -612,21 +613,21 @@
 
   .heat-color{
     width: 100%;
-    height: 2500px;
+    height: 700px;
     bottom: 30%;
     position: absolute;
   }
   .color-red {
-    background: linear-gradient(transparent, red, transparent);
+    background: linear-gradient(transparent, red, red, transparent);
   }
   .color-orange {
-    background: linear-gradient(transparent, orange, transparent);
+    background: linear-gradient(transparent, orange, orange, transparent);
   }
   .color-yellow {
-    background: linear-gradient(transparent, yellow, transparent);
+    background: linear-gradient(transparent, yellow, yellow, transparent);
   }
   .color-green {
-    background: linear-gradient(transparent, green, transparent);
+    background: linear-gradient(transparent, green, green, transparent);
   }
   .color-blue {
     background: linear-gradient(transparent, blue, transparent);
@@ -691,7 +692,7 @@
     width: 25vw;
     height: 1vw;
     border-radius: 11px;
-    background: linear-gradient(to right, red, orange, yellow, lightgreen);
+    background: linear-gradient(to left, red, orange, yellow, lightgreen, blue);
   }
   .heat-map-row{
     width: 28vw;
