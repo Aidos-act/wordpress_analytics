@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: destiny161618/mysql:v1
+        image: gcr.io/fullout-core/wp-analytics-mysql:v1
         env:
         - name: MYSQL_USERNAME
           valueFrom:

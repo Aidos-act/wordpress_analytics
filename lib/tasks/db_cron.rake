@@ -9,8 +9,6 @@ namespace :db_cron do
 
   	ga = GetAnalytics.new
   	yesterday = Date.yesterday.strftime("%Y-%m-%d")
-    # yesterday = Date.yesterday.strftime("2020-09-21")
-    
     
   	article_key = Article.column_names
   	# remove id in array
@@ -21,6 +19,7 @@ namespace :db_cron do
   	ga_key.shift
 
 	  domains = Domain.all
+
 
 #ddddddddddddddddd    
     
@@ -50,48 +49,6 @@ namespace :db_cron do
         end
 
       end
-      # # update max_position if max_position is not the highest one
-      # max_position_array = ga.get_max_position(yesterday, view_id)
-
-      # articles = Article.select(:article_url, :max_position)
-
-      # articles.each do |article|
-      #   total_events = 0
-      #   max_position = 1
-      #   mobile_device_info = ''
-      #   if max_position_array != nil
-      #     max_arr = max_position_array.select{|max| max['article_url'] == article.article_url}
-      #     if !max_arr.empty?
-      #       max_arr.each do |a|
-      #         if a['total_events'] > total_events
-
-      #           total_events = a['total_events']
-      #           mobile_device_info = a['mobileDeviceInfo']
-      #           max_position = a['max_position']
-
-      #         elsif  a['total_events'] == total_events && a['mobileDeviceInfo'] == 'Apple iPhone'
-
-      #           if mobile_device_info == 'Apple iPhone' && a['max_position'] > max_position
-      #             max_position = a['max_position']
-      #           elsif mobile_device_info != 'Apple iPhone'
-      #             mobile_device_info = a['mobileDeviceInfo']
-      #             max_position = a['max_position']
-      #           end
-
-      #         end
-              
-      #       end
-      #     end
-
-      #     if article.max_position != max_position
-      #       p article.article_url
-      #       p article.max_position
-      #       p max_position
-      #       puts '*****************'
-      #       # a.update(max_position: max_position)
-      #     end
-      #   end
-      # end
 
   	end
 

@@ -1010,82 +1010,98 @@ class GetAnalytics < ApplicationController
 			]
 		)
 
-		request = @analytics::GetReportsRequest.new(
-  			report_requests: [@analytics::ReportRequest.new(
-    			view_id: view_id,
-    			dimensions: dimension_type,
-    			metrics: metric_type, 
-    			dimension_filter_clauses: [dimension_filters, dimension_filters_scroll],
-    			# dimensions: [dimension], 
-    			date_ranges: [date_range],
-    			order_bys: order_by,
-    			# order_bys: order_by,
-    			page_size: 100_000
-  			)]
-		)
-		response = @client.batch_get_reports(request)
-
-		# handling error 
-		if !response.reports.first.data.rows then
-			return
-		end
-
+		page_token = "0"
+		token_flag = 0
 		set_ga_scroll_array = Array.new
 
-		data_from_google = response.reports.first.data.rows
-		
-		data_from_google.each do |r|
+		while token_flag == 0
 
-			# article table column
-			# [article_id, scroll_position, scroll_duration, created_at, updated_at]
+			request = @analytics::GetReportsRequest.new(
+	  			report_requests: [@analytics::ReportRequest.new(
+	    			view_id: view_id,
+	    			dimensions: dimension_type,
+	    			metrics: metric_type, 
+	    			dimension_filter_clauses: [dimension_filters, dimension_filters_scroll],
+	    			# dimensions: [dimension], 
+	    			date_ranges: [date_range],
+	    			order_bys: order_by,
+	    			# order_bys: order_by,
+	    			page_size: 100_000,
+	    			page_token: page_token
+	  			)]
+			)
+			response = @client.batch_get_reports(request)
 
-			# dimensions & metrics
-			# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
-			# metric = 'ga:eventValue'
-
-			datahash = {}
-
-			urls_rm_params = r.dimensions[0].split(/\?/)[0]
-
-			article = Article.select(:id).find_by(article_url: urls_rm_params)
-			next if !article
-
-			scroll_arr = set_ga_scroll_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date'] == r.dimensions[3] && a['scroll_position'] == r.dimensions[2]}
-
-			if !scroll_arr.empty? 
-				scroll_index = scroll_arr.first[1]
-				set_ga_scroll_array[scroll_index]
-				
-				scroll_duration = set_ga_scroll_array[scroll_index]['scroll_duration'].to_i
-				scroll_duration_temp = r.metrics.first.values[0].to_i
-				set_ga_scroll_array[scroll_index]['scroll_duration'] = scroll_duration + scroll_duration_temp
-
-				access_count = set_ga_scroll_array[scroll_index]['access_count'].to_i
-				access_count_temp = r.metrics.first.values[1].to_i
-				set_ga_scroll_array[scroll_index]['access_count'] = access_count + access_count_temp	
-			else
-				datahash['article_id'] = article.id
-
-				date = r.dimensions[3]
-				datahash['date'] = date
-
-				scroll_position = r.dimensions[2]
-				datahash['scroll_position'] = scroll_position
-
-				scroll_duration = r.metrics.first.values[0]
-				datahash['scroll_duration'] = scroll_duration
-
-				access_count = r.metrics.first.values[1]
-				datahash['access_count'] = access_count
-
-
-				datahash['created_at'] = Time.zone.now
-				datahash['updated_at'] = Time.zone.now
-
-				set_ga_scroll_array.push(datahash)
+			# handling error 
+			if !response.reports.first.data.rows then
+				return
 			end
+
+			data_from_google = response.reports.first.data.rows
+			
+			data_from_google.each do |r|
+
+				# article table column
+				# [article_id, scroll_position, scroll_duration, created_at, updated_at]
+
+				# dimensions & metrics
+				# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
+				# metric = 'ga:eventValue'
+
+				datahash = {}
+
+				urls_rm_params = r.dimensions[0].split(/\?/)[0]
+
+				article = Article.select(:id).find_by(article_url: urls_rm_params)
+				next if !article
+
+				scroll_arr = set_ga_scroll_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date'] == r.dimensions[3] && a['scroll_position'] == r.dimensions[2]}
+
+				if !scroll_arr.empty? 
+					scroll_index = scroll_arr.first[1]
+					set_ga_scroll_array[scroll_index]
+					
+					scroll_duration = set_ga_scroll_array[scroll_index]['scroll_duration'].to_i
+					scroll_duration_temp = r.metrics.first.values[0].to_i
+					set_ga_scroll_array[scroll_index]['scroll_duration'] = scroll_duration + scroll_duration_temp
+
+					access_count = set_ga_scroll_array[scroll_index]['access_count'].to_i
+					access_count_temp = r.metrics.first.values[1].to_i
+					set_ga_scroll_array[scroll_index]['access_count'] = access_count + access_count_temp	
+				else
+					datahash['article_id'] = article.id
+
+					date = r.dimensions[3]
+					datahash['date'] = date
+
+					scroll_position = r.dimensions[2]
+					datahash['scroll_position'] = scroll_position
+
+					scroll_duration = r.metrics.first.values[0]
+					datahash['scroll_duration'] = scroll_duration
+
+					access_count = r.metrics.first.values[1]
+					datahash['access_count'] = access_count
+
+
+					datahash['created_at'] = Time.zone.now
+					datahash['updated_at'] = Time.zone.now
+
+					set_ga_scroll_array.push(datahash)
+				end
+			end	
+
+			if response.reports.first.next_page_token == nil
+				token_flag = 1
+				p response.reports.first.next_page_token
+			else
+				page_token = response.reports.first.next_page_token
+				p response.reports.first.next_page_token
+			end		
+
 		end
-		
+
+
 		return set_ga_scroll_array	
 
 	end
