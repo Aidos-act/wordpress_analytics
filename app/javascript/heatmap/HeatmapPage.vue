@@ -1,17 +1,16 @@
 <template>
-  <div class="heat-body-set">
-      <h1 class="heat-map-details">
-      </h1>
-      <tr class="heat-map-row">
-        <td> {{durationPercents[5]}}</td>
+    <div class="heat-body-set">
+      <div class="iframe-set">
+        <h1 class="heat-map-details"></h1>
+        <tr class="heat-map-row">
+          <td> {{durationPercents[5]}}</td>
         <td> {{durationPercents[4]}}</td>
         <td> {{durationPercents[3]}}</td>
         <td> {{durationPercents[2]}}</td>
         <td> {{durationPercents[1]}}</td>
         <td> {{durationPercents[0]}}</td>
-      </tr>
-      <div class="iframe-set">
-        <div v-slimscroll="options">
+        </tr>
+        <div v-slimscroll="options" class="slimscroll">
           <div class="iframe-parent">
             <div class="scroll-percent" ref="readLine">
               <div v-if="!loading" class="read-line" v-for="e in setScrollPercent().length" :style="{top: getHeight(e) + 'px'}">
@@ -25,44 +24,60 @@
                 </div>
               </div>
             </div>
-         </div>
-         <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
-            <div v-for="e in scrolld">
-              <div class="heat-map-line" v-bind:style="{ top: e.scroll_pos + '%' }"> 
-                <div v-if="(e.sum_dur/max_dur*100)>=80">
-                  <h1 class="heat-color color-red"></h1>
-                </div>
-                <div v-else>
-                  <div v-if="(e.sum_dur/max_dur*100)>=60">
-                    <h1 class="heat-color color-orange"></h1>
+            <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
+              <div v-if="!loading" v-for="e in scrolld">
+                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
+                  <div v-if="(e.sum_dur/max_dur*100)>=80">
+                    <h1 class="heat-color color-red"></h1>
                   </div>
                   <div v-else>
-                    <div v-if="(e.sum_dur/max_dur*100)>=40">
-                      <h1 class="heat-color color-yellow"></h1>
+                    <div v-if="(e.sum_dur/max_dur*100)>=60">
+                      <h1 class="heat-color color-orange"></h1>
                     </div>
                     <div v-else>
-                      <div v-if="(e.sum_dur/max_dur*100)>=20">
-                        <h1 class="heat-color color-green"></h1>
+                      <div v-if="(e.sum_dur/max_dur*100)>=40">
+                        <h1 class="heat-color color-yellow"></h1>
+                      </div>
+                      <div v-else>
+                        <div v-if="(e.sum_dur/max_dur*100)>=20">
+                          <h1 class="heat-color color-green"></h1>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <!-- <div v-else-if="(e.sum_dur/max_dur*100)>=60">
+                    <h1 class="heat-color color-orange"></h1>
+                  </div>
+                  <div v-else-if="(e.sum_dur/max_dur*100)>=40">
+                    <h1 class="heat-color color-yellow"></h1>
+                  </div>
+                  <div v-else-if="(e.sum_dur/max_dur*100)>=20">
+                    <h1 class="heat-color color-green"></h1>
+                  </div>
+                  <div v-else>
+                    <h1 class="heat-color color-blue"></h1>
+                  </div> -->
+                  <div class="arrow" :style="getArrowHeight"></div>
+                  <p class="time-sub" :style="getAvgTimeTooltip()">
+                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
+                  </p>
                 </div>
               </div>
             </div>
+            
+            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
+            
+            <v-progress-circular
+              v-if="loading"
+              class="spinner"
+              indeterminate
+              color="green"
+              :size="80"
+              :width="5"
+            ></v-progress-circular>
           </div>
-         
-        <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="100%" :height="maxheight"></iframe>
-        <v-progress-circular
-          v-if="loading"
-          class="spinner"
-          indeterminate
-          color="green"
-          :size="300"
-          :width="25"
-        ></v-progress-circular>
-        
+        </div> 
       </div>
-
 
       <div class="values-set">
         <!-- datepicker start -->
@@ -259,12 +274,12 @@
         loading: true,
         arrow_height: '',
         options:{
-          width: '100%',
-          height: '100%',
-          size: '20px',
+          width: '30%',
+          height: '30%',
+          size: '5px',
           color: '#000000',
           alwaysVisible: true,
-          distance: '20px',
+          distance: '5px',
           // start: top,
           // railVisible: true,
           railColor: '#222',
@@ -313,6 +328,17 @@
           this.dates.reverse();
         }
         return this.dates.join(' ~ ')
+      },
+      getArrowHeight(){
+        var maxheight = parseInt(this.maxheight, 10);
+
+        var arrowTop = ((maxheight*0.01)*-1)+70;  
+        var arrowHeight = (maxheight*0.01)-100;
+
+        return {
+                top: arrowTop + 'px',
+                height: arrowHeight + 'px'
+              };
       },
     },
     created () {
@@ -363,7 +389,7 @@
         this.updateClickcount();
         // this.getScrollp();
         this.getScrolld();
-        this.getMaximumd();
+        this.getMaxd();
         this.getScrollCalculate();
         this.$store.commit('getArticleData',{
           startdate: this.dates[0],
@@ -484,16 +510,6 @@
         
         return h + ":" + m + ":" + s;
       },
-      setDurToMinute(duration){
-        var m = Math.floor(duration/60);
-
-        var s = Math.floor(duration - (m*60));
-
-        m = (m < 10) ? "0" + m : m;
-        s = (s < 10) ? "0" + s : s;
-        
-        return m + ":" + s;
-      },
       getDomain(){
         var domain = this.domainName;
         var result = '';
@@ -519,20 +535,6 @@
         var scrollpp = this.scrolltemp;
         var scrollpercent = [];
 
-        // if (maxheight<10000) {
-        //   scrollpercent = scrollpp.filter(function(v, i) {
-        //        var j = i+1;
-        //        return j % 4 == 0;
-        //   });
-        // }else if (maxheight<20000) {
-        //   scrollpercent = scrollpp.filter(function(v, i) {
-        //        var j = i+1;
-        //        return j % 2 == 0;
-        //   });
-        // }else {
-        //   scrollpercent = this.scrolltemp;
-        // }
-
         scrollpercent = this.scrolltemp;
 
         return scrollpercent;
@@ -541,51 +543,36 @@
         
         var maxheight = parseInt(this.maxheight, 10);
 
-        index = index * 3;
-
-        // if (maxheight<10000) {
-        //   var percent = (index * 4)/100;
-        // }else if(maxheight<20000){
-        //   var percent = (index * 2)/100;
-        // } else{
-        //   var percent = (index * 1)/100;  
-        // }
-        
-        var percent = (index * 1)/100;
+        var percent = index/100;
 
         var divHeight = (maxheight*percent);
         // var ceiledHeight = Math.ceil(divHeight);
         
         return divHeight
       },
-      getArrowHeight(index){
-        var maxheight = parseInt(this.maxheight, 10);
-
-        if (index == 1) {
-          var arrowTop = ((maxheight*0.03)*-1)+100;  
-        }else{
-          var arrowTop = ((maxheight*0.03)*-1)+150;  
-        }
-        
-        var arrowHeight = (maxheight*0.03)-200;
-        
-
-        return {
-                top: arrowTop + 'px',
-                height: arrowHeight + 'px'
-              };
-      },
       getAvgTimeTooltip(){
         var maxheight = parseInt(this.maxheight, 10);
 
-        var arrowtooltip = ((maxheight*0.03)*-1)/2;
+        var arrowtooltip = ((maxheight*0.01)*-1)/2;
 
         return {top: arrowtooltip + 'px'};
       },
       gethsl(sum, max){
         var hsl = 100 - (sum/max)*100
         return hsl;
-      }
+      },
+      getAvgTimeonSection(duration, access_count) {
+        var avg_time_on_section = 0;
+        
+        if (duration==0 || access_count==0) {
+          avg_time_on_section = 0;
+          
+        }else {
+          avg_time_on_section = (duration/access_count).toFixed(2);
+        }
+
+        return avg_time_on_section + '秒'
+      },
     },
     beforeDestroy() {
         window.removeEventListener('message');
@@ -620,12 +607,10 @@
     overflow-y: visible; 
     z-index: -1;
     pointer-events: none;
-    transform: scale(3);
+    transform: scale(1, 1);
     transform-origin: top left;
   }
-  div:empty {
-    display: none;
-  }
+
   .heat-color{
     width: 100%;
     height: 700px;
@@ -644,29 +629,29 @@
   .color-green {
     background: linear-gradient(transparent, green, green, transparent);
   }
+  .color-blue {
+    background: linear-gradient(transparent, blue, transparent);
+  }
   .lines-p {
     font-size: 70px;
   }
   .lines {
     color:white;
     text-shadow: 0px 0px 5px black;
-    
     margin-bottom: 0px;
     border-right-width: 0px;
     border-left-width: 0px;
     border-top-width: 0px;
     border-style: dotted;
     border-color: white;
-    border-bottom-width: 10px;
   }
   .iframe-set {
     display: inline-block;
     position: fixed;
-    height: 280%; 
+    height: 240%; 
     overflow: scroll;
     min-width: 1200px;
-    margin-left: 50px;
-    transform: scale(0.3,0.3);
+    margin-left: 4.5vw;
     transform-origin: top left;
   }
   .values-set {
@@ -691,7 +676,7 @@
     display: block;
     position: absolute;
     width: 100%;
-    height: 80%;  
+    height: 90%;  
     overflow-y: scroll;
   }
   .scroll-percent {
@@ -702,21 +687,19 @@
     z-index: 1;
   }
   .heat-map-details{
-    margin-left: 3vw;
     margin-top: 2vw;
     margin-bottom: 2vw;
-    width: 28vw;
+    width: 25vw;
     height: 1vw;
     border-radius: 11px;
     background: linear-gradient(to left, red, orange, yellow, lightgreen, blue);
   }
   .heat-map-row{
-    width: 32vw;
+    width: 28vw;
     height: 1vw;
-    margin-left: 3vw;
     margin-top: -1.7vw;
     position: absolute;
-    font-size: 11px;
+    font-size: 5px;
     display: inline-table;
   }
   .heat-map{
@@ -832,7 +815,7 @@
     width: 100%;
   }
   .spinner {
-    top: 800px;
+    top: 200px;
     left: 35%;
   }
 
@@ -842,39 +825,38 @@
   }
 
   .sub {
-    width: 200px;
-    height: 80px;
+    width: 60px;
+    height: 25px;
     background: grey;
-    border-radius: 10px;
-    opacity: 0.6;
-    margin: auto auto;
-    margin-bottom: 20px;
+    border-radius: 5px;
+    opacity: 0.8;
+    margin-bottom: 5px;
   }
 
   .sub:before {
-    border-top: 20px solid grey;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
+    border-top: 5px solid grey;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
     border-bottom: 0 solid transparent;
     content: "";
     position: absolute;
-    top: 80px;
-    margin-left: 35px;
+    top: 25px;
+    margin-left: 10px;
   }
 
   .substrong {
-    font-size: 50px;
+    font-size: 15px;
   }
 
   .time-sub {
-    width: 400px;
-    height: 100px;
+    height: 25px;
     background: black;
-    border-radius: 10px;
+    border-radius: 5px;
     margin: auto auto;
     position: absolute;
-    left: 400px;
+    left: 100px;
     z-index: 1;
+    padding: 0px 10px;
   }
 
   .time-sub:before {
@@ -882,40 +864,38 @@
     position: absolute;
     top: 25%;
     right: 100%; 
-    border-width: 20px;
+    border-width: 5px;
     border-style: solid;
     border-color: transparent black transparent transparent;
   }
 
   .timesubstrong{
-    font-size: 50px;
+    font-size: 15px;
     color: white;
-    opacity: 0.6;
+    opacity: 0.8;
   }
 
   .scroll_point{
-    font-size: 40px;
+    font-size: 10px;
   }
 
 .tooltip {
-  font-size: 50px;
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black; 
 }
 
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 450px;
+  width: 120px;
   background-color: grey;
   color: #fff;
   text-align: center;
-  padding: 10px 0;
-  border-radius: 10px;
+  padding: 5px 0;
+  border-radius: 5px;
   position: absolute;
-  height: 80px;
-  right: 95%
+  height: 25px;
+  right: 85%
 }
 
 
@@ -924,37 +904,45 @@
 }
 
 .arrow {
-  width: 10px;
-  height: 200px; 
+  width: 4px;
   background: black;
   margin: 10px;
   position: absolute;
-  left: 300px;
+  left: 60px;
   z-index: 1;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 .arrow::before,
 .arrow::after {
   content: '';
   position: absolute;
-  left: -25px;
+  left: -8px;
   width: 0;
   height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
 }
 
 .arrow::before {
   top: 0;
-  border-bottom: 50px solid black;
-  opacity: 0.6;
+  border-bottom: 15px solid black;
+  opacity: 0.8;
 }
 
 .arrow::after {
   bottom: 0;
-  border-top: 50px solid black;
-  opacity: 0.6;
+  border-top: 15px solid black;
+  opacity: 0.8;
+}
+.slimScrollDiv {
+  width: 30% !important;
+  height: 30% !important;
+}
+
+.slimscroll {
+  width: 100% !important;
+  height: 100% !important; 
 }
 
 </style>

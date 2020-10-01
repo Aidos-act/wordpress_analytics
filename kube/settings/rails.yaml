@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: destiny1616/nginx:v6
+        image: gcr.io/fullout-core/wp-analytics-nginx:v1
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
@@ -48,7 +48,7 @@ spec:
           initialDelaySeconds: 300
           periodSeconds: 30
       - name: rails
-        image: destiny161618/rails:v23
+        image: gcr.io/fullout-core/wp-analytics-rails:v1
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:
