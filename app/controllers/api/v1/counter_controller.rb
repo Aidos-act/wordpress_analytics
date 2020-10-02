@@ -159,11 +159,12 @@ class Api::V1::CounterController < ApplicationController
     puts '---------------'
 
 
-    durations[0] = Time.at(max).strftime("%M") + '分' + Time.at(max).strftime("%S") + '秒'
-    durations[1] = Time.at(max*0.8).strftime("%M") + '分' + Time.at(max*0.8).strftime("%S") + '秒'
-    durations[2] = Time.at(max*0.6).strftime("%M") + '分' + Time.at(max*0.6).strftime("%S") + '秒'
-    durations[3] = Time.at(max*0.4).strftime("%M") + '分' + Time.at(max*0.4).strftime("%S") + '秒'
-    durations[4] = Time.at(max*0.2).strftime("%M") + '分' + Time.at(max*0.2).strftime("%S") + '秒'
+    durations[0] = ((max/3600).to_i).to_s + '時' + Time.at(max).strftime("%M") + '分' + Time.at(max).strftime("%S") + '秒'
+    durations[1] = ((max*0.8/3600).to_i).to_s + '時' + Time.at(max*0.8).strftime("%M") + '分' + Time.at(max*0.8).strftime("%S") + '秒'
+    durations[2] = ((max*0.6/3600).to_i).to_s + '時' + Time.at(max*0.6).strftime("%M") + '分' + Time.at(max*0.6).strftime("%S") + '秒'
+    durations[3] = ((max*0.4/3600).to_i).to_s + '時' + Time.at(max*0.4).strftime("%M") + '分' + Time.at(max*0.4).strftime("%S") + '秒'
+    durations[4] = ((max*0.2/3600).to_i).to_s + '時' + Time.at(max*0.2).strftime("%M") + '分' + Time.at(max*0.2).strftime("%S") + '秒'
+    durations[5] = '0時' + Time.at(0).strftime("%M") + '分' + Time.at(0).strftime("%S") + '秒'
 
 
     render json:durations
