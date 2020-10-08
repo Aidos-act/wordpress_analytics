@@ -273,6 +273,7 @@
         scrolltemp: [],
         loading: true,
         arrow_height: '',
+        dialog: false,
         options:{
           width: '30%',
           height: '30%',
@@ -391,6 +392,7 @@
         this.getScrolld();
         this.getMaxd();
         this.getScrollCalculate();
+        this.getPercent();
         this.$store.commit('getArticleData',{
           startdate: this.dates[0],
           enddate: this.dates[1],

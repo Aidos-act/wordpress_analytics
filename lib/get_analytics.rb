@@ -1106,6 +1106,145 @@ class GetAnalytics < ApplicationController
 
 	end
 
+# dddddddddddddddddddddddd
+	def get_ga_user_data(yesterday, view_id, ga_key)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = @analytics::OrderBy.new(field_name: 'ga:users', sort_order: 'DESCENDING')
+		
+		metrics = ['ga:users', 'ga:newUsers']
+
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
+		dimensions = ['ga:date', 'ga:pagePath']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id, 
+    			metrics: metric_type,
+    			dimensions: dimension_type,
+    			date_ranges: [date_range],
+    			order_bys: [order_by],
+    			page_size: 100_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+
+		# error handling
+		if !response.reports.first.data.rows then
+		 	return
+		end
+
+
+		data_from_google = response.reports.first.data.rows
+		
+		
+		set_ga_data_array = Array.new
+
+
+		data_from_google.each_with_index do |r, index|
+
+			# dimensions = ['ga:dateHour', 'ga:pagePath']
+			# metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:avgTimeOnPage']
+			datahash = {}
+
+			urls_rm_params = r.dimensions[1].split(/\?/)[0]
+
+			article = Article.select(:id).find_by(article_url: urls_rm_params)
+			next if !article
+
+			article_arr = set_ga_data_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date'] == r.dimensions[0]}
+
+			if !article_arr.empty?
+				article_index = article_arr.first[1]
+				set_ga_data_array[article_index]
+				
+				page_view = set_ga_data_array[article_index]['page_view'].to_i
+				page_view_temp = r.metrics.first.values[0].to_i
+				set_ga_data_array[article_index]['page_view'] = page_view + page_view_temp
+
+				user = set_ga_data_array[article_index]['user'].to_i
+				user_temp = r.metrics.first.values[1].to_i
+				set_ga_data_array[article_index]['user'] = user + user_temp				
+
+				new_user = set_ga_data_array[article_index]['new_user'].to_i
+				new_user_temp = r.metrics.first.values[2].to_i
+				set_ga_data_array[article_index]['new_user'] = new_user + new_user_temp
+
+				bounce = set_ga_data_array[article_index]['bounce'].to_i
+				bounce_temp = r.metrics.first.values[3].to_i
+				set_ga_data_array[article_index]['bounce'] = bounce + bounce_temp
+
+				session = set_ga_data_array[article_index]['session'].to_i
+				session_temp = r.metrics.first.values[4].to_i
+				set_ga_data_array[article_index]['session'] = session + session_temp
+
+				avg_time_on_page = set_ga_data_array[article_index]['avg_time_on_page'].to_i
+				avg_time_on_page_temp = r.metrics.first.values[5].to_i
+				set_ga_data_array[article_index]['avg_time_on_page'] = avg_time_on_page + avg_time_on_page_temp
+
+			else
+
+				datahash['article_id'] = article.id
+
+				datahash['date_hour'] = r.dimensions[0]
+
+				page_view = r.metrics.first.values[0]
+				datahash['page_view'] = page_view
+
+				user = r.metrics.first.values[1]
+				datahash['user'] = user
+
+				new_user = r.metrics.first.values[2]
+				datahash['new_user'] = new_user
+
+				bounce = r.metrics.first.values[3]
+				datahash['bounce'] = bounce
+
+				session = r.metrics.first.values[4]
+				datahash['session'] = session
+
+				avg_time_on_page = r.metrics.first.values[5]
+				datahash['avg_time_on_page'] = avg_time_on_page
+
+				datahash['created_at'] = Time.zone.now
+				datahash['updated_at'] = Time.zone.now
+
+
+				set_ga_data_array.push(datahash)
+			end
+		end
+
+		# avg time on page setting
+		# avg.time on page = time on page / pageviews
+		set_ga_data_array.each do |ga|
+			time_on_page = ga['avg_time_on_page'].to_i
+			pv = ga['page_view'].to_i
+
+			if time_on_page != 0 && pv != 0
+				begin
+					ga['avg_time_on_page'] = time_on_page/pv
+				rescue StandardError => e
+					puts e
+					ga['avg_time_on_page'] = 0
+				end
+			end
+		end
+	
+		return set_ga_data_array
+	end
+
 
 	private
 
