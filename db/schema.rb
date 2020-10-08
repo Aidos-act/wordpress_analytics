@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_08_010846) do
+ActiveRecord::Schema.define(version: 2020_10_08_090050) do
 
   create_table "articles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "domain_id"
@@ -53,6 +53,16 @@ ActiveRecord::Schema.define(version: 2020_10_08_010846) do
     t.index ["article_id", "date_hour"], name: "index_ga_apis_on_article_id_and_date_hour", unique: true
   end
 
+  create_table "ga_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "article_id", null: false
+    t.datetime "date", null: false
+    t.integer "user_record", default: 0
+    t.integer "new_user_record", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["article_id"], name: "index_ga_users_on_article_id"
+  end
+
   create_table "goal_achievements", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "goal_id", null: false
     t.integer "article_id", null: false
@@ -81,4 +91,5 @@ ActiveRecord::Schema.define(version: 2020_10_08_010846) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "ga_users", "articles"
 end

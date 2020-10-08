@@ -27,23 +27,23 @@
             <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
               <div v-if="!loading" v-for="e in scrolld">
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                  <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=15">
+                  <div v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=15">
                     <h1 class="heat-color color-red"></h1>
                   </div>
                   <div v-else>
-                    <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=12">
+                    <div v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=12">
                       <h1 class="heat-color color-orange"></h1>
                     </div>
                     <div v-else>
-                      <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=9">
+                      <div v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=9">
                         <h1 class="heat-color color-yellow"></h1>
                       </div>
                       <div v-else>
-                        <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=6">
+                        <div v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=6">
                           <h1 class="heat-color color-green"></h1>
                         </div>
                         <div v-else>
-                          <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=3">
+                          <div v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=3">
                             <h1 class="heat-color color-blue"></h1>
                           </div>
                         </div>
@@ -64,7 +64,7 @@
                   </div> -->
                   <div class="arrow" :style="getArrowHeight"></div>
                   <p class="time-sub" :style="getAvgTimeTooltip()">
-                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
+                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}秒</strong>
                   </p>
                 </div>
               </div>
@@ -578,20 +578,8 @@
           avg_time_on_section = (duration/access_count).toFixed(2);
         }
 
-        return avg_time_on_section + '秒'
-      },
-      getAvgTimeonSectionInt(duration, access_count) {
-        var avg_time_on_section = 0;
-        
-        if (duration==0 || access_count==0) {
-          avg_time_on_section = 0;
-          
-        }else {
-          avg_time_on_section = (duration/access_count).toFixed(2);
-        }
-
         return avg_time_on_section
-      },
+      }
     },
     beforeDestroy() {
         window.removeEventListener('message');

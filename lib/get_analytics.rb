@@ -661,7 +661,7 @@ class GetAnalytics < ApplicationController
 			end
 		end
 
-		# avg time on page setting
+		# avg time on page setup (avt t.o.p in ga doesn't fit to our site so we need to calculate by ourselves)
 		# avg.time on page = time on page / pageviews
 		set_ga_data_array.each do |ga|
 			time_on_page = ga['avg_time_on_page'].to_i
@@ -1107,7 +1107,7 @@ class GetAnalytics < ApplicationController
 	end
 
 # dddddddddddddddddddddddd
-	def get_ga_user_data(yesterday, view_id, ga_key)
+	def get_ga_user_data(yesterday, view_id)
 		
 		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
 		order_by = @analytics::OrderBy.new(field_name: 'ga:users', sort_order: 'DESCENDING')
@@ -1155,8 +1155,8 @@ class GetAnalytics < ApplicationController
 
 		data_from_google.each_with_index do |r, index|
 
-			# dimensions = ['ga:dateHour', 'ga:pagePath']
-			# metrics = ['ga:pageviews', 'ga:users', 'ga:newUsers', 'ga:bounces', 'ga:sessions', 'ga:avgTimeOnPage']
+			# dimensions = ['ga:date', 'ga:pagePath']
+			# metrics = ['ga:users', 'ga:newUsers']
 			datahash = {}
 
 			urls_rm_params = r.dimensions[1].split(/\?/)[0]
@@ -1169,76 +1169,31 @@ class GetAnalytics < ApplicationController
 			if !article_arr.empty?
 				article_index = article_arr.first[1]
 				set_ga_data_array[article_index]
-				
-				page_view = set_ga_data_array[article_index]['page_view'].to_i
-				page_view_temp = r.metrics.first.values[0].to_i
-				set_ga_data_array[article_index]['page_view'] = page_view + page_view_temp
 
-				user = set_ga_data_array[article_index]['user'].to_i
-				user_temp = r.metrics.first.values[1].to_i
-				set_ga_data_array[article_index]['user'] = user + user_temp				
+				user = set_ga_data_array[article_index]['user_record'].to_i
+				user_temp = r.metrics.first.values[0].to_i
+				set_ga_data_array[article_index]['user_record'] = user + user_temp				
 
-				new_user = set_ga_data_array[article_index]['new_user'].to_i
-				new_user_temp = r.metrics.first.values[2].to_i
-				set_ga_data_array[article_index]['new_user'] = new_user + new_user_temp
-
-				bounce = set_ga_data_array[article_index]['bounce'].to_i
-				bounce_temp = r.metrics.first.values[3].to_i
-				set_ga_data_array[article_index]['bounce'] = bounce + bounce_temp
-
-				session = set_ga_data_array[article_index]['session'].to_i
-				session_temp = r.metrics.first.values[4].to_i
-				set_ga_data_array[article_index]['session'] = session + session_temp
-
-				avg_time_on_page = set_ga_data_array[article_index]['avg_time_on_page'].to_i
-				avg_time_on_page_temp = r.metrics.first.values[5].to_i
-				set_ga_data_array[article_index]['avg_time_on_page'] = avg_time_on_page + avg_time_on_page_temp
-
+				new_user = set_ga_data_array[article_index]['new_user_record'].to_i
+				new_user_temp = r.metrics.first.values[1].to_i
+				set_ga_data_array[article_index]['new_user_record'] = new_user + new_user_temp
 			else
 
 				datahash['article_id'] = article.id
 
-				datahash['date_hour'] = r.dimensions[0]
+				datahash['date'] = r.dimensions[0]
 
-				page_view = r.metrics.first.values[0]
-				datahash['page_view'] = page_view
+				user = r.metrics.first.values[0]
+				datahash['user_record'] = user
 
-				user = r.metrics.first.values[1]
-				datahash['user'] = user
-
-				new_user = r.metrics.first.values[2]
-				datahash['new_user'] = new_user
-
-				bounce = r.metrics.first.values[3]
-				datahash['bounce'] = bounce
-
-				session = r.metrics.first.values[4]
-				datahash['session'] = session
-
-				avg_time_on_page = r.metrics.first.values[5]
-				datahash['avg_time_on_page'] = avg_time_on_page
+				new_user = r.metrics.first.values[1]
+				datahash['new_user_record'] = new_user
 
 				datahash['created_at'] = Time.zone.now
 				datahash['updated_at'] = Time.zone.now
 
 
 				set_ga_data_array.push(datahash)
-			end
-		end
-
-		# avg time on page setting
-		# avg.time on page = time on page / pageviews
-		set_ga_data_array.each do |ga|
-			time_on_page = ga['avg_time_on_page'].to_i
-			pv = ga['page_view'].to_i
-
-			if time_on_page != 0 && pv != 0
-				begin
-					ga['avg_time_on_page'] = time_on_page/pv
-				rescue StandardError => e
-					puts e
-					ga['avg_time_on_page'] = 0
-				end
 			end
 		end
 	
@@ -1252,6 +1207,7 @@ class GetAnalytics < ApplicationController
 	def auth
 		scope = ['https://www.googleapis.com/auth/analytics.readonly']
 		@client = @analytics::AnalyticsReportingService.new
+		@client.request_options.retries = 3
 		@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
 		  json_key_io: File.open("#{Rails.root}/lib/google-auth-cred.json"),
 		  scope: scope

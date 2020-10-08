@@ -65,6 +65,17 @@ namespace :db_cron do
   		
   	end
 
+    # ga_user table
+    domains.each do |d|
+      view_id = (d.view_id).to_s
+      ga_user_data = ga.get_ga_user_data(yesterday, view_id)
+
+      if ga_user_data
+        GaUser.insert_all(ga_user_data)
+      end
+
+    end
+
 
     #click table
     domains.each do |d|
@@ -91,10 +102,6 @@ namespace :db_cron do
 #ddddddddddddddddd
 
     puts 'whenever end'
-
-
-    # .where(clicks: {date_hour: Date.yesterday.beginning_of_day..Date.yesterday.end_of_day})
-    # Article.left_joins(:ga_apis, :clicks).where(domain_id: 1).pluck("SUM(ga_apis.bounce) as bounce", "COUNT(clicks.article_id) as count")
 
   end
 
