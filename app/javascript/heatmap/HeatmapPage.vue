@@ -3,12 +3,12 @@
       <div class="iframe-set">
         <h1 class="heat-map-details"></h1>
         <tr class="heat-map-row">
-          <td> {{durationPercents[5]}}</td>
-        <td> {{durationPercents[4]}}</td>
-        <td> {{durationPercents[3]}}</td>
-        <td> {{durationPercents[2]}}</td>
-        <td> {{durationPercents[1]}}</td>
-        <td> {{durationPercents[0]}}</td>
+          <td class="sec-text"> 0秒</td>
+          <td class="sec-text"> 3秒</td>
+          <td class="sec-text"> 6秒</td>
+          <td class="sec-text"> 9秒</td>
+          <td class="sec-text"> 12秒</td>
+          <td class="sec-text"> 15秒</td>
         </tr>
         <div v-slimscroll="options" class="slimscroll">
           <div class="iframe-parent">
@@ -25,31 +25,12 @@
               </div>
             </div>
             <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
-              <div v-if="!loading" v-for="e in scrolld">
-                <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                  <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=15">
-                    <h1 class="heat-color color-red"></h1>
-                  </div>
-                  <div v-else>
-                    <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=12">
-                      <h1 class="heat-color color-orange"></h1>
-                    </div>
-                    <div v-else>
-                      <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=9">
-                        <h1 class="heat-color color-yellow"></h1>
-                      </div>
-                      <div v-else>
-                        <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=6">
-                          <h1 class="heat-color color-green"></h1>
-                        </div>
-                        <div v-else>
-                          <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=3">
-                            <h1 class="heat-color color-blue"></h1>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <div v-if="!loading" v-for="e in scrolld" class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
+                <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=15" class="heat-color color-red"></h1>
+                <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=12 && getAvgTimeonSection(e.sum_dur, e.access_count)<15" class="heat-color color-orange"></h1>
+                <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=9 && getAvgTimeonSection(e.sum_dur, e.access_count)<12" class="heat-color color-yellow"></h1>
+                <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=6 && getAvgTimeonSection(e.sum_dur, e.access_count)<9" class="heat-color color-green"></h1>
+                <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=3 && getAvgTimeonSection(e.sum_dur, e.access_count)<6" class="heat-color color-blue"></h1>
                   <!-- <div v-else-if="(e.sum_dur/max_dur*100)>=60">
                     <h1 class="heat-color color-orange"></h1>
                   </div>
@@ -66,7 +47,6 @@
                   <p class="time-sub" :style="getAvgTimeTooltip()">
                     <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
                   </p>
-                </div>
               </div>
             </div>
             
@@ -576,18 +556,6 @@
           avg_time_on_section = (duration/access_count).toFixed(2);
         }
 
-        return avg_time_on_section + '秒'
-      },
-      getAvgTimeonSectionInt(duration, access_count) {
-        var avg_time_on_section = 0;
-        
-        if (duration==0 || access_count==0) {
-          avg_time_on_section = 0;
-          
-        }else {
-          avg_time_on_section = (duration/access_count).toFixed(2);
-        }
-
         return avg_time_on_section
       },
     },
@@ -709,18 +677,21 @@
     width: 25vw;
     height: 1vw;
     border-radius: 11px;
-    background: linear-gradient(to left, red, orange, yellow, lightgreen, blue);
+    background: linear-gradient(to left, red, red, orange, orange, yellow, yellow, lightgreen, lightgreen, blue, blue, #00004a, #00004a);
   }
   .heat-map-row{
-    width: 28vw;
+    width: 25vw;
     height: 1vw;
     margin-top: -1.7vw;
     position: absolute;
     font-size: 5px;
     display: inline-table;
   }
+  .sec-text{
+    width: calc(100% / 6);
+  }
   .heat-map{
-    background-color: lightgray;
+    background-color: #00004a;
     width: 100%;
     opacity: 0.7;
     pointer-events: none;
