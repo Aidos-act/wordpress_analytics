@@ -27,20 +27,25 @@
             <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
               <div v-if="!loading" v-for="e in scrolld">
                 <div class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
-                  <div v-if="(e.sum_dur/max_dur*100)>=80">
+                  <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=15">
                     <h1 class="heat-color color-red"></h1>
                   </div>
                   <div v-else>
-                    <div v-if="(e.sum_dur/max_dur*100)>=60">
+                    <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=12">
                       <h1 class="heat-color color-orange"></h1>
                     </div>
                     <div v-else>
-                      <div v-if="(e.sum_dur/max_dur*100)>=40">
+                      <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=9">
                         <h1 class="heat-color color-yellow"></h1>
                       </div>
                       <div v-else>
-                        <div v-if="(e.sum_dur/max_dur*100)>=20">
+                        <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=6">
                           <h1 class="heat-color color-green"></h1>
+                        </div>
+                        <div v-else>
+                          <div v-if="getAvgTimeonSectionInt(e.sum_dur, e.access_count)>=3">
+                            <h1 class="heat-color color-blue"></h1>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -575,6 +580,18 @@
 
         return avg_time_on_section + '秒'
       },
+      getAvgTimeonSectionInt(duration, access_count) {
+        var avg_time_on_section = 0;
+        
+        if (duration==0 || access_count==0) {
+          avg_time_on_section = 0;
+          
+        }else {
+          avg_time_on_section = (duration/access_count).toFixed(2);
+        }
+
+        return avg_time_on_section
+      },
     },
     beforeDestroy() {
         window.removeEventListener('message');
@@ -615,8 +632,8 @@
 
   .heat-color{
     width: 100%;
-    height: 700px;
-    bottom: 30%;
+    height: 77vh;
+    bottom: -33.7vh;
     position: absolute;
   }
   .color-red {
@@ -632,7 +649,7 @@
     background: linear-gradient(transparent, green, green, transparent);
   }
   .color-blue {
-    background: linear-gradient(transparent, blue, transparent);
+    background: linear-gradient(transparent, blue, blue, transparent);
   }
   .lines-p {
     font-size: 70px;
@@ -705,7 +722,7 @@
     display: inline-table;
   }
   .heat-map{
-    background-color: blue;
+    background-color: lightgray;
     width: 100%;
     opacity: 0.7;
     pointer-events: none;
