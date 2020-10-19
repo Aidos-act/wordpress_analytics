@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: setup
-        image: gcr.io/fullout-core/wp-analytics-rails:v1
+        image: gcr.io/fullout-core/wp-analytics-rails:v4
         imagePullPolicy: Always
         command: ["/bin/sh"]
         args: ["-c", "bundle exec rake db:create && bundle exec rake db:migrate"]

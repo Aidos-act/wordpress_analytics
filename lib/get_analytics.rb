@@ -1046,7 +1046,7 @@ class GetAnalytics < ApplicationController
 
 				# dimensions & metrics
 				# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
-				# metric = 'ga:eventValue'
+				# metrics = ['ga:eventValue', 'ga:totalEvents']
 
 				datahash = {}
 

@@ -152,13 +152,6 @@ class Api::V1::CounterController < ApplicationController
     s = max%60
     minute = m%60
 
-    puts '---------------'
-    p h
-    p minute
-    p s
-    puts '---------------'
-
-
     # durations[0] = ((max/3600).to_i).to_s + '時' + Time.at(max).strftime("%M") + '分' + Time.at(max).strftime("%S") + '秒'
     # durations[1] = ((max*0.8/3600).to_i).to_s + '時' + Time.at(max*0.8).strftime("%M") + '分' + Time.at(max*0.8).strftime("%S") + '秒'
     # durations[2] = ((max*0.6/3600).to_i).to_s + '時' + Time.at(max*0.6).strftime("%M") + '分' + Time.at(max*0.6).strftime("%S") + '秒'

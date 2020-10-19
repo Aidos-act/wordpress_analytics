@@ -38,8 +38,7 @@
                   </p>
               </div>
             </div>
-            
-            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
+            <iframe :src="getDomain()" scrolling="no" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
             
             <v-progress-circular
               v-if="loading"
@@ -242,10 +241,12 @@
         ipcount: [],
         durationPercents: [],
         isActive: true,
-        maxheight: '',
+        maxheight: 0,
         scrollpercent: [],
         scrolltemp: [],
         loading: true,
+        iframeloaded: false,
+        load_count: 0,
         arrow_height: '',
         dialog: false,
         options:{
@@ -259,9 +260,9 @@
           // railVisible: true,
           railColor: '#222',
           railOpacity: 0.3,
-          wheelStep: 10,
-          touchScrollStep: 100,
-          allowPageScroll: false,
+          wheelStep: 1,
+          touchScrollStep: 1,
+          allowPageScroll: true,
           disableFadeOut: false
         }
       }
@@ -349,7 +350,6 @@
       this.$store.commit('getDomainName',{
           article_id: this.$route.params.id
       });
-      
     },
     methods: {
 
@@ -458,7 +458,7 @@
         var bounce_rate = 0;
         for(var key in articleData){
           if(this.$route.params.id == articleData[key].id ){
-            article['pageviews'] = articleData[key].page_view;
+            article['ページビュー'] = articleData[key].page_view;
             article['ユーザー'] = articleData[key].user;
             article['平均滞在時間'] = this.setMinute(articleData[key].avg_time_on_page);
 
@@ -489,10 +489,12 @@
       getDomain(){
         var domain = this.domainName;
         var result = '';
-        
+        var domain_name = '';
         var article_url = this.article.article_url;
-        var domain_name = domain['domain_name'][0]
-        result = '//' + domain_name + article_url
+        if(domain['domain_name'] != undefined){
+          domain_name = domain['domain_name'][0]  
+          result = '//' + domain_name + article_url
+        }
         
         return result
       },
@@ -551,7 +553,8 @@
       }
     },
     beforeDestroy() {
-        window.removeEventListener('message');
+      console.log('message succeed?')
+      window.removeEventListener('message');
     },
     filters: {
       truncate: function (text, length, suffix) {
