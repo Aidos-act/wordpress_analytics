@@ -43,7 +43,7 @@
             <v-progress-circular
               v-if="loading"
               class="spinner"
-              indeterminate
+              :indeterminate="true"
               color="green"
               :size="80"
               :width="5"
@@ -81,9 +81,8 @@
         <!-- datepicker end -->
 
         <h3> <strong> {{ article.article_title }} </strong> </h3>
-        <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
-        
-        <v-simple-table>
+        <a :href="getDomain()" target="_blank"><small> {{ getDomain() }}</small></a>
+        <v-simple-table style="margin-top: 10px;">
           <template v-slot:default>
             <tbody>
               <tr>
@@ -141,8 +140,6 @@
         <hr>
         <br>
         
-        <h3> <strong> リスト </strong> </h3>
-        
         <material-card
           color="warning"
           class="px-5 py-3"
@@ -155,7 +152,7 @@
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search by Title or URL"
+              placeholder="タイトルやURLご入力ください"
               single-line
               hide-details
             ></v-text-field>
@@ -175,10 +172,18 @@
               <template v-slot:body="{ items }">
                 <tbody>
                   <tr v-for="data in items">
-                    <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
-                    <td class="page-title-wrapper" @click="updateArticle(data.id)">  
-                      <p class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
-                      <small class="page-path">{{ data.article_url | truncate(50, '...') }}</small>
+                    <td class="page-title-wrapper">  
+                      <p @click="updateArticle(data.id)" class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
+                      <small class="page-path">{{ 'https://' + data.domain_name + data.article_url}} 
+                        <a :href="'//' + data.domain_name + data.article_url" target="_blank" style="text-decoration: none;">
+                          <v-icon
+                            size="14"
+                            class="ml-2 mr-1 page-url"
+                          >
+                            mdi-file-move-outline
+                          </v-icon>  
+                        </a>
+                      </small>
                     </td>
                   </tr>
                 </tbody>
@@ -287,8 +292,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
-          alert('2020-09-05 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-10-14' || this.dates[1] < '2020-10-14'){
+          alert('2020-10-14 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -493,7 +498,7 @@
         var article_url = this.article.article_url;
         if(domain['domain_name'] != undefined){
           domain_name = domain['domain_name'][0]  
-          result = '//' + domain_name + article_url
+          result = 'https://' + domain_name + article_url
         }
         
         return result
@@ -535,10 +540,6 @@
 
         return {top: arrowtooltip + 'px'};
       },
-      gethsl(sum, max){
-        var hsl = 100 - (sum/max)*100
-        return hsl;
-      },
       getAvgTimeonSection(duration, access_count) {
         var avg_time_on_section = 0;
         
@@ -553,7 +554,6 @@
       }
     },
     beforeDestroy() {
-      console.log('message succeed?')
       window.removeEventListener('message');
     },
     filters: {
@@ -788,9 +788,13 @@
   .info tr{
     height: 20%;
   }
-  .page-title-wrapper:hover {
+  
+  .page-title:hover {
     color: #42b883;
     cursor: pointer;
+  }
+  .page-url:hover {
+    color: #42b883;
   }
   .read-line {
     position: absolute;
@@ -925,6 +929,10 @@
 .slimscroll {
   width: 100% !important;
   height: 100% !important; 
+}
+
+.v-label .theme--dark {
+  background-color: transparent !important;
 }
 
 </style>
