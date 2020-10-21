@@ -48,7 +48,7 @@ spec:
           initialDelaySeconds: 300
           periodSeconds: 30
       - name: rails
-        image: gcr.io/fullout-core/wp-analytics-rails:v1
+        image: gcr.io/fullout-core/wp-analytics-rails:v7
         imagePullPolicy: Always
         command: ["bundle", "exec", "puma", "-C", "config/puma.rb"]
         envFrom:

@@ -6,19 +6,19 @@ RUN apt-get update -qq && \
 
 # yarn and nodejs for webpacker
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-  	&& apt-get install -y --no-install-recommends nodejs
+    && apt-get install -y --no-install-recommends nodejs
 
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl apt-transport-https wget cron  && \
-  	curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-  	echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-  	apt-get update && apt-get install -y --no-install-recommends yarn
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install -y --no-install-recommends yarn
 
-ENV BUNDLER_VERSION=2.1.4    
+
 
 RUN gem update --system && \
-    gem install bundler:2.1.4
+    gem install bundler
 
 RUN apt-get install -y locales && \
     rm -rf /var/lib/apt/lists/* && \
@@ -43,7 +43,7 @@ COPY . $WORKSPACE
 
 
 RUN yarn install --check-files && \
-	bundle exec whenever --update-crontab
+  bundle exec whenever --update-crontab
 
 
 COPY ./docker-entrypoint.sh /

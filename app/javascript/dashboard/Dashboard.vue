@@ -203,8 +203,10 @@
       >
         <!-- please refer to dashboard/components/base/MaterialChartCard.vue -->
         <!-- get the chart according to graphType -->
+
         <material-chart-card
           :progressdata="setProgressData()"
+          :loadingStatus="this.$store.state.loadingStatus"
           color="info"
           :sheetHeight="300"
           :chartsize="250"
@@ -215,11 +217,10 @@
           </h4>
 
           <p class="d-inline-flex font-weight-light ml-2 mt-1">
-            ゴール1 コンバージョン率 : {{ setProgressData()[0] }}%
+            ゴール1 コンバージョン率 : {{ !this.$store.state.loadingStatus? setProgressData()[0] + "%" : "loading" }}
             <br>
-            ゴール1 完了数 : {{ setProgressData()[1] }}
+            ゴール1 完了数 : {{ !this.$store.state.loadingStatus? setProgressData()[1] : "loading" }}
           </p>
-
         </material-chart-card>
       </v-col>
       <!-- progress circular end -->
@@ -337,8 +338,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
-          alert('2020-09-05 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-10-14' || this.dates[1] < '2020-10-14'){
+          alert('2020-10-14 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -638,6 +639,7 @@
       setProgressData(){
         var goalData = this.goalData;
         
+        console.log(this.$store.state.loadingStatus);
         var cvr;
         var comp;
         for(var key in goalData){

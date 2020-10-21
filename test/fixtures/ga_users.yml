@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date: 2020-10-08 18:00:50
+  user_record: 1
+  new_user_record: 1
+  article: one
+
+two:
+  date: 2020-10-08 18:00:50
+  user_record: 1
+  new_user_record: 1
+  article: two

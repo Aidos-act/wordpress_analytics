@@ -9,12 +9,13 @@
         <v-progress-circular  
           v-if="graphType === 'goal'"
           :value="progressdata[0]"
+          :indeterminate="loadingStatus"
           :rotate="-90"
           :size="chartsize"
           :width="20"
           color="‎teal"
         >
-          <h1>{{ progressdata[0] }}%</h1>
+          <h1 v-if="!loadingStatus">{{ progressdata[0] }}%</h1>
         </v-progress-circular>
 
         <pie-chart
@@ -101,6 +102,10 @@
       graphType:{
         type: String,
         default: '',
+      },
+      loadingStatus: {
+        type: Boolean,
+        default: true
       },
       options: {
         type: Object,

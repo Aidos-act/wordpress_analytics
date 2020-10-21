@@ -25,37 +25,25 @@
               </div>
             </div>
             <div class="heat-map" v-bind:style="{ height: maxheight + 'px' }">
+
               <div v-if="!loading" v-for="e in scrolld" class="heat-map-line" v-bind:style="{ top: e.scroll_position + '%' }"> 
                 <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=15" class="heat-color color-red"></h1>
                 <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=12 && getAvgTimeonSection(e.sum_dur, e.access_count)<15" class="heat-color color-orange"></h1>
                 <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=9 && getAvgTimeonSection(e.sum_dur, e.access_count)<12" class="heat-color color-yellow"></h1>
                 <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=6 && getAvgTimeonSection(e.sum_dur, e.access_count)<9" class="heat-color color-green"></h1>
                 <h1 v-if="getAvgTimeonSection(e.sum_dur, e.access_count)>=3 && getAvgTimeonSection(e.sum_dur, e.access_count)<6" class="heat-color color-blue"></h1>
-                  <!-- <div v-else-if="(e.sum_dur/max_dur*100)>=60">
-                    <h1 class="heat-color color-orange"></h1>
-                  </div>
-                  <div v-else-if="(e.sum_dur/max_dur*100)>=40">
-                    <h1 class="heat-color color-yellow"></h1>
-                  </div>
-                  <div v-else-if="(e.sum_dur/max_dur*100)>=20">
-                    <h1 class="heat-color color-green"></h1>
-                  </div>
-                  <div v-else>
-                    <h1 class="heat-color color-blue"></h1>
-                  </div> -->
                   <div class="arrow" :style="getArrowHeight"></div>
                   <p class="time-sub" :style="getAvgTimeTooltip()">
-                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}</strong>
+                    <strong class="timesubstrong">平均滞留時間 : {{ getAvgTimeonSection(e.sum_dur, e.access_count) }}秒</strong>
                   </p>
               </div>
             </div>
-            
-            <iframe :src="getDomain()" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
+            <iframe :src="getDomain()" scrolling="no" SameSite=None frameborder="0" allowfullscreen width="365px" :height="maxheight"></iframe> 
             
             <v-progress-circular
               v-if="loading"
               class="spinner"
-              indeterminate
+              :indeterminate="true"
               color="green"
               :size="80"
               :width="5"
@@ -93,9 +81,8 @@
         <!-- datepicker end -->
 
         <h3> <strong> {{ article.article_title }} </strong> </h3>
-        <a :href="getDomain()"><p style="overflow-wrap: normal; font-size: 10px;"> <small> {{ article.article_title }}></small> </p></a>
-        
-        <v-simple-table>
+        <a :href="getDomain()" target="_blank"><small> {{ getDomain() }}</small></a>
+        <v-simple-table style="margin-top: 10px;">
           <template v-slot:default>
             <tbody>
               <tr>
@@ -153,8 +140,6 @@
         <hr>
         <br>
         
-        <h3> <strong> リスト </strong> </h3>
-        
         <material-card
           color="warning"
           class="px-5 py-3"
@@ -167,7 +152,7 @@
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search by Title or URL"
+              placeholder="タイトルやURLご入力ください"
               single-line
               hide-details
             ></v-text-field>
@@ -187,10 +172,18 @@
               <template v-slot:body="{ items }">
                 <tbody>
                   <tr v-for="data in items">
-                    <!-- <td class="page-title-wrapper" @click="updateArticle(data.id)"> -->
-                    <td class="page-title-wrapper" @click="updateArticle(data.id)">  
-                      <p class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
-                      <small class="page-path">{{ data.article_url | truncate(50, '...') }}</small>
+                    <td class="page-title-wrapper">  
+                      <p @click="updateArticle(data.id)" class="page-title">{{ data.article_title | truncate(50, '...') }}</p>
+                      <small class="page-path">{{ 'https://' + data.domain_name + data.article_url}} 
+                        <a :href="'//' + data.domain_name + data.article_url" target="_blank" style="text-decoration: none;">
+                          <v-icon
+                            size="14"
+                            class="ml-2 mr-1 page-url"
+                          >
+                            mdi-file-move-outline
+                          </v-icon>  
+                        </a>
+                      </small>
                     </td>
                   </tr>
                 </tbody>
@@ -253,11 +246,14 @@
         ipcount: [],
         durationPercents: [],
         isActive: true,
-        maxheight: '',
+        maxheight: 0,
         scrollpercent: [],
         scrolltemp: [],
         loading: true,
+        iframeloaded: false,
+        load_count: 0,
         arrow_height: '',
+        dialog: false,
         options:{
           width: '30%',
           height: '30%',
@@ -269,9 +265,9 @@
           // railVisible: true,
           railColor: '#222',
           railOpacity: 0.3,
-          wheelStep: 10,
-          touchScrollStep: 100,
-          allowPageScroll: false,
+          wheelStep: 1,
+          touchScrollStep: 1,
+          allowPageScroll: true,
           disableFadeOut: false
         }
       }
@@ -296,8 +292,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
-          alert('2020-09-05 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-10-14' || this.dates[1] < '2020-10-14'){
+          alert('2020-10-14 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -359,7 +355,6 @@
       this.$store.commit('getDomainName',{
           article_id: this.$route.params.id
       });
-      
     },
     methods: {
 
@@ -376,6 +371,7 @@
         this.getScrolld();
         this.getMaxd();
         this.getScrollCalculate();
+        this.getPercent();
         this.$store.commit('getArticleData',{
           startdate: this.dates[0],
           enddate: this.dates[1],
@@ -467,7 +463,7 @@
         var bounce_rate = 0;
         for(var key in articleData){
           if(this.$route.params.id == articleData[key].id ){
-            article['pageviews'] = articleData[key].page_view;
+            article['ページビュー'] = articleData[key].page_view;
             article['ユーザー'] = articleData[key].user;
             article['平均滞在時間'] = this.setMinute(articleData[key].avg_time_on_page);
 
@@ -498,10 +494,12 @@
       getDomain(){
         var domain = this.domainName;
         var result = '';
-        
+        var domain_name = '';
         var article_url = this.article.article_url;
-        var domain_name = domain['domain_name'][0]
-        result = '//' + domain_name + article_url
+        if(domain['domain_name'] != undefined){
+          domain_name = domain['domain_name'][0]  
+          result = 'https://' + domain_name + article_url
+        }
         
         return result
       },
@@ -542,10 +540,6 @@
 
         return {top: arrowtooltip + 'px'};
       },
-      gethsl(sum, max){
-        var hsl = 100 - (sum/max)*100
-        return hsl;
-      },
       getAvgTimeonSection(duration, access_count) {
         var avg_time_on_section = 0;
         
@@ -557,10 +551,10 @@
         }
 
         return avg_time_on_section
-      },
+      }
     },
     beforeDestroy() {
-        window.removeEventListener('message');
+      window.removeEventListener('message');
     },
     filters: {
       truncate: function (text, length, suffix) {
@@ -794,9 +788,13 @@
   .info tr{
     height: 20%;
   }
-  .page-title-wrapper:hover {
+  
+  .page-title:hover {
     color: #42b883;
     cursor: pointer;
+  }
+  .page-url:hover {
+    color: #42b883;
   }
   .read-line {
     position: absolute;
@@ -931,6 +929,10 @@
 .slimscroll {
   width: 100% !important;
   height: 100% !important; 
+}
+
+.v-label .theme--dark {
+  background-color: transparent !important;
 }
 
 </style>

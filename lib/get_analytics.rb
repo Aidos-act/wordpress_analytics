@@ -661,7 +661,7 @@ class GetAnalytics < ApplicationController
 			end
 		end
 
-		# avg time on page setting
+		# avg time on page setup (avt t.o.p in ga doesn't fit to our site so we need to calculate by ourselves)
 		# avg.time on page = time on page / pageviews
 		set_ga_data_array.each do |ga|
 			time_on_page = ga['avg_time_on_page'].to_i
@@ -1046,7 +1046,7 @@ class GetAnalytics < ApplicationController
 
 				# dimensions & metrics
 				# dimensions = ['ga:pagePath', 'ga:eventCategory', 'ga:eventLabel', 'ga:date']
-				# metric = 'ga:eventValue'
+				# metrics = ['ga:eventValue', 'ga:totalEvents']
 
 				datahash = {}
 
@@ -1106,6 +1106,100 @@ class GetAnalytics < ApplicationController
 
 	end
 
+# dddddddddddddddddddddddd
+	def get_ga_user_data(yesterday, view_id)
+		
+		date_range = @analytics::DateRange.new(start_date: yesterday, end_date: yesterday)
+		order_by = @analytics::OrderBy.new(field_name: 'ga:users', sort_order: 'DESCENDING')
+		
+		metrics = ['ga:users', 'ga:newUsers']
+
+		metric_type = Array.new
+		metrics.each do |m|
+			metric = @analytics::Metric.new
+			metric.expression = m
+			metric_type.push(metric)
+		end
+
+		dimensions = ['ga:date', 'ga:pagePath']
+		dimension_type = Array.new
+		dimensions.each do |d|
+			dimension  = @analytics::Dimension.new
+			dimension.name = d
+			dimension_type.push(dimension)
+		end
+
+		request = @analytics::GetReportsRequest.new(
+  			report_requests: [@analytics::ReportRequest.new(
+    			view_id: view_id, 
+    			metrics: metric_type,
+    			dimensions: dimension_type,
+    			date_ranges: [date_range],
+    			order_bys: [order_by],
+    			page_size: 100_000
+  			)]
+		)
+		response = @client.batch_get_reports(request)
+
+		# error handling
+		if !response.reports.first.data.rows then
+		 	return
+		end
+
+
+		data_from_google = response.reports.first.data.rows
+		
+		
+		set_ga_data_array = Array.new
+
+
+		data_from_google.each_with_index do |r, index|
+
+			# dimensions = ['ga:date', 'ga:pagePath']
+			# metrics = ['ga:users', 'ga:newUsers']
+			datahash = {}
+
+			urls_rm_params = r.dimensions[1].split(/\?/)[0]
+
+			article = Article.select(:id).find_by(article_url: urls_rm_params)
+			next if !article
+
+			article_arr = set_ga_data_array.each_with_index.select{|a, index| a['article_id'] == article.id && a['date'] == r.dimensions[0]}
+
+			if !article_arr.empty?
+				article_index = article_arr.first[1]
+				set_ga_data_array[article_index]
+
+				user = set_ga_data_array[article_index]['user_record'].to_i
+				user_temp = r.metrics.first.values[0].to_i
+				set_ga_data_array[article_index]['user_record'] = user + user_temp				
+
+				new_user = set_ga_data_array[article_index]['new_user_record'].to_i
+				new_user_temp = r.metrics.first.values[1].to_i
+				set_ga_data_array[article_index]['new_user_record'] = new_user + new_user_temp
+			else
+
+				datahash['article_id'] = article.id
+
+				datahash['date'] = r.dimensions[0]
+
+				user = r.metrics.first.values[0]
+				datahash['user_record'] = user
+
+				new_user = r.metrics.first.values[1]
+				datahash['new_user_record'] = new_user
+
+				datahash['created_at'] = Time.zone.now
+				datahash['updated_at'] = Time.zone.now
+
+
+				set_ga_data_array.push(datahash)
+			end
+		end
+	
+		return set_ga_data_array
+	end
+
 
 	private
 
@@ -1113,6 +1207,7 @@ class GetAnalytics < ApplicationController
 	def auth
 		scope = ['https://www.googleapis.com/auth/analytics.readonly']
 		@client = @analytics::AnalyticsReportingService.new
+		@client.request_options.retries = 3
 		@client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
 		  json_key_io: File.open("#{Rails.root}/lib/google-auth-cred.json"),
 		  scope: scope

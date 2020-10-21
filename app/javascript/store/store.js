@@ -23,6 +23,7 @@ export default new Vuex.Store({
     demographicData: [],
     articleData: [],
     drawer: true,
+    loadingStatus: true,
     articleId: ''
   },
   mutations: {
@@ -135,7 +136,10 @@ export default new Vuex.Store({
               hostname: payload.hostname
             }
         })
-        .then(response => (state.goalData = response.data), (error) => {console.log(error);})
+        .then(response => {
+          state.goalData = response.data;
+          state.loadingStatus = !state.loadingStatus
+        }, (error) => {console.log(error);})
     },
     getGoalDataByArticle(state, payload){
       axios

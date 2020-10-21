@@ -7,7 +7,7 @@ class Api::V1::GaApisController < ApplicationController
     startdate =  params[:startdate].to_date.beginning_of_day
     enddate = params[:enddate].to_date.end_of_day
 
-    key_array = ['page_view', 'user', 'new_user', 'bounce', 'session', 'avg_time_on_page', 'mcv']
+    key_array = ['page_view', 'bounce', 'session', 'user', 'new_user', 'avg_time_on_page', 'mcv']
 
     @currentTotal = get_total_data_from_db(domain_id, startdate, enddate, key_array)
     
@@ -22,7 +22,7 @@ class Api::V1::GaApisController < ApplicationController
 
     compare_dates = set_compare_dates(params[:startdate], params[:enddate])
 
-    key_array = ['page_view', 'user', 'new_user', 'bounce', 'session', 'avg_time_on_page', 'mcv']
+    key_array = ['page_view', 'bounce', 'session', 'user', 'new_user', 'avg_time_on_page', 'mcv']
 
 
     @compareTotal = get_total_data_from_db(domain_id, compare_dates[0], compare_dates[1], key_array)
@@ -161,17 +161,24 @@ class Api::V1::GaApisController < ApplicationController
 
     def get_total_data_from_db(domain_id, startdate, enddate, key_array)
 
+      # key_array = ['page_view', 'bounce', 'session', 'user', 'new_user', 'avg_time_on_page', 'mcv']
+
       ga_data_hash ={}
 
       ga_total_data = Article.joins(:ga_apis)
-                           .where(ga_apis: {date_hour: startdate..enddate})
-                           .where(domain_id: domain_id)
-                           .pluck("SUM(ga_apis.page_view) as page_view",
-                                  "SUM(ga_apis.user) as user",
-                                  "SUM(ga_apis.new_user) as new_user",
-                                  "SUM(ga_apis.bounce) as bounce",
-                                  "SUM(ga_apis.session) as session",
-                                 )
+                             .where(ga_apis: {date_hour: startdate..enddate})
+                             .where(domain_id: domain_id)
+                             .pluck("SUM(ga_apis.page_view) as page_view",
+                                    "SUM(ga_apis.bounce) as bounce",
+                                    "SUM(ga_apis.session) as session",
+                                   )
+      # ga user
+      ga_article_user_data = Article.joins(:ga_users)
+                                    .where(domain_id: domain_id)
+                                    .where(ga_users: {date: startdate..enddate})
+                                    .pluck("SUM(ga_users.user_record) as user",
+                                           "SUM(ga_users.new_user_record) as new_user")                                
+
                           
       # avg_time_on_page
       ga_total_avg_time = Article.joins(:ga_apis)
@@ -180,6 +187,10 @@ class Api::V1::GaApisController < ApplicationController
                                 .where.not(ga_apis: {avg_time_on_page: 0})
                                 .group(:id)
                                 .pluck("COUNT(avg_time_on_page)", "SUM(avg_time_on_page)")
+
+      # push user data 
+      ga_total_data.first.push(ga_article_user_data.first[0])
+      ga_total_data.first.push(ga_article_user_data.first[1])
 
       avg_sum = 0
       article_num = ga_total_avg_time.size
@@ -278,7 +289,7 @@ class Api::V1::GaApisController < ApplicationController
 
     def get_article_data_from_db(domain_id, startdate, enddate)
 
-      # data for each article. it is dor ArticleDashboard.vue
+      # data for each article. it is for ArticleDashboard.vue
       ga_article_data = Article.joins(:ga_apis, :domain)
                                .where(ga_apis: {date_hour: startdate..enddate})
                                .where(domain_id: domain_id)
@@ -289,8 +300,6 @@ class Api::V1::GaApisController < ApplicationController
                                       :article_title,
                                       :article_url,
                                       "SUM(ga_apis.page_view) as page_view",
-                                      "SUM(ga_apis.user) as user",
-                                      "SUM(ga_apis.new_user) as new_user",
                                       "SUM(ga_apis.bounce) as bounce",
                                       "SUM(ga_apis.session) as session")                     
 
@@ -309,9 +318,19 @@ class Api::V1::GaApisController < ApplicationController
                                 .group(:id)
                                 .pluck(:id, "COUNT(clicks.id)")   
      
+      ga_article_user_data = Article.joins(:ga_users)
+                                    .where(domain_id: domain_id)
+                                    .where(ga_users: {date: startdate..enddate})
+                                    .group(:id)
+                                    .pluck(:id, 
+                                           "SUM(ga_users.user_record) as user",
+                                           "SUM(ga_users.new_user_record) as new_user")
+
+
       ga_article_data.each do |a|
         avg_flag = 0  
         mcv_flag = 0
+        user_flag = 0
 
         ga_article_avg_time.each do |avg|
           if a[0] == avg[0]
@@ -335,6 +354,18 @@ class Api::V1::GaApisController < ApplicationController
 
         if mcv_flag == 0
           a.push(mcv_flag)
+        end
+
+        ga_article_user_data.each do |user|
+          if a[0] == user[0]
+            a.push(user[1])
+            a.push(user[2])
+            user_flag = 1
+          end
+        end
+
+        if user_flag == 0
+          a.push(user_flag)
         end
 
       end

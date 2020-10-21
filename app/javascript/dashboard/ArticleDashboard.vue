@@ -201,7 +201,7 @@
       <!-- graph data 3 end -->       
 
       <!-- graph data 4 start - goal achievement progress bar -->
-      <v-col
+      <!-- <v-col
         cols="12"
         lg="4"
       >
@@ -223,11 +223,11 @@
           </p>
 
         </material-chart-card>
-      </v-col>
+      </v-col> -->
       <!-- graph data 4 end -->
 
       <!-- graph data 5 start - bounce rate -->
-      <v-col
+      <!-- <v-col
         cols="12"
         lg="4"
       >
@@ -245,16 +245,16 @@
               small
             >
               mdi-arrow-right-bold
-            </v-icon>
+            </v-icon> -->
             <!-- getDefault('bounce')[1][1] or getSelected('bounce')[1][1] is the bounce data for default or selected aticle -->
-            {{ checkIfDefault? getDefault('bounce')[1][1] : getSelected('bounce')[1][1] }}%
+            <!-- {{ checkIfDefault? getDefault('bounce')[1][1] : getSelected('bounce')[1][1] }}%
           </h4>
 
           <p v-if="checkIfDefault" class="d-inline-flex font-weight-light ml-2 mt-1">
-            トップ10平均直帰率 比
+            トップ10平均直帰率 比 -->
             <!-- getDefault('bounces')[1][1] - bounces of this article -->
             <!-- getDefault('bounces')[0][1] - avg of bounces of top 20 article ordered by pv -->
-            {{ Math.floor((getDefault('bounce')[1][1]/getDefault('bounce')[0][1])*100) }}%
+            <!-- {{ Math.floor((getDefault('bounce')[1][1]/getDefault('bounce')[0][1])*100) }}%
             ,
             {{ getDefault('bounce')[1][1]>getDefault('bounce')[0][1]? "頑張れ!" : "すごい!" }}
           </p>
@@ -267,17 +267,17 @@
           </p>
 
         </material-chart-card>
-      </v-col>
+      </v-col> -->
       <!-- graph data 5 end -->
 
       <!-- graph data 6 start - demographic -->
-      <v-col
+      <!-- please refer to get_demo method of lib/get_analytics.rb -->
+      <!-- demographic data is just around 25% accuracy. it is because of the way google get the demographic data -->
+      <!-- for the detail, please refer to https://support.google.com/analytics/answer/2799357?hl=en -->
+      <!-- <v-col
         cols="12"
         lg="4"
       >
-        <!-- please refer to get_demo method of lib/get_analytics.rb -->
-        <!-- demographic data is just around 25% accuracy. it is because of the way google get the demographic data -->
-        <!-- for the detail, please refer to https://support.google.com/analytics/answer/2799357?hl=en -->
         <material-chart-card
           color="success"
           :sheetHeight="200"
@@ -293,7 +293,7 @@
             30% 正確度, 参照用にのみ使用
           </p>
         </material-chart-card>
-      </v-col>
+      </v-col> -->
       <!-- graph data 6 end -->    
 
     <!-- graph part end -->
@@ -318,7 +318,7 @@
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="タイトルやURLご入力ください"
+              placeholder="タイトルやURLご入力ください"
               single-line
               hide-details
             ></v-text-field>
@@ -344,9 +344,16 @@
                     <p class="page-title" @click="setPathTitle(data.article_url, data.article_title)">
                       {{ data.article_title | truncate(30, '...') }}
                     </p>
-                    <a :href="'//' + data.domain_name + data.article_url">
-                      <small class="page-path">{{ data.domain_name }}{{ data.article_url | truncate(20, '') }}</small>
-                    </a>
+                    <small class="page-path">{{ 'https://' + data.domain_name + data.article_url}} 
+                      <a :href="'//' + data.domain_name + data.article_url" target="_blank" style="text-decoration: none;">
+                        <v-icon
+                          size="14"
+                          class="ml-2 mr-1 page-url"
+                        >
+                          mdi-file-move-outline
+                        </v-icon>  
+                      </a>
+                    </small>
                   </td>
                   <td>{{ parseInt(data.mcv, 10).toLocaleString() }}</td>
                   <td>{{ parseInt(data.page_view, 10).toLocaleString() }}</td>
@@ -437,8 +444,8 @@
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
             ]
           return this.dateCheckBool;
-        }else if(this.dates[0] < '2020-09-05' || this.dates[1] < '2020-09-05'){
-          alert('2020-09-05 以前のデータは収集されませんでした');
+        }else if(this.dates[0] < '2020-10-14' || this.dates[1] < '2020-10-14'){
+          alert('2020-10-14 以前のデータは収集されませんでした');
             this.dates = [
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10),
               new Date(new Date().setDate(new Date().getDate()-1)).toISOString().substr(0, 10)
@@ -674,10 +681,7 @@
         h = (h < 10) ? "0" + h : h;
         m = (m < 10) ? "0" + m : m;
         s = (s < 10) ? "0" + s : s;
-        console.log(avg_time_on_page);
-        console.log(h);
-        console.log(m);
-        console.log(s)
+
         return h + ":" + m + ":" + s;
       },
       getBounceRate(bounce, page_view) {
@@ -729,6 +733,9 @@
 .page-title:hover {
   color: #42b883;
   cursor: pointer;
+}
+.page-url:hover {
+  color: #42b883;
 }
 
 .ranking-page-title {
